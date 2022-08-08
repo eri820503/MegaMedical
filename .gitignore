@@ -2,4 +2,5 @@
 *.out
 *original/
 *processed/
+*original_unzipped/
 
