@@ -20,8 +20,7 @@ import glob
 import medpy.io
 
 #New line!
-import universeg as uvs
-from scripts import preprocess_scripts
+from megamedical.utils.registry import paths
 
 
 class BRATS:
@@ -65,27 +64,26 @@ class BRATS:
         }
 
     def proc_func(dset_name,
-                dset_info, 
+                processed_dir, 
                 save_slices=False, 
                 show_hists=False,
                 show_imgs=False,
                 redo_processed=True):
+        assert dset_name in self.dset_info.keys(), "Sub-dataset must be in info dictionary."
 
-        processed_dir = preprocess_scripts.make_processed_dir(dset_name, dset_info, save_slices)
-
-        image_list = os.listdir(dset_info["image_root_dir"])
+        image_list = os.listdir(self.dset_info["image_root_dir"])
         with tqdm(total=len(image_list), desc=f'Processing: {dset_name}', unit='image') as pbar:
             for image in image_list:
                 try:
                     if redo_processed or (len(glob.glob(os.path.join(processed_dir, "*", image))) == 0):
-                        subj_folder = os.path.join(dset_info["image_root_dir"], image)
+                        subj_folder = os.path.join(self.dset_info["image_root_dir"], image)
                         if dset_name == "2021":
                             flair_im_dir = os.path.join(subj_folder, f"{image}_flair.nii.gz")
                             t1_im_dir = os.path.join(subj_folder, f"{image}_t1.nii.gz")
                             t1c_im_dir = os.path.join(subj_folder, f"{image}_t1ce.nii.gz")
                             t2_im_dir = os.path.join(subj_folder, f"{image}_t2.nii.gz")
 
-                            label_dir = os.path.join(dset_info["label_root_dir"], image, f"{image}_seg.nii.gz")
+                            label_dir = os.path.join(self.dset_info["label_root_dir"], image, f"{image}_seg.nii.gz")
 
                             flair_image = np.array(nib.load(flair_im_dir).dataobj)
                             t1_image = np.array(nib.load(t1_im_dir).dataobj)

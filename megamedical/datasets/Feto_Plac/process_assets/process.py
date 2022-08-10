@@ -23,8 +23,7 @@ import pydicom as dicom
 import scipy.io
 
 #New line!
-import universeg as uvs
-from scripts import preprocess_scripts
+from megamedical.utils.registry import paths
 
 
 class Feto_Plac:
@@ -48,18 +47,17 @@ class Feto_Plac:
 
     def proc_func(self,
                 dset_name,
-                dset_info, 
+                processed_dir, 
                 save_slices=False, 
                 show_hists=False,
                 show_imgs=False,
                 redo_processed=True):
+        assert dset_name in self.dset_info.keys(), "Sub-dataset must be in info dictionary."
 
-        processed_dir = preprocess_scripts.make_processed_dir(dset_name, dset_info, save_slices)
-
-        image_list = os.listdir(dset_info["image_root_dir"])
+        image_list = os.listdir(self.dset_info["image_root_dir"])
         with tqdm(total=len(image_list), desc=f'Processing: {dset_name}', unit='image') as pbar:
             for video in image_list:
-                vid_dir = os.path.join(dset_info["image_root_dir"], video)
+                vid_dir = os.path.join(self.dset_info["image_root_dir"], video)
                 for frame in os.listdir(os.path.join(vid_dir, "images")):
                     image = f"{video}_{frame}"
                     try:

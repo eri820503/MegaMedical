@@ -22,8 +22,7 @@ import nibabel.processing as nip
 
 
 #New line!
-import universeg as uvs
-from scripts import preprocess_scripts
+from megamedical.utils.registry import paths
 
 
 class LUNA:
@@ -46,21 +45,20 @@ class LUNA:
 
     def proc_func(self,
                 dset_name,
-                dset_info, 
+                processed_dir, 
                 save_slices=False, 
                 show_hists=False,
                 show_imgs=False,
                 redo_processed=True):
+        assert dset_name in self.dset_info.keys(), "Sub-dataset must be in info dictionary."
 
-        processed_dir = preprocess_scripts.make_processed_dir(dset_name, dset_info, save_slices)
-
-        image_list = os.listdir(dset_info["image_root_dir"])
+        image_list = os.listdir(self.dset_info["image_root_dir"])
         with tqdm(total=len(image_list), desc=f'Processing: {dset_name}', unit='image') as pbar:
             for sub_num, image in enumerate(image_list):
                 try:
                     if redo_processed or (len(glob.glob(os.path.join(processed_dir, "*", image))) == 0):
-                        im_dir = os.path.join(dset_info["image_root_dir"], image)
-                        label_dir = os.path.join(dset_info["label_root_dir"], image.replace(".nii",".nii.gz"))
+                        im_dir = os.path.join(self.dset_info["image_root_dir"], image)
+                        label_dir = os.path.join(self.dset_info["label_root_dir"], image.replace(".nii",".nii.gz"))
 
                         assert os.path.isfile(im_dir), "Valid image dir required!"
                         assert os.path.isfile(label_dir), "Valid label dir required!"

@@ -27,7 +27,7 @@ import glob
 from megamedical.utils.registry import paths
 
 
-class ACDC:
+class EchoNet:
 
     def __init__(self):
         self.dset_info = {
@@ -46,12 +46,13 @@ class ACDC:
 
     def proc_func(self,
                   dset_name,
-                  processed_dir,
                   save_slices=False, 
                   show_hists=False,
                   show_imgs=False,
                   redo_processed=True):
         assert dset_name in self.dset_info.keys(), "Sub-dataset must be in info dictionary."
+        
+        processed_dir = preprocess_scripts.make_processed_dir(dset_name, self.dset_info[dset_name], save_slices)
         
         image_list = os.listdir(self.dset_info[dset_name]["image_root_dir"])
         with tqdm(total=len(image_list), desc=f'Processing: {dset_name}', unit='image') as pbar:

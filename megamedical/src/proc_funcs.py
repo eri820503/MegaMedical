@@ -1,7 +1,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
 import os
-from utils.registry import paths
+from megamedical.utils.registry import paths
 
 def show_processing(dataset_object, subdset, show_hists=False):
     assert isinstance(subdset, str), "Must be a string."

@@ -19,6 +19,8 @@ import pathlib
 import glob
 import medpy.io
 
+from megamedical.utils.registry import paths
+
 
 class CannabisT1:
 
@@ -37,7 +39,6 @@ class CannabisT1:
                 "proc_size":256
             }
         }
-
 
     def produce_slices(self,
                        root_dir,

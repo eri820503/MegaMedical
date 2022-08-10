@@ -3,4 +3,4 @@
 *original/
 *processed/
 *original_unzipped/
-
+*__pycache__*

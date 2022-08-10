@@ -24,8 +24,8 @@ import pydicom as dicom
 import scipy.io
 
 #New line!
-import universeg as uvs
-from scripts import preprocess_scripts
+from megamedical.utils.registry import paths
+
 
 class BrainMetShare:
 
@@ -47,26 +47,25 @@ class BrainMetShare:
 
     def proc_func(self,
                 dset_name,
-                dset_info, 
+                processed_dir, 
                 save_slices=False, 
                 show_hists=False,
                 show_imgs=False,
                 redo_processed=True):
+        assert dset_name in self.dset_info.keys(), "Sub-dataset must be in info dictionary."
 
-        processed_dir = preprocess_scripts.make_processed_dir(dset_name, dset_info, save_slices)
-
-        image_list = os.listdir(dset_info["image_root_dir"])
+        image_list = os.listdir(self.dset_info["image_root_dir"])
         with tqdm(total=len(image_list), desc=f'Processing: {dset_name}', unit='image') as pbar:
             for image in image_list:
                 try:
                     if redo_processed or (len(glob.glob(os.path.join(processed_dir, "*", image))) == 0):
                         "T1", "T1-spin-pre", "T1-spin-post", "T2-FLAIR"
-                        t1_im_dirs = [os.path.join(dset_info["image_root_dir"], image, "0", slice) for slice in os.listdir(os.path.join(dset_info["image_root_dir"], image, "0"))]
-                        t1_spin_pre_dirs = [os.path.join(dset_info["image_root_dir"], image, "1", slice) for slice in os.listdir(os.path.join(dset_info["image_root_dir"], image, "1"))]
-                        t1_spin_post_dirs = [os.path.join(dset_info["image_root_dir"], image, "2", slice) for slice in os.listdir(os.path.join(dset_info["image_root_dir"], image, "2"))]
-                        t2_flair_dirs = [os.path.join(dset_info["image_root_dir"], image, "3", slice) for slice in os.listdir(os.path.join(dset_info["image_root_dir"], image, "3"))]
+                        t1_im_dirs = [os.path.join(self.dset_info["image_root_dir"], image, "0", slice) for slice in os.listdir(os.path.join(self.dset_info["image_root_dir"], image, "0"))]
+                        t1_spin_pre_dirs = [os.path.join(self.dset_info["image_root_dir"], image, "1", slice) for slice in os.listdir(os.path.join(self.dset_info["image_root_dir"], image, "1"))]
+                        t1_spin_post_dirs = [os.path.join(self.dset_info["image_root_dir"], image, "2", slice) for slice in os.listdir(os.path.join(self.dset_info["image_root_dir"], image, "2"))]
+                        t2_flair_dirs = [os.path.join(self.dset_info["image_root_dir"], image, "3", slice) for slice in os.listdir(os.path.join(self.dset_info["image_root_dir"], image, "3"))]
 
-                        label_dirs = [os.path.join(dset_info["label_root_dir"], image, "seg", slice) for slice in os.listdir(os.path.join(dset_info["label_root_dir"], image, "seg"))]
+                        label_dirs = [os.path.join(self.dset_info["label_root_dir"], image, "seg", slice) for slice in os.listdir(os.path.join(self.dset_info["label_root_dir"], image, "seg"))]
 
                         t1_images = np.stack([np.array(Image.open(im_dir).convert('L')) for im_dir in t1_im_dirs])
                         t1_spin_pre_image = np.stack([np.array(Image.open(im_dir).convert('L')) for im_dir in t1_spin_pre_dirs])
