@@ -43,19 +43,17 @@ class ISLES:
 
     def proc_func(self,
                 dset_name,
-                processed_dir, 
-                save_slices=False, 
-                show_hists=False,
-                show_imgs=False,
+                processed_dir,
                 redo_processed=True):
         assert dset_name in self.dset_info.keys(), "Sub-dataset must be in info dictionary."
-
-        image_list = os.listdir(self.dset_info["image_root_dir"])
+        images = []
+        segs = []
+        image_list = os.listdir(self.dset_info[dset_name]["image_root_dir"])
         with tqdm(total=len(image_list), desc=f'Processing: {dset_name}', unit='image') as pbar:
             for image in image_list:
                 try:
                     if redo_processed or (len(glob.glob(os.path.join(processed_dir, "*", image))) == 0):
-                        subj_folder = os.path.join(self.dset_info["image_root_dir"], image)
+                        subj_folder = os.path.join(self.dset_info[dset_name]["image_root_dir"], image)
 
                         ADC_im_dir = glob.glob(os.path.join(subj_folder, "VSD.Brain.XX.O.MR_ADC*/VSD.Brain.XX.O.MR_ADC*.nii"))[0]
                         MIT_im_dir = glob.glob(os.path.join(subj_folder, "VSD.Brain.XX.O.MR_MTT*/VSD.Brain.XX.O.MR_MTT*.nii"))[0]
@@ -64,7 +62,7 @@ class ISLES:
                         rCBF_im_dir = glob.glob(os.path.join(subj_folder, "VSD.Brain.XX.O.MR_rCBF*/VSD.Brain.XX.O.MR_rCBF*.nii"))[0]
                         rCBV_im_dir = glob.glob(os.path.join(subj_folder, "VSD.Brain.XX.O.MR_rCBV*/VSD.Brain.XX.O.MR_rCBV*.nii"))[0]
 
-                        label_dir = glob.glob(os.path.join(self.dset_info["label_root_dir"], image, "VSD.Brain.XX.O.OT*/VSD.Brain.XX.O.OT*.nii"))[0]
+                        label_dir = glob.glob(os.path.join(self.dset_info[dset_name]["label_root_dir"], image, "VSD.Brain.XX.O.OT*/VSD.Brain.XX.O.OT*.nii"))[0]
 
                         ADC = np.array(nib.load(ADC_im_dir).dataobj)
                         MIT = np.array(nib.load(MIT_im_dir).dataobj)
@@ -79,21 +77,10 @@ class ISLES:
                         assert not (loaded_image is None), "Invalid Image"
                         assert not (loaded_label is None), "Invalid Label"
 
-                        preprocess_scripts.produce_slices(processed_dir,
-                                        dset_name,
-                                        loaded_image,
-                                        loaded_label,
-                                        dset_info["modality_names"],
-                                        image, 
-                                        planes=dset_info["planes"],
-                                        proc_size=dset_info["proc_size"],
-                                        save_slices=save_slices, 
-                                        show_hists=show_hists,
-                                        show_imgs=show_imgs,
-                                        do_clip=dset_info["do_clip"],
-                                        clip_args=dset_info["clip_args"],
-                                        norm_scheme=dset_info["norm_scheme"])
+                        images.append(loaded_image)
+                        segs.append(loaded_label)
                 except Exception as e:
                     print(e)
                 pbar.update(1)
         pbar.close()
+        return images, segs

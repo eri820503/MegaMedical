@@ -47,12 +47,10 @@ class ACDC:
     def proc_func(self,
                   dset_name,
                   processed_dir,
-                  save_slices=False, 
-                  show_hists=False,
-                  show_imgs=False,
                   redo_processed=True):
         assert dset_name in self.dset_info.keys(), "Sub-dataset must be in info dictionary."
-        
+        images = []
+        segs = []
         image_list = os.listdir(self.dset_info[dset_name]["image_root_dir"])
         with tqdm(total=len(image_list), desc=f'Processing: {dset_name}', unit='image') as pbar:
             for image in image_list:
@@ -72,22 +70,11 @@ class ACDC:
 
                         assert not (loaded_image is None), "Invalid Image"
                         assert not (loaded_label is None), "Invalid Label"
-
-                        preprocess_scripts.produce_slices(processed_dir,
-                                                                    dset_name,
-                                                                    loaded_image,
-                                                                    loaded_label,
-                                                                    self.dset_info[dset_name]["modality_names"],
-                                                                    image, 
-                                                                    planes=self.dset_info[dset_name]["planes"],
-                                                                    proc_size=self.dset_info[dset_name]["proc_size"],
-                                                                    save_slices=save_slices, 
-                                                                    show_hists=show_hists,
-                                                                    show_imgs=show_imgs,
-                                                                    do_clip=self.dset_info[dset_name]["do_clip"],
-                                                                    clip_args=self.dset_info[dset_name]["clip_args"],
-                                                                    norm_scheme=self.dset_info[dset_name]["norm_scheme"])
+                        
+                        images.append(loaded_image)
+                        segs.append(loaded_label)
                 except Exception as e:
                     print(e)
                 pbar.update(1)
         pbar.close()
+        return images, segs

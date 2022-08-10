@@ -48,14 +48,12 @@ class TUCC:
 
     def proc_func(self,
                 dset_name,
-                processed_dir, 
-                save_slices=False, 
-                show_hists=False,
-                show_imgs=False,
+                processed_dir,
                 redo_processed=True):
         assert dset_name in self.dset_info.keys(), "Sub-dataset must be in info dictionary."
-
-        hf = h5py.File(os.path.join(self.dset_info["image_root_dir"],'dataset.hdf5'), 'r')
+        image_set = []
+        seg_set = []
+        hf = h5py.File(os.path.join(self.dset_info[dset_name]["image_root_dir"],'dataset.hdf5'), 'r')
         images = np.array(hf["image"][:1000])
         segs = np.array(hf["mask"][:1000])
 
@@ -70,22 +68,10 @@ class TUCC:
                         assert not (loaded_image is None), "Invalid Image"
                         assert not (loaded_label is None), "Invalid Label"
 
-                        preprocess_scripts.produce_slices(processed_dir,
-                                        dset_name,
-                                        loaded_image,
-                                        loaded_label,
-                                        dset_info["modality_names"],
-                                        image, 
-                                        planes=dset_info["planes"],
-                                        proc_size=dset_info["proc_size"],
-                                        save_slices=save_slices, 
-                                        show_hists=show_hists,
-                                        show_imgs=show_imgs,
-                                        do_clip=dset_info["do_clip"],
-                                        clip_args=dset_info["clip_args"],
-                                        norm_scheme=dset_info["norm_scheme"])
+                        image_set.append(loaded_image)
+                        seg_set.append(loaded_label)
                 except Exception as e:
                     print(e)
-                    raise ValueError
                 pbar.update(1)
         pbar.close()
+        return image_set, seg_set

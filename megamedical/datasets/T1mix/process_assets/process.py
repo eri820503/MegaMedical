@@ -47,20 +47,18 @@ class T1mix:
 
     def proc_func(self,
                 dset_name,
-                processed_dir, 
-                save_slices=False, 
-                show_hists=False,
-                show_imgs=False,
+                processed_dir,
                 redo_processed=True):
         assert dset_name in self.dset_info.keys(), "Sub-dataset must be in info dictionary."
-
-        image_list = os.listdir(self.dset_info["image_root_dir"])
+        images = []
+        segs = []
+        image_list = os.listdir(self.dset_info[dset_name]["image_root_dir"])
         with tqdm(total=len(image_list), desc=f'Processing: {dset_name}', unit='image') as pbar:
             for image in image_list:
                 try:
                     if not("OASIS" in image) and (redo_processed or (len(glob.glob(os.path.join(processed_dir, "*", image))) == 0)):
-                        im_dir = os.path.join(self.dset_info["image_root_dir"], image)
-                        label_dir = os.path.join(self.dset_info["label_root_dir"], image.replace("norm", "aseg"))
+                        im_dir = os.path.join(self.dset_info[dset_name]["image_root_dir"], image)
+                        label_dir = os.path.join(self.dset_info[dset_name]["label_root_dir"], image.replace("norm", "aseg"))
 
                         loaded_image = np.load(im_dir)['vol_data']
                         loaded_label = np.load(label_dir)['vol_data']
@@ -69,21 +67,10 @@ class T1mix:
                         assert not (loaded_label is None), "Invalid Label"
 
                         #New line!
-                        preprocess_scripts.produce_slices(processed_dir,
-                                        dset_name,
-                                        loaded_image,
-                                        loaded_label,
-                                        dset_info["modality_names"],
-                                        image, 
-                                        planes=dset_info["planes"],
-                                        proc_size=dset_info["proc_size"],
-                                        save_slices=save_slices, 
-                                        show_hists=show_hists,
-                                        show_imgs=show_imgs,
-                                        do_clip=dset_info["do_clip"],
-                                        clip_args=dset_info["clip_args"],
-                                        norm_scheme=dset_info["norm_scheme"])
+                        images.append(loaded_image)
+                        segs.append(loaded_label)
                 except Exception as e:
                     print(e)
                 pbar.update(1)
         pbar.close()
+        return images, segs
