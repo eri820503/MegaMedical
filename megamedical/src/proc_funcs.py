@@ -1,6 +1,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
 import os
+from megamedical.src import preprocess_scripts as pps
 from megamedical.utils.registry import paths
 
 def show_processing(dataset_object, subdset, show_hists=False):
@@ -9,12 +10,11 @@ def show_processing(dataset_object, subdset, show_hists=False):
         dset_names = list(dataset_object.dset_info.keys())
     else:
         dset_names = [subdset]
-    for sdset in dset_names:
-        dataset_object.proc_func(sdset,
-                                  save_slices=False, 
-                                  show_hists=show_hists,
-                                  show_imgs=True,
-                                  redo_processed=True)
+    for dataset in dset_names:
+        dataset_object.proc_func(dataset, 
+                                 show_hists=show_hists,
+                                 show_imgs=True,
+                                 redo_processed=True)
 
       
 def show_dataset(dataset_object, subdset, version, resolution=128, subjs_to_vis=10):

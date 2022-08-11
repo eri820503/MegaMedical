@@ -107,6 +107,7 @@ def squarify(M):
     else:
         raise ValueError("Improper shape for padding.")
 
+        
 def display_histogram(vol):
     plt.hist(vol, bins=20)
     plt.show()
@@ -161,22 +162,20 @@ def resample_mask_to(msk, to_img):
 
 
 def produce_slices(root_dir,
-                   dataset_dir,
+                   dataset,
                    loaded_image,
                    loaded_label,
-                   modality_names,
-                   image,
-                   planes,
-                   proc_size=256,
-                   select_labels=None,
+                   dset_info,
                    save_slices=False, 
                    show_hists=False,
                    show_imgs=False,
-                   do_resize=True,
-                   do_clip=False,
-                   clip_args=None,
-                   norm_scheme=None):
-
+                   subject_name=None):
+       
+    modality_names = dset_info["modality_names"]
+    do_clip = dset_info["do_clip"]
+    norm_scheme = dset_info["norm_scheme"]
+    planes = dset_info["planes"]
+    
     for idx, mode in enumerate(modality_names):
         new_mode_dir = os.path.join(root_dir, mode)
         
@@ -235,10 +234,7 @@ def produce_slices(root_dir,
         final_resized_image_128 = ndimage.zoom(blurred_image_128, zoom=zoom_tup_128, order=1)
             
         #get all of the labels in the volume, without 0
-        if select_labels:
-            unique_labels = select_labels
-        else:
-            unique_labels = np.unique(loaded_label)[1:]
+        unique_labels = np.unique(loaded_label)[1:]
         
         #create the label matrix for accessing labels amounts
         if len(square_modality_image.shape) == 2:

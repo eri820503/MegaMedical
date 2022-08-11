@@ -71,8 +71,8 @@ class Feto_Plac:
 
                             images.append(loaded_image)
                         segs.append(loaded_label)
-                except Exception as e:
-                    print(e)
-                pbar.update(1)
+                    except Exception as e:
+                        print(e)
+                    pbar.update(1)
         pbar.close()
         return images, segs
