@@ -31,7 +31,7 @@ class MNMS:
 
     def __init__(self):
         
-        self.dataset_info_dictionary = {
+        self.dset_info = {
             "2020":{
                 "main":"MNMS",
                 "image_root_dir":f"{paths['ROOT']}/megamedical/datasets/MNMS/processed/original_unzipped/2020/OpenDataset",

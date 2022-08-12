@@ -31,7 +31,7 @@ class BBBC:
 
     def __init__(self):
         
-        self.dataset_info_dictionary = {
+        self.dset_info = {
             "BBBC003":{
                 "main":"BBBC",
                 "image_root_dir":f"{paths['ROOT']}/megamedical/datasets/BBBC/processed/original_unzipped/BBBC003/mouse_embryos_dic_images",

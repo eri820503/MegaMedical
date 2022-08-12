@@ -30,7 +30,7 @@ class WBC:
 
     def __init__(self):
 
-        self.dataset_info_dictionary = {
+        self.dset_info = {
             "CV":{
                 "main": "WBC",
                 "image_root_dir":f"{paths['ROOT']}/megamedical/datasets/WBC/processed/original_unzipped/CV/images",

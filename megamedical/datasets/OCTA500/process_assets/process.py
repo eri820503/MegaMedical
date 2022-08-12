@@ -31,7 +31,7 @@ class OCTA500:
 
     def __init__(self):
         
-        self.dataset_info_dictionary = {
+        self.dset_info = {
             "OCTA_3M":{
                 "main":"OCTA500",
                 "image_root_dir":f"{paths['ROOT']}/megamedical/datasets/OCTA500/processed/original_unzipped/retrieved_04_01/OCTA_3M/Projection Maps/OCT(FULL)",

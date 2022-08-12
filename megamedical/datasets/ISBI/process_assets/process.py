@@ -31,7 +31,7 @@ class ISBI:
 
     def __init__(self):
         
-        self.dataset_info_dictionary = {
+        self.dset_info = {
             "retrieved_2021_10_12":{
                 "main":"ISBI",
                 "image_root_dir":f"{paths['ROOT']}/megamedical/datasets/ISBI/processed/original_unzipped/retrieved_2021_10_12/images",

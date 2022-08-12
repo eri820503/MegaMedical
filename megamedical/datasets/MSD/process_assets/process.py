@@ -31,7 +31,7 @@ class MSD:
 
     def __init__(self):
         
-        self.dataset_info_dictionary = {
+        self.dset_info = {
             "BrainTumour":{
                 "main":"MSD",
                 "image_root_dir":f"{paths['ROOT']}/megamedical/datasets/MSD/processed/original_unzipped/BrainTumour/retrieved_2018_07_03/images",

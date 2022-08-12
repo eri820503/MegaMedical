@@ -32,7 +32,7 @@ def show_dataset(dataset_object, subdset, version, resolution=128, subjs_to_vis=
         try:
             sdset_info = dataset_object.dset_info[sdset]
             if version in ["megamedical_v3.1", "midslice_v3.1"]:
-                dset_path = os.path.join(paths["ROOT"], "megamedical", sdset_info["main"], "processed", version, sdset)
+                dset_path = os.path.join(paths["ROOT"], "megamedical/datasets", sdset_info["main"], "processed", version, sdset)
             elif version == "v3.2-midslice":
                 dset_path = os.path.join("/share/sablab/nfs02/users/gid-dalcaav/data/v3.2-midslice", sdset_info["main"], sdset)
             else:
@@ -55,13 +55,17 @@ def show_dataset(dataset_object, subdset, version, resolution=128, subjs_to_vis=
                 img = np.load(img_dir)
                 seg = np.load(seg_dir)
                 for plane in range(3):
-                    f, axarr = plt.subplots(nrows=1, ncols=(seg.shape[-1] + 1), figsize=[9,3])
+                    f, axarr = plt.subplots(nrows=1, ncols=(seg.shape[-1] + 1), figsize=[3*(seg.shape[-1] + 1),3])
                     img_slice = np.take(img, img.shape[plane]//2, plane)
                     seg_slice = np.take(seg, seg.shape[plane]//2, plane)
                     axarr[0].imshow(img_slice)
+                    axarr[0].set_xticks([])
+                    axarr[0].set_yticks([])
                     for l_idx in range(seg.shape[-1]):
                         bin_slice = seg_slice[..., l_idx]
                         axarr[l_idx + 1].imshow(bin_slice)
+                        axarr[l_idx + 1].set_xticks([])
+                        axarr[l_idx + 1].set_yticks([])
                     plt.show()
                 
         

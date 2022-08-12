@@ -31,7 +31,7 @@ class BrainDevelopment:
 
     def __init__(self):
         
-        self.dataset_info_dictionary = {
+        self.dset_info = {
             "HammersAtlasDatabase":{
                 "main":"BrainDevelopment",
                 "image_root_dir":f"{paths['ROOT']}/megamedical/datasets/BrainDevelopment/processed/original_unzipped/HammersAtlasDatabase/Hammers67n20/images",

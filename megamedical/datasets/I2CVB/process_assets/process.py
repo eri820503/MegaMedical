@@ -31,7 +31,7 @@ class I2CVB:
 
     def __init__(self):
 
-        self.dataset_info_dictionary = {
+        self.dset_info = {
             "retrieved_2022_03_08":{
                 "main":"I2CVB",
                 "image_root_dir":f"{paths['ROOT']}/megamedical/datasets/I2CVB/processed/original_unzipped/retrieved_2022_03_08/images",

@@ -27,7 +27,7 @@ class BRATS:
 
     def __init__(self):
         
-        self.dataset_info_dictionary = {
+        self.dset_info = {
             "2016_LGG":{
                 "main":"BRATS",
                 "image_root_dir":f"{paths['ROOT']}/megamedical/datasets/BRATS/processed/original_unzipped/2016/BRATS2015_Training/LGG",

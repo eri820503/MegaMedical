@@ -29,7 +29,7 @@ class WORD:
 
     def __init__(self):
 
-        self.dataset_info_dictionary = {
+        self.dset_info = {
             "retrieved_2022_05_01":{
                 "main":"WORD",
                 "image_root_dir":"/share/sablab/nfs02/users/gid-dalcaav/data/originals/WORD/processed/unzipped/WORD-V0.1.0-remapped-subset/images",

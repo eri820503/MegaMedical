@@ -30,7 +30,7 @@ class FLARE:
 
     def __init__(self):
 
-        self.dataset_info_dictionary = {
+        self.dset_info = {
             "FLARE21":{
                 "main": "FLARE",
                 "image_root_dir":f"{paths['ROOT']}/megamedical/datasets/FLARE/processed/original_unzipped/FLARE21/images",

@@ -27,7 +27,7 @@ class ISLES:
 
     def __init__(self):
 
-        self.dataset_info_dictionary = {
+        self.dset_info = {
             "ISLES2017":{
                 "main":"ISLES",
                 "image_root_dir":f"{paths['ROOT']}/megamedical/datasets/ISLES/processed/original_unzipped/ISLES2017/training",

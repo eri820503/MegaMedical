@@ -30,7 +30,7 @@ class ISBI_EM:
 
     def __init__(self):
         
-        dataset_info_dictionary = {
+        self.dset_info = {
             "EM_isbi_2012":{
                 "main": "ISBI_EM",
                 "image_root_dir":f"{paths['ROOT']}/megamedical/datasets/ISBI_EM/processed/original_unzipped/EM_isbi_2012/images",

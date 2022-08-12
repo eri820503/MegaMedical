@@ -30,7 +30,7 @@ class PanDental:
 
     def __init__(self):
         
-        self.dataset_info_dictionary = {
+        self.dset_info = {
             "v1":{
                 "main": "PanDental",
                 "image_root_dir":f"{paths['ROOT']}/megamedical/datasets/PanDental/processed/original_unzipped/v1/Images",

@@ -31,7 +31,7 @@ class SegTHOR:
 
     def __init__(self):
         
-        self.dataset_info_dictionary = {
+        self.dset_info = {
             "retreived_2022_03_02":{
                 "main":"SegTHOR",
                 "image_root_dir":f"{paths['ROOT']}/megamedical/datasets/SegTHOR/processed/original_unzipped/retreived_2022_03_02/train",

@@ -26,7 +26,7 @@ class CannabisT1:
 
     def __init__(self):
         
-        self.dataset_info_dictionary = {
+        self.dset_info = {
             "retreived_2018_01_30":{
                 "main":"CannabisT1",
                 "image_root_dir":"/home/vib9/src/data/CannabisT1/processed/original_unzipped/retreived_2018_01_30/CannabisStudy/subjects",

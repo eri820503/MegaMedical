@@ -30,7 +30,7 @@ class Synapse_Abdomen:
 
     def __init__(self):
         
-        self.dataset_info_dictionary = {
+        self.dset_info = {
             "retrieved_2022_01_24":{
                 "main":"Synapse_Abdomen",
                 "image_root_dir":f"{paths['ROOT']}/megamedical/datasets/Synapse_Abdomen/processed/original_unzipped/retrieved_2022_01_24/images",

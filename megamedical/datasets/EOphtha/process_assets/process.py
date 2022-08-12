@@ -29,7 +29,7 @@ from megamedical.utils.registry import paths
 class EOphtha:
 
     def __init__(self):
-        self.dataset_info_dictionary = {
+        self.dset_info = {
             "e_optha_EX":{
                 "main": "EOphtha",
                 "image_root_dir":f"{paths['ROOT']}/megamedical/datasets/EOphtha/processed/original_unzipped/retreived_2022_03_11/e_optha_EX/EX",

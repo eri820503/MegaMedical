@@ -31,7 +31,7 @@ class PROMISE12:
 
     def __init__(self):
 
-        self.dataset_info_dictionary = {
+        self.dset_info = {
             "retrieved_2021_10_12":{
                 "main":"PROMISE12",
                 "image_root_dir":f"{paths['ROOT']}/megamedical/datasets/PROMISE12/processed/original_unzipped/retrieved_2021_10_12/images",

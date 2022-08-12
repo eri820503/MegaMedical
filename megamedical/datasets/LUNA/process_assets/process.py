@@ -29,7 +29,7 @@ class LUNA:
 
     def __init__(self):
 
-        self.dataset_info_dictionary = {
+        self.dset_info = {
             "retrieved_2022_02_21":{
                 "main":"LUNA",
                 "image_root_dir":"/share/sablab/nfs02/users/gid-dalcaav/data/originals/LUNA/processed/mhd_to_nifti/img/unzipped_nii/",

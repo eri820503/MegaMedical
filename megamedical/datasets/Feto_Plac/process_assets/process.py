@@ -30,7 +30,7 @@ class Feto_Plac:
 
     def __init__(self):
 
-        self.dataset_info_dictionary = {
+        self.dset_info = {
             "retreived_2022_03_09":{
                 "main": "Feto_Plac",
                 "image_root_dir":f"{paths['ROOT']}/megamedical/datasets/Feto_Plac/processed/original_unzipped/retreived_2022_03_09/FetoscopyPlacentaDataset/Vessel_segmentation_annotations",

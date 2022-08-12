@@ -30,7 +30,7 @@ class STARE:
 
     def __init__(self):
 
-        self.dataset_info_dictionary = {
+        self.dset_info = {
             "retrieved_2021_12_06":{
                 "main": "STARE",
                 "image_root_dir":f"{paths['ROOT']}/megamedical/datasets/STARE/processed/original_unzipped/retrieved_2021_12_06/images",

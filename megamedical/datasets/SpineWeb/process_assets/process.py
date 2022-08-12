@@ -31,7 +31,7 @@ class SpineWeb:
 
     def __init__(self):
         
-        self.dataset_info_dictionary = {
+        self.dset_info = {
             "Dataset7":{
                 "main":"SpineWeb",
                 "image_root_dir":f"{paths['ROOT']}/megamedical/datasets/SpineWeb/processed/original_unzipped/retreived_2022_03_04/Dataset7/IVD_Challenge_Data",

@@ -31,7 +31,7 @@ class WMH:
 
     def __init__(self):
         
-        self.dataset_info_dictionary = {
+        self.dset_info = {
             "retrieved_2022_03_10":{
                 "main":"WMH",
                 "image_root_dir":f"{paths['ROOT']}/megamedical/datasets/WMH/processed/original_unzipped/retrieved_2022_03_10/public",

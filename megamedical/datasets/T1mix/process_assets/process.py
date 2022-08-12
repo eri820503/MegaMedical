@@ -31,7 +31,7 @@ class T1mix:
 
     def __init__(self):
         
-        self.dataset_info_dictionary = {
+        self.dset_info = {
             "retrieved_2021_06_10":{
                 "main":"T1mix",
                 "image_root_dir":f"{paths['ROOT']}/megamedical/datasets/T1mix/processed/original_unzipped/retrieved_2021_06_10/train/vols",

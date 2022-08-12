@@ -31,7 +31,7 @@ class SMIR:
 
     def __init__(self):
         
-        self.dataset_info_dictionary = {
+        self.dset_info = {
             "retreived_2022_03_08":{
                 "main":"SMIR",
                 "image_root_dir":f"{paths['ROOT']}/megamedical/datasets/SMIR/processed/original_unzipped/retreived_2022_03_08/Training",

@@ -31,7 +31,7 @@ class OASIS:
 
     def __init__(self):
 
-        self.dataset_info_dictionary = {
+        self.dset_info = {
             "retrieved_2021_01_26":{
                 "main":"OASIS",
                 "image_root_dir":f"{paths['ROOT']}/megamedical/datasets/OASIS/processed/original_unzipped/retrieved_2021_01_26",

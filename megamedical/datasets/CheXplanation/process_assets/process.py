@@ -29,7 +29,7 @@ class CheXplanation:
 
     def __init__(self):
         
-        self.dataset_info_dictionary = {
+        self.dset_info = {
             "retreived_2022_03_04":{
                 "main":"CoNSeP",
                 "image_root_dir":f"{paths['ROOT']}/megamedical/datasets/CoNSeP/processed/original_unzipped/retreived_2022_03_04/CoNSeP/Train/Images",

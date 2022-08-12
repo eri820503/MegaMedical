@@ -31,7 +31,7 @@ class LGGFlair:
 
     def __init__(self):
 
-        self.dataset_info_dictionary = {
+        self.dset_info = {
             "retrieved_2021_10_11":{
                 "main":"LGGFlair",
                 "image_root_dir":f"{paths['ROOT']}/megamedical/datasets/LGGFlair/processed/original_unzipped/retrieved_2021_10_11",

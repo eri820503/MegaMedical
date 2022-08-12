@@ -31,7 +31,7 @@ class BrainMetShare:
 
     def __init__(self):
 
-        self.dataset_info_dictionary = {
+        self.dset_info = {
             "retrieved_2022_03_04":{
                 "main": "BrainMetShare",
                 "image_root_dir":f"{paths['ROOT']}/megamedical/datasets/BrainMetShare/processed/original_unzipped/retrieved_2022_03_04/stanford_release_brainmask/mets_stanford_releaseMask_train",

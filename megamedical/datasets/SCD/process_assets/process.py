@@ -31,7 +31,7 @@ class SCD:
 
     def __init__(self):
 
-        dataset_info_dictionary = {
+        self.dset_info = {
             "LAS":{
                 "main":"SCD",
                 "image_root_dir":f"{paths['ROOT']}/megamedical/datasets/SCD/processed/original_unzipped/LAS/retrieved_2021_11_08",

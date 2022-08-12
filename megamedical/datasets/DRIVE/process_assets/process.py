@@ -30,7 +30,7 @@ class DRIVE:
 
     def __init__(self):
 
-        self.dataset_info_dictionary = {
+        self.dset_info = {
             "retreived_2022_03_04":{
                 "main": "DRIVE",
                 "image_root_dir":f"{paths['ROOT']}/megamedical/datasets/DRIVE/processed/original_unzipped/retreived_2022_03_09/training/images/",

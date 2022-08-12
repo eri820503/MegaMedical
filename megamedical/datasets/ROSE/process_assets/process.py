@@ -30,7 +30,7 @@ class ROSE:
 
     def __init__(self):
         
-        self.dataset_info_dictionary = {
+        self.dset_info = {
             "ROSE-1-DVC":{
                 "main": "ROSE",
                 "image_root_dir":f"{paths['ROOT']}/megamedical/datasets/ROSE/processed/original_unzipped/ROSE-1-DVC/img",

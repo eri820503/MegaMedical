@@ -31,7 +31,7 @@ class VerSe:
 
     def __init__(self):
 
-        self.dataset_info_dictionary = {
+        self.dset_info = {
             "VerSe19":{
                 "main": "VerSe",
                 "image_root_dir":f"{paths['ROOT']}/megamedical/datasets/VerSe/processed/original_unzipped/VerSe19/dataset-verse19training/rawdata",

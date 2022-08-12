@@ -31,7 +31,7 @@ class KiTS:
 
     def __init__(self):
 
-        self.dataset_info_dictionary = {
+        self.dset_info = {
             "KiTS19":{
                 "main":"KiTS",
                 "image_root_dir":f"{paths['ROOT']}/megamedical/datasets/KiTS/processed/original_unzipped/KiTS19",

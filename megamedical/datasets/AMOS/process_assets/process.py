@@ -28,7 +28,7 @@ from megamedical.utils.registry import paths
 class AMOS:
 
     def __init__(self):
-        self.dataset_info_dictionary = {
+        self.dset_info = {
             "retrieved_2022_05_01":{
                 "main":"AMOS",
                 "image_root_dir":"/share/sablab/nfs02/users/gid-dalcaav/data/originals/AMOS/processed/unzipped/subset/images",

@@ -26,7 +26,7 @@ from megamedical.utils.registry import paths
 class BUS:
 
     def __init__(self):
-        self.dataset_info_dictionary = {
+        self.dset_info = {
             "retreived_2022_02_27":{
                 "main":"BUS",
                 "image_root_dir":f"{paths['ROOT']}/megamedical/datasets/BUS/processed/original_unzipped/retreived_2022_02_27/BUS/original",

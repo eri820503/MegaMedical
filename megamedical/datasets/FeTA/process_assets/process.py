@@ -31,7 +31,7 @@ class FeTA:
 
     def __init__(self):
 
-        self.dataset_info_dictionary = {
+        self.dset_info = {
             "retrieved_2022_02_16":{
                 "main":"FeTA",
                 "image_root_dir":f"{paths['ROOT']}/megamedical/datasets/FeTA/processed/original_unzipped/retrieved_2022_02_16/affine_subjs",

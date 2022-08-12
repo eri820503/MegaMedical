@@ -29,7 +29,7 @@ class CHAOS:
 
     def __init__(self):
         
-        self.dataset_info_dictionary = {
+        self.dset_info = {
             "CT":{
                 "main":"CHAOS",
                 "image_root_dir":f"{paths['ROOT']}/megamedical/datasets/CHAOS/processed/original_unzipped/retreived_2022_03_08/Train_Sets/CT",
