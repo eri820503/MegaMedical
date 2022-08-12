@@ -186,7 +186,6 @@ def produce_slices(root_dir,
             modality_loaded_image = loaded_image
          
         if show_hists:
-            print("Before")
             display_histogram(modality_loaded_image.flatten())
             
         if do_clip:
@@ -204,7 +203,6 @@ def produce_slices(root_dir,
         normalized_modality_image = (modality_loaded_image - np.amin(modality_loaded_image))/(np.amax(modality_loaded_image) - np.amin(modality_loaded_image))
         
         if show_hists:
-            print("After")
             display_histogram(normalized_modality_image.flatten())
        
         #Save the original image/seg pair
@@ -306,13 +304,13 @@ def produce_slices(root_dir,
             dump_dictionary(label_dict, label_dict_path)
             
             #Save the processed images/segs
-            resized_256_image_path = os.path.join(new_image_dir, f"{dataset_dir}|{mode}|{save_name}|resize_image_256.npy")
-            resized_256_seg_path = os.path.join(new_image_dir, f"{dataset_dir}|{mode}|{save_name}|resize_seg_256.npy")
-            resized_256_linfo_path = os.path.join(new_image_dir, f"{dataset_dir}|{mode}|{save_name}|resize_linfo_256.npy")
+            resized_256_image_path = os.path.join(new_image_dir, "img_256.npy")
+            resized_256_seg_path = os.path.join(new_image_dir, "seg_256.npy")
+            resized_256_linfo_path = os.path.join(new_image_dir, "info_256.npy")
             
-            resized_128_image_path = os.path.join(new_image_dir, f"{dataset_dir}|{mode}|{save_name}|resize_image_128.npy")
-            resized_128_seg_path = os.path.join(new_image_dir, f"{dataset_dir}|{mode}|{save_name}|resize_seg_128.npy")
-            resized_128_linfo_path = os.path.join(new_image_dir, f"{dataset_dir}|{mode}|{save_name}|resize_linfo_128.npy")
+            resized_128_image_path = os.path.join(new_image_dir, "img_128.npy")
+            resized_128_seg_path = os.path.join(new_image_dir, "seg_128.npy")
+            resized_128_linfo_path = os.path.join(new_image_dir, "info_128.npy")
             
             old_size = label_array_matrix.shape[1]
             if label_array_matrix.shape[0] == 1:

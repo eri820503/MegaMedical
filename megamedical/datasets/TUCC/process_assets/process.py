@@ -35,8 +35,8 @@ class TUCC:
         self.dataset_info_dictionary = {
             "retreived_2022_03_06":{
                 "main": "TUCC",
-                "image_root_dir":"/home/vib9/src/data/TUCC/processed/original_unzipped/retreived_2022_03_04",
-                "label_root_dir":"/home/vib9/src/data/TUCC/processed/original_unzipped/retreived_2022_03_04",
+                "image_root_dir":f"{paths['ROOT']}/megamedical/datasets/TUCC/processed/original_unzipped/retreived_2022_03_04",
+                "label_root_dir":f"{paths['ROOT']}/megamedical/datasets/TUCC/processed/original_unzipped/retreived_2022_03_04",
                 "modality_names":["NA"],
                 "planes":[0],
                 "clip_args":None,
@@ -48,11 +48,12 @@ class TUCC:
 
     def proc_func(self,
                 dset_name,
-                processed_dir,
+                show_hists=False,
+                  show_imgs=False,
+                  save_slices=False,
                 redo_processed=True):
         assert dset_name in self.dset_info.keys(), "Sub-dataset must be in info dictionary."
-        image_set = []
-        seg_set = []
+        proc_dir = pps.make_processed_dir(dset_name, self.dset_info[dset_name], save_slices)
         hf = h5py.File(os.path.join(self.dset_info[dset_name]["image_root_dir"],'dataset.hdf5'), 'r')
         images = np.array(hf["image"][:1000])
         segs = np.array(hf["mask"][:1000])
@@ -68,10 +69,14 @@ class TUCC:
                         assert not (loaded_image is None), "Invalid Image"
                         assert not (loaded_label is None), "Invalid Label"
 
-                        image_set.append(loaded_image)
-                        seg_set.append(loaded_label)
+                        pps.produce_slices(proc_dir,
+                                          dset_name,
+                                          loaded_image,
+                                          loaded_label,
+                                          self.dset_info[dset_name],
+                                          show_hists=show_hists,
+                                          show_imgs=show_imgs)
                 except Exception as e:
                     print(e)
                 pbar.update(1)
         pbar.close()
-        return image_set, seg_set

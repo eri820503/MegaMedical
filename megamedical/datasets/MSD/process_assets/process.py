@@ -34,8 +34,8 @@ class MSD:
         self.dataset_info_dictionary = {
             "BrainTumour":{
                 "main":"MSD",
-                "image_root_dir":"/home/vib9/src/data/MSD/processed/original_unzipped/BrainTumour/retrieved_2018_07_03/images",
-                "label_root_dir":"/home/vib9/src/data/MSD/processed/original_unzipped/BrainTumour/retrieved_2018_07_03/segs",
+                "image_root_dir":f"{paths['ROOT']}/megamedical/datasets/MSD/processed/original_unzipped/BrainTumour/retrieved_2018_07_03/images",
+                "label_root_dir":f"{paths['ROOT']}/megamedical/datasets/MSD/processed/original_unzipped/BrainTumour/retrieved_2018_07_03/segs",
                 "modality_names":["FLAIR", "T1w", "T1gd","T2w"],
                 "planes":[0, 1, 2],
                 "clip_args":None,
@@ -45,8 +45,8 @@ class MSD:
             },
             "Heart":{
                 "main":"MSD",
-                "image_root_dir":"/home/vib9/src/data/MSD/processed/original_unzipped/Heart/retrieved_2021_04_25/images",
-                "label_root_dir":"/home/vib9/src/data/MSD/processed/original_unzipped/Heart/retrieved_2021_04_25/segs",
+                "image_root_dir":f"{paths['ROOT']}/megamedical/datasets/MSD/processed/original_unzipped/Heart/retrieved_2021_04_25/images",
+                "label_root_dir":f"{paths['ROOT']}/megamedical/datasets/MSD/processed/original_unzipped/Heart/retrieved_2021_04_25/segs",
                 "modality_names":["Mono"],
                 "planes":[0, 1, 2],
                 "clip_args":None,
@@ -56,8 +56,8 @@ class MSD:
             },
             "Liver":{
                 "main":"MSD",
-                "image_root_dir":"/home/vib9/src/data/MSD/processed/original_unzipped/Liver/retrieved_2018_05_26/images",
-                "label_root_dir":"/home/vib9/src/data/MSD/processed/original_unzipped/Liver/retrieved_2018_05_26/segs",
+                "image_root_dir":f"{paths['ROOT']}/megamedical/datasets/MSD/processed/original_unzipped/Liver/retrieved_2018_05_26/images",
+                "label_root_dir":f"{paths['ROOT']}/megamedical/datasets/MSD/processed/original_unzipped/Liver/retrieved_2018_05_26/segs",
                 "modality_names":["PVP-CT"],
                 "planes":[0, 1, 2],
                 "clip_args":[-250,250],
@@ -67,8 +67,8 @@ class MSD:
             },
             "Hippocampus":{
                 "main":"MSD",
-                "image_root_dir":"/home/vib9/src/data/MSD/processed/original_unzipped/Hippocampus/retrieved_2021_04_22/images",
-                "label_root_dir":"/home/vib9/src/data/MSD/processed/original_unzipped/Hippocampus/retrieved_2021_04_22/segs",
+                "image_root_dir":f"{paths['ROOT']}/megamedical/datasets/MSD/processed/original_unzipped/Hippocampus/retrieved_2021_04_22/images",
+                "label_root_dir":f"{paths['ROOT']}/megamedical/datasets/MSD/processed/original_unzipped/Hippocampus/retrieved_2021_04_22/segs",
                 "modality_names":["Mono"],
                 "planes":[0, 1, 2],
                 "clip_args":None,
@@ -78,8 +78,8 @@ class MSD:
             },
             "Prostate":{
                 "main":"MSD",
-                "image_root_dir":"/home/vib9/src/data/MSD/processed/original_unzipped/Prostate/retrieved_2018_05_31/images",
-                "label_root_dir":"/home/vib9/src/data/MSD/processed/original_unzipped/Prostate/retrieved_2018_05_31/segs",
+                "image_root_dir":f"{paths['ROOT']}/megamedical/datasets/MSD/processed/original_unzipped/Prostate/retrieved_2018_05_31/images",
+                "label_root_dir":f"{paths['ROOT']}/megamedical/datasets/MSD/processed/original_unzipped/Prostate/retrieved_2018_05_31/segs",
                 "modality_names":["T2","ADC"],
                 "planes":[0, 1, 2],
                 "clip_args":None,
@@ -89,8 +89,8 @@ class MSD:
             },
             "Lung":{
                 "main":"MSD",
-                "image_root_dir":"/home/vib9/src/data/MSD/processed/original_unzipped/Lung/retrieved_2018_05_31/images",
-                "label_root_dir":"/home/vib9/src/data/MSD/processed/original_unzipped/Lung/retrieved_2018_05_31/segs",
+                "image_root_dir":f"{paths['ROOT']}/megamedical/datasets/MSD/processed/original_unzipped/Lung/retrieved_2018_05_31/images",
+                "label_root_dir":f"{paths['ROOT']}/megamedical/datasets/MSD/processed/original_unzipped/Lung/retrieved_2018_05_31/segs",
                 "modality_names":["CT"],
                 "planes":[0, 1, 2],
                 "clip_args":[-500,1000],
@@ -100,8 +100,8 @@ class MSD:
             },
             "Pancreas":{
                 "main":"MSD",
-                "image_root_dir":"/home/vib9/src/data/MSD/processed/original_unzipped/Pancreas/retrieved_2021_04_22/images",
-                "label_root_dir":"/home/vib9/src/data/MSD/processed/original_unzipped/Pancreas/retrieved_2021_04_22/segs",
+                "image_root_dir":f"{paths['ROOT']}/megamedical/datasets/MSD/processed/original_unzipped/Pancreas/retrieved_2021_04_22/images",
+                "label_root_dir":f"{paths['ROOT']}/megamedical/datasets/MSD/processed/original_unzipped/Pancreas/retrieved_2021_04_22/segs",
                 "modality_names":["PVP-CT"],
                 "planes":[0, 1, 2],
                 "clip_args":[-500,1000],
@@ -111,8 +111,8 @@ class MSD:
             },
             "HepaticVessel":{
                 "main":"MSD",
-                "image_root_dir":"/home/vib9/src/data/MSD/processed/original_unzipped/HepaticVessel/retrieved_2021_04_22/images",
-                "label_root_dir":"/home/vib9/src/data/MSD/processed/original_unzipped/HepaticVessel/retrieved_2021_04_22/segs",
+                "image_root_dir":f"{paths['ROOT']}/megamedical/datasets/MSD/processed/original_unzipped/HepaticVessel/retrieved_2021_04_22/images",
+                "label_root_dir":f"{paths['ROOT']}/megamedical/datasets/MSD/processed/original_unzipped/HepaticVessel/retrieved_2021_04_22/segs",
                 "modality_names":["CT"],
                 "planes":[0, 1, 2],
                 "clip_args":[-500,1000],
@@ -122,8 +122,8 @@ class MSD:
             },
             "Spleen":{
                 "main":"MSD",
-                "image_root_dir":"/home/vib9/src/data/MSD/processed/original_unzipped/Spleen/retrieved_2021_04_22/images",
-                "label_root_dir":"/home/vib9/src/data/MSD/processed/original_unzipped/Spleen/retrieved_2021_04_22/segs",
+                "image_root_dir":f"{paths['ROOT']}/megamedical/datasets/MSD/processed/original_unzipped/Spleen/retrieved_2021_04_22/images",
+                "label_root_dir":f"{paths['ROOT']}/megamedical/datasets/MSD/processed/original_unzipped/Spleen/retrieved_2021_04_22/segs",
                 "modality_names":["CT"],
                 "planes":[0, 1, 2],
                 "clip_args":[-500,1000],
@@ -133,8 +133,8 @@ class MSD:
             },
             "Colon":{
                 "main":"MSD",
-                "image_root_dir":"/home/vib9/src/data/MSD/processed/original_unzipped/Colon/retrieved_2021_04_22/images",
-                "label_root_dir":"/home/vib9/src/data/MSD/processed/original_unzipped/Colon/retrieved_2021_04_22/segs",
+                "image_root_dir":f"{paths['ROOT']}/megamedical/datasets/MSD/processed/original_unzipped/Colon/retrieved_2021_04_22/images",
+                "label_root_dir":f"{paths['ROOT']}/megamedical/datasets/MSD/processed/original_unzipped/Colon/retrieved_2021_04_22/segs",
                 "modality_names":["CT"],
                 "planes":[0, 1, 2],
                 "clip_args":[-500,1000],
@@ -146,11 +146,12 @@ class MSD:
 
     def proc_func(self,
                 dset_name,
-                processed_dir,
+                show_hists=False,
+                  show_imgs=False,
+                  save_slices=False,
                 redo_processed=True):
         assert dset_name in self.dset_info.keys(), "Sub-dataset must be in info dictionary."
-        images = []
-        segs = []
+        proc_dir = pps.make_processed_dir(dset_name, self.dset_info[dset_name], save_slices)
         image_list = os.listdir(self.dset_info[dset_name]["image_root_dir"])
         with tqdm(total=len(image_list), desc=f'Processing: {dset_name}', unit='image') as pbar:
             for image in image_list:
@@ -165,16 +166,20 @@ class MSD:
                         loaded_image = preprocess_scripts.resample_nib(nib.load(im_dir))
                         loaded_label = preprocess_scripts.resample_mask_to(nib.load(label_dir), loaded_image)
 
-                        loaded_image = np.array(loaded_image.dataobj)
-                        loaded_label = np.array(loaded_label.dataobj)
+                        loaded_image = loaded_image.get_fdata()
+                        loaded_label = loaded_label.get_fdata()
 
                         assert not (loaded_image is None), "Invalid Image"
                         assert not (loaded_label is None), "Invalid Label"
 
-                        images.append(loaded_image)
-                        segs.append(loaded_label)
+                        pps.produce_slices(proc_dir,
+                                          dset_name,
+                                          loaded_image,
+                                          loaded_label,
+                                          self.dset_info[dset_name],
+                                          show_hists=show_hists,
+                                          show_imgs=show_imgs)
                 except Exception as e:
                     print(e)
                 pbar.update(1)
         pbar.close()
-        return images, segs
