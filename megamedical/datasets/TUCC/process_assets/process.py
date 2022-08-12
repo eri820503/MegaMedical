@@ -31,7 +31,7 @@ from megamedical.utils.registry import paths
 class TUCC:
 
     def __init__(self):
-        
+        self.name = "TUCC"
         self.dset_info = {
             "retreived_2022_03_06":{
                 "main": "TUCC",

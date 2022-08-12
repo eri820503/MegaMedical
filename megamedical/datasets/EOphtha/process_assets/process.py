@@ -29,6 +29,7 @@ from megamedical.utils.registry import paths
 class EOphtha:
 
     def __init__(self):
+        self.name = "EOphtha"
         self.dset_info = {
             "e_optha_EX":{
                 "main": "EOphtha",

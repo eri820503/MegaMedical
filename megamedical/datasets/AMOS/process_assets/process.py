@@ -28,6 +28,7 @@ from megamedical.utils.registry import paths
 class AMOS:
 
     def __init__(self):
+        self.name = "AMOS"
         self.dset_info = {
             "retrieved_2022_05_01":{
                 "main":"AMOS",

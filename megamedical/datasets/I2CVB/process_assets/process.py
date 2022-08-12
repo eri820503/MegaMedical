@@ -30,7 +30,7 @@ from megamedical.utils.registry import paths
 class I2CVB:
 
     def __init__(self):
-
+        self.name = "I2CVB"
         self.dset_info = {
             "retrieved_2022_03_08":{
                 "main":"I2CVB",

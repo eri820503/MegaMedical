@@ -30,7 +30,7 @@ from megamedical.utils.registry import paths
 class BrainDevelopment:
 
     def __init__(self):
-        
+        self.name = "BrainDevelopment"
         self.dset_info = {
             "HammersAtlasDatabase":{
                 "main":"BrainDevelopment",

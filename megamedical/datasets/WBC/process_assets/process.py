@@ -29,7 +29,7 @@ from megamedical.utils.registry import paths
 class WBC:
 
     def __init__(self):
-
+        self.name = "WBC"
         self.dset_info = {
             "CV":{
                 "main": "WBC",

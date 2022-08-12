@@ -30,6 +30,7 @@ from megamedical.utils.registry import paths
 class PanNuke:
 
     def __init__(self):
+        self.name = "PanNuke"
         self.dset_info = {
             "Challenge2017":{
                 "main":"ACDC",

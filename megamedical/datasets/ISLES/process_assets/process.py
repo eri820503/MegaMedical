@@ -26,7 +26,7 @@ from megamedical.utils.registry import paths
 class ISLES:
 
     def __init__(self):
-
+        self.name = "ISLES"
         self.dset_info = {
             "ISLES2017":{
                 "main":"ISLES",

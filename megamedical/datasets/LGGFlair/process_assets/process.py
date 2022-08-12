@@ -30,7 +30,7 @@ from megamedical.utils.registry import paths
 class LGGFlair:
 
     def __init__(self):
-
+        self.name = "LGGFlair"
         self.dset_info = {
             "retrieved_2021_10_11":{
                 "main":"LGGFlair",

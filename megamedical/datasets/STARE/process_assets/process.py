@@ -29,7 +29,7 @@ from megamedical.utils.registry import paths
 class STARE:
 
     def __init__(self):
-
+        self.name = "STARE"
         self.dset_info = {
             "retrieved_2021_12_06":{
                 "main": "STARE",

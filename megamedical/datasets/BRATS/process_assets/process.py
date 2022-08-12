@@ -26,7 +26,7 @@ from megamedical.utils.registry import paths
 class BRATS:
 
     def __init__(self):
-        
+        self.name = "BRATS"
         self.dset_info = {
             "2016_LGG":{
                 "main":"BRATS",

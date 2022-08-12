@@ -30,7 +30,7 @@ from megamedical.utils.registry import paths
 class SCD:
 
     def __init__(self):
-
+        self.name = "SCD"
         self.dset_info = {
             "LAS":{
                 "main":"SCD",

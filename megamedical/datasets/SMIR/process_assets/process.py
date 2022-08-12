@@ -30,7 +30,7 @@ from megamedical.utils.registry import paths
 class SMIR:
 
     def __init__(self):
-        
+        self.name = "SMIR"
         self.dset_info = {
             "retreived_2022_03_08":{
                 "main":"SMIR",

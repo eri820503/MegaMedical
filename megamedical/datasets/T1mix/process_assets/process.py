@@ -30,7 +30,7 @@ from megamedical.utils.registry import paths
 class T1mix:
 
     def __init__(self):
-        
+        self.name = "T1mix"
         self.dset_info = {
             "retrieved_2021_06_10":{
                 "main":"T1mix",

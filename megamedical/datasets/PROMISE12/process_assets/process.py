@@ -30,7 +30,7 @@ from megamedical.utils.registry import paths
 class PROMISE12:
 
     def __init__(self):
-
+        self.name = "PROMISE12"
         self.dset_info = {
             "retrieved_2021_10_12":{
                 "main":"PROMISE12",

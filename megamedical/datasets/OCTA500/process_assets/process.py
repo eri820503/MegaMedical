@@ -30,7 +30,7 @@ from megamedical.utils.registry import paths
 class OCTA500:
 
     def __init__(self):
-        
+        self.name = "OCTA500"
         self.dset_info = {
             "OCTA_3M":{
                 "main":"OCTA500",

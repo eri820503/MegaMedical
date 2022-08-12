@@ -29,7 +29,7 @@ from megamedical.utils.registry import paths
 class Feto_Plac:
 
     def __init__(self):
-
+        self.name = "Feto_Plac"
         self.dset_info = {
             "retreived_2022_03_09":{
                 "main": "Feto_Plac",

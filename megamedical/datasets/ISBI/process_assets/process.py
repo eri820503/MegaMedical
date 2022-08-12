@@ -30,7 +30,7 @@ from megamedical.utils.registry import paths
 class ISBI:
 
     def __init__(self):
-        
+        self.name = "ISBI"
         self.dset_info = {
             "retrieved_2021_10_12":{
                 "main":"ISBI",

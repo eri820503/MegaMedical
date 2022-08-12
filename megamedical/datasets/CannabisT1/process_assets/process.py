@@ -25,7 +25,7 @@ from megamedical.utils.registry import paths
 class CannabisT1:
 
     def __init__(self):
-        
+        self.name = "CannabisT1"
         self.dset_info = {
             "retreived_2018_01_30":{
                 "main":"CannabisT1",

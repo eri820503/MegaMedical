@@ -30,6 +30,7 @@ from megamedical.utils.registry import paths
 class TeethSeg:
 
     def __init__(self):
+        self.name = "TeethSeg"
         self.dset_info = {
             "Challenge2017":{
                 "main":"ACDC",

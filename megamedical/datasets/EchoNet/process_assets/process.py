@@ -30,6 +30,7 @@ from megamedical.utils.registry import paths
 class EchoNet:
 
     def __init__(self):
+        self.name = "EchoNet"
         self.dset_info = {
             "Challenge2017":{
                 "main":"ACDC",

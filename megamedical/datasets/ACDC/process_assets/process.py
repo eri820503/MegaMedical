@@ -31,6 +31,7 @@ from megamedical.src import preprocess_scripts as pps
 class ACDC:
 
     def __init__(self):
+        self.name = "ACDC"
         self.dset_info = {
             "Challenge2017":{
                 "main":"ACDC",

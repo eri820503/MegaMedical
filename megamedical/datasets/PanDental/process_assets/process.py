@@ -29,7 +29,7 @@ from megamedical.utils.registry import paths
 class PanDental:
 
     def __init__(self):
-        
+        self.name = "PanDental"
         self.dset_info = {
             "v1":{
                 "main": "PanDental",

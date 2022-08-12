@@ -30,7 +30,7 @@ from megamedical.utils.registry import paths
 class MSD:
 
     def __init__(self):
-        
+        self.name = "MSD"
         self.dset_info = {
             "BrainTumour":{
                 "main":"MSD",

@@ -28,7 +28,7 @@ from megamedical.utils.registry import paths
 class WORD:
 
     def __init__(self):
-
+        self.name = "WORD"
         self.dset_info = {
             "retrieved_2022_05_01":{
                 "main":"WORD",

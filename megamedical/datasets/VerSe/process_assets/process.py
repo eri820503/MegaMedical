@@ -30,7 +30,7 @@ from megamedical.utils.registry import paths
 class VerSe:
 
     def __init__(self):
-
+        self.name = "VerSe"
         self.dset_info = {
             "VerSe19":{
                 "main": "VerSe",

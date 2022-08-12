@@ -30,7 +30,7 @@ from megamedical.utils.registry import paths
 class BBBC:
 
     def __init__(self):
-        
+        self.name = "BBBC"
         self.dset_info = {
             "BBBC003":{
                 "main":"BBBC",

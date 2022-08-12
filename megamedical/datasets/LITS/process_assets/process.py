@@ -30,7 +30,7 @@ from megamedical.utils.registry import paths
 class LITS:
 
     def __init__(self):
-
+        self.name = "LITS"
         self.dset_info = {
             "retreived_2022_03_08":{
                 "main":"LITS",

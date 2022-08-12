@@ -30,7 +30,7 @@ from megamedical.utils.registry import paths
 class OASIS:
 
     def __init__(self):
-
+        self.name = "OASIS"
         self.dset_info = {
             "retrieved_2021_01_26":{
                 "main":"OASIS",

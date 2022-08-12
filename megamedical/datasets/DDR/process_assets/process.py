@@ -29,7 +29,7 @@ from megamedical.utils.registry import paths
 class DDR:
 
     def __init__(self):
-
+        self.name = "DDR"
         self.dset_info = {
             "retreived_2022_03_04":{
                 "main":"CoNSeP",

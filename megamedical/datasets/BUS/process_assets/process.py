@@ -26,6 +26,7 @@ from megamedical.utils.registry import paths
 class BUS:
 
     def __init__(self):
+        self.name = "BUS"
         self.dset_info = {
             "retreived_2022_02_27":{
                 "main":"BUS",

@@ -30,7 +30,7 @@ from megamedical.utils.registry import paths
 class BrainMetShare:
 
     def __init__(self):
-
+        self.name = "BrainMetShare"
         self.dset_info = {
             "retrieved_2022_03_04":{
                 "main": "BrainMetShare",

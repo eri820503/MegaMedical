@@ -29,7 +29,7 @@ from megamedical.utils.registry import paths
 class DRIVE:
 
     def __init__(self):
-
+        self.name = "DRIVE"
         self.dset_info = {
             "retreived_2022_03_04":{
                 "main": "DRIVE",

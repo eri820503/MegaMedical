@@ -30,7 +30,7 @@ from megamedical.utils.registry import paths
 class KiTS:
 
     def __init__(self):
-
+        self.name = "KiTS"
         self.dset_info = {
             "KiTS19":{
                 "main":"KiTS",

@@ -28,7 +28,7 @@ from megamedical.utils.registry import paths
 class CHAOS:
 
     def __init__(self):
-        
+        self.name = "CHAOS"
         self.dset_info = {
             "CT":{
                 "main":"CHAOS",

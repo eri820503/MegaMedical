@@ -29,7 +29,7 @@ from megamedical.utils.registry import paths
 class Synapse_Abdomen:
 
     def __init__(self):
-        
+        self.name = "Synapse_Abdomen"
         self.dset_info = {
             "retrieved_2022_01_24":{
                 "main":"Synapse_Abdomen",

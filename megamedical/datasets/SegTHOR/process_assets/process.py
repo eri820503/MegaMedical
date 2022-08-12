@@ -30,7 +30,7 @@ from megamedical.utils.registry import paths
 class SegTHOR:
 
     def __init__(self):
-        
+        self.name = "SegTHOR"
         self.dset_info = {
             "retreived_2022_03_02":{
                 "main":"SegTHOR",

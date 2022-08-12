@@ -29,7 +29,7 @@ from megamedical.utils.registry import paths
 class CoNSeP:
 
     def __init__(self):
-        
+        self.name = "CoNSeP"
         self.dset_info = {
             "retreived_2022_03_04":{
                 "main":"CoNSeP",

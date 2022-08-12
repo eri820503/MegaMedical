@@ -1,4 +1,5 @@
 import numpy as np
+import math
 import matplotlib.pyplot as plt
 import os
 from megamedical.src import preprocess_scripts as pps
@@ -15,7 +16,6 @@ def show_processing(dataset_object, subdset, show_hists=False):
                                  show_hists=show_hists,
                                  show_imgs=True,
                                  redo_processed=True)
-
       
 def show_dataset(dataset_object, subdset, version, resolution=128, subjs_to_vis=10):
     assert isinstance(subdset, str), "Must be a string."
@@ -27,6 +27,7 @@ def show_dataset(dataset_object, subdset, version, resolution=128, subjs_to_vis=
         dset_names = [subdset]
     
     # Get list of processed dirs (if they exist)
+    subdsets = dset_names
     subdsets_data_dirs = []
     for sdset in dset_names:
         try:
@@ -41,9 +42,8 @@ def show_dataset(dataset_object, subdset, version, resolution=128, subjs_to_vis=
         except Exception as e:
             print(e)
             continue
-   
     # Display each of the subjects
-    for sdd in subdsets_data_dirs:
+    for subdset, sdd in zip(subdsets, subdsets_data_dirs):
         modalities = os.listdir(sdd)
         for mod in modalities:
             mod_dir = os.path.join(sdd, mod)
@@ -54,18 +54,43 @@ def show_dataset(dataset_object, subdset, version, resolution=128, subjs_to_vis=
                 seg_dir = os.path.join(mod_dir, sub, f"seg_{resolution}.npy")
                 img = np.load(img_dir)
                 seg = np.load(seg_dir)
-                for plane in range(3):
-                    f, axarr = plt.subplots(nrows=1, ncols=(seg.shape[-1] + 1), figsize=[3*(seg.shape[-1] + 1),3])
-                    img_slice = np.take(img, img.shape[plane]//2, plane)
-                    seg_slice = np.take(seg, seg.shape[plane]//2, plane)
-                    axarr[0].imshow(img_slice)
-                    axarr[0].set_xticks([])
-                    axarr[0].set_yticks([])
-                    for l_idx in range(seg.shape[-1]):
-                        bin_slice = seg_slice[..., l_idx]
-                        axarr[l_idx + 1].imshow(bin_slice)
-                        axarr[l_idx + 1].set_xticks([])
-                        axarr[l_idx + 1].set_yticks([])
+                num_planes = len(img.shape)
+                for plane in range(num_planes):
+                    PRINT(f"SUBDATASET: {subdset}, MODALITY: {mod}, PLANE: {plane}")
+                    num_images = (seg.shape[-1] + 1)
+                    num_cols = min(num_images, 10)
+                    num_rows = math.ceil(num_images/10)
+                    f, axarr = plt.subplots(nrows=num_rows, ncols=num_cols, figsize=[3*num_cols,3*num_rows])
+                    if num_planes == 3:
+                        img_slice = np.take(img, img.shape[plane]//2, plane)
+                        seg_slice = np.take(seg, seg.shape[plane]//2, plane)
+                    else:
+                        img_slice = img
+                        seg_slice = seg
+                    if num_rows == 1:
+                        axarr[0].imshow(img_slice)
+                        axarr[0].set_xticks([])
+                        axarr[0].set_yticks([])
+                        for l_idx in range(seg.shape[-1]):
+                            bin_slice = seg_slice[..., l_idx]
+                            axarr[l_idx + 1].imshow(bin_slice)
+                            axarr[l_idx + 1].set_xticks([])
+                            axarr[l_idx + 1].set_yticks([])
+                    else:
+                        axarr[0,0].imshow(img_slice)
+                        axarr[0,0].set_xticks([])
+                        axarr[0,0].set_yticks([])
+                        for row in range(num_rows):
+                            for col in range(num_cols):
+                                index = row*num_cols + col
+                                if index > 0:
+                                    if index < seg.shape[-1]:
+                                        bin_slice = seg_slice[..., index]
+                                        axarr[row, col].imshow(bin_slice)
+                                        axarr[row, col].set_xticks([])
+                                        axarr[row, col].set_yticks([])
+                                    else:
+                                        axarr[row, col].axis('off')
                     plt.show()
                 
         

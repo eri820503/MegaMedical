@@ -29,7 +29,7 @@ from megamedical.utils.registry import paths
 class ROSE:
 
     def __init__(self):
-        
+        self.name = "ROSE"
         self.dset_info = {
             "ROSE-1-DVC":{
                 "main": "ROSE",

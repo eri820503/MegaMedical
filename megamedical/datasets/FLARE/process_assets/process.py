@@ -29,7 +29,7 @@ from megamedical.utils.registry import paths
 class FLARE:
 
     def __init__(self):
-
+        self.name = "FLARE"
         self.dset_info = {
             "FLARE21":{
                 "main": "FLARE",

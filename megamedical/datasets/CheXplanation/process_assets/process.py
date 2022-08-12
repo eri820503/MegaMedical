@@ -28,7 +28,7 @@ from megamedical.utils.registry import paths
 class CheXplanation:
 
     def __init__(self):
-        
+        self.name = "Chexplanation"
         self.dset_info = {
             "retreived_2022_03_04":{
                 "main":"CoNSeP",

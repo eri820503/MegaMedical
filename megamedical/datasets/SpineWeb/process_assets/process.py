@@ -30,7 +30,7 @@ from megamedical.utils.registry import paths
 class SpineWeb:
 
     def __init__(self):
-        
+        self.name = "SpineWeb"
         self.dset_info = {
             "Dataset7":{
                 "main":"SpineWeb",

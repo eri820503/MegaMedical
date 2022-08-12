@@ -30,6 +30,7 @@ from megamedical.utils.registry import paths
 class COCA:
 
     def __init__(self):
+        self.name = "COCA"
         self.dset_info = {
             "Challenge2017":{
                 "main":"ACDC",

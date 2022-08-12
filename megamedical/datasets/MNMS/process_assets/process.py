@@ -30,7 +30,7 @@ from megamedical.utils.registry import paths
 class MNMS:
 
     def __init__(self):
-        
+        self.name = "MNMS"
         self.dset_info = {
             "2020":{
                 "main":"MNMS",

@@ -28,7 +28,7 @@ from megamedical.utils.registry import paths
 class LUNA:
 
     def __init__(self):
-
+        self.name = "LUNA"
         self.dset_info = {
             "retrieved_2022_02_21":{
                 "main":"LUNA",

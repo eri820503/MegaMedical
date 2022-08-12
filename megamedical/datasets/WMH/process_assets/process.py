@@ -30,7 +30,7 @@ from megamedical.utils.registry import paths
 class WMH:
 
     def __init__(self):
-        
+        self.name = "WMH"
         self.dset_info = {
             "retrieved_2022_03_10":{
                 "main":"WMH",
