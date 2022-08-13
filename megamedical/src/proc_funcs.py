@@ -17,7 +17,12 @@ def show_processing(dataset_object, subdset, show_hists=False):
                                  show_imgs=True,
                                  redo_processed=True)
       
-def show_dataset(dataset_object, subdset, version, resolution=128, subjs_to_vis=10):
+def show_dataset(dataset_object,  
+                 version, 
+                 subdset="all",
+                 resolution=128, 
+                 collapse_labels=True,
+                 subjs_to_vis=10):
     assert isinstance(subdset, str), "Must be a string."
     
     # Get list of sub-datasets
@@ -49,49 +54,93 @@ def show_dataset(dataset_object, subdset, version, resolution=128, subjs_to_vis=
             mod_dir = os.path.join(sdd, mod)
             subjs = os.listdir(mod_dir)
             chosen_subjs = np.random.choice(subjs, subjs_to_vis)
-            for sub in subjs:
-                img_dir = os.path.join(mod_dir, sub, f"img_{resolution}.npy")
-                seg_dir = os.path.join(mod_dir, sub, f"seg_{resolution}.npy")
-                img = np.load(img_dir)
-                seg = np.load(seg_dir)
-                num_planes = len(img.shape)
-                for plane in range(num_planes):
-                    PRINT(f"SUBDATASET: {subdset}, MODALITY: {mod}, PLANE: {plane}")
-                    num_images = (seg.shape[-1] + 1)
-                    num_cols = min(num_images, 10)
-                    num_rows = math.ceil(num_images/10)
-                    f, axarr = plt.subplots(nrows=num_rows, ncols=num_cols, figsize=[3*num_cols,3*num_rows])
-                    if num_planes == 3:
-                        img_slice = np.take(img, img.shape[plane]//2, plane)
-                        seg_slice = np.take(seg, seg.shape[plane]//2, plane)
-                    else:
-                        img_slice = img
-                        seg_slice = seg
-                    if num_rows == 1:
-                        axarr[0].imshow(img_slice)
-                        axarr[0].set_xticks([])
-                        axarr[0].set_yticks([])
-                        for l_idx in range(seg.shape[-1]):
-                            bin_slice = seg_slice[..., l_idx]
-                            axarr[l_idx + 1].imshow(bin_slice)
-                            axarr[l_idx + 1].set_xticks([])
-                            axarr[l_idx + 1].set_yticks([])
-                    else:
-                        axarr[0,0].imshow(img_slice)
-                        axarr[0,0].set_xticks([])
-                        axarr[0,0].set_yticks([])
-                        for row in range(num_rows):
-                            for col in range(num_cols):
-                                index = row*num_cols + col
-                                if index > 0:
-                                    if index < seg.shape[-1]:
-                                        bin_slice = seg_slice[..., index]
-                                        axarr[row, col].imshow(bin_slice)
-                                        axarr[row, col].set_xticks([])
-                                        axarr[row, col].set_yticks([])
-                                    else:
-                                        axarr[row, col].axis('off')
-                    plt.show()
+            if collapse_labels:
+                display_collapsed(subdset, mod, mod_dir, chosen_subjs, resolution)
+            else:
+                display_non_collapsed(mod_dir, subjs, resolution)
+                
+
+def display_non_collapsed(mod_dir, subjs, resolution):
+    for sub in subjs:
+        img_dir = os.path.join(mod_dir, sub, f"img_{resolution}.npy")
+        seg_dir = os.path.join(mod_dir, sub, f"seg_{resolution}.npy")
+        img = np.load(img_dir)
+        seg = np.load(seg_dir)
+        num_planes = len(img.shape)
+        for plane in range(num_planes):
+            print(f"SUBDATASET: {subdset}, MODALITY: {mod}, PLANE: {plane}")
+            num_images = (seg.shape[-1] + 1)
+            num_cols = min(num_images, 10)
+            num_rows = math.ceil(num_images/10)
+            f, axarr = plt.subplots(nrows=num_rows, ncols=num_cols, figsize=[2*num_cols,2*num_rows])
+            if num_planes == 3:
+                img_slice = np.take(img, img.shape[plane]//2, plane)
+                seg_slice = np.take(seg, seg.shape[plane]//2, plane)
+            else:
+                img_slice = img
+                seg_slice = seg
+            if num_rows == 1:
+                axarr[0].imshow(img_slice)
+                axarr[0].set_xticks([])
+                axarr[0].set_yticks([])
+                for l_idx in range(seg.shape[-1]):
+                    bin_slice = seg_slice[..., l_idx]
+                    axarr[l_idx + 1].imshow(bin_slice)
+                    axarr[l_idx + 1].set_xticks([])
+                    axarr[l_idx + 1].set_yticks([])
+            else:
+                axarr[0,0].imshow(img_slice)
+                axarr[0,0].set_xticks([])
+                axarr[0,0].set_yticks([])
+                for row in range(num_rows):
+                    for col in range(num_cols):
+                        index = row*num_cols + col
+                        if index > 0:
+                            if index < seg.shape[-1]:
+                                bin_slice = seg_slice[..., index]
+                                axarr[row, col].imshow(bin_slice)
+                                axarr[row, col].set_xticks([])
+                                axarr[row, col].set_yticks([])
+                            else:
+                                axarr[row, col].axis('off')
+            plt.show()
+            
+
+def display_collapsed(subdset, mod, mod_dir, subjs, resolution):
+    images = []
+    labels = []
+    for sub in subjs:
+        img_dir = os.path.join(mod_dir, sub, f"img_{resolution}.npy")
+        seg_dir = os.path.join(mod_dir, sub, f"seg_{resolution}.npy")
+        image = np.load(img_dir)
+        images.append(image)
+        labels.append(np.load(seg_dir))
+        if len(image.shape) == 3:
+            num_planes = 3
+        else:
+            num_planes = 1
+    for plane in range(num_planes):
+        print(f"SUBDATASET: {subdset}, MODALITY: {mod}, PLANE: {plane}")
+        f, axarr = plt.subplots(nrows=2, ncols=len(subjs), figsize=[5*len(subjs),5])
+        for idx, (img, seg) in enumerate(zip(images, labels)):
+            if num_planes == 3:
+                img_slice = np.take(img, img.shape[plane]//2, plane)
+                seg_slice = np.take(seg, seg.shape[plane]//2, plane)
+            else:
+                img_slice = img
+                seg_slice = seg
+            if len(seg_slice.shape) > 2 and seg_slice.shape[-1] != 1:
+                seg_slice = np.argmax(seg_slice, axis=-1)
+            elif seg_slice.shape[-1] == 1:
+                seg_slice = seg_slice[...,0]
+                
+            axarr[0,idx].imshow(img_slice)
+            axarr[1,idx].imshow(seg_slice)
+            axarr[0,idx].set_xticks([])
+            axarr[0,idx].set_yticks([])
+            axarr[1,idx].set_xticks([])
+            axarr[1,idx].set_yticks([])
+        plt.show()
                 
         
         
