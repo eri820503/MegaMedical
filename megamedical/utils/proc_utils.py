@@ -3,6 +3,57 @@ import nibabel as nib
 import nibabel.processing as nip
 import numpy as np
 import math
+import matplotlib.pyplot as plt
+
+def relative_norm(image):
+    return (image - np.amin(image))/(np.amax(image) - np.amin(image))
+
+
+def display_processing_slices(image, seg):
+    f, axarr = plt.subplots(nrows=1,ncols=2,figsize=[8,4])
+                    
+    if len(image.shape) == 2:
+        image_slice = image
+        label_slice = seg
+    else:      
+        half_dim = image.shape[0]//2
+        image_slice = np.take(image, half_dim, plane)
+        label_slice = np.take(seg, half_dim, plane)
+
+    img_obj = axarr[0].imshow(image_slice, interpolation="none", cmap="gray")
+    seg_obj = axarr[1].imshow(label_slice, interpolation="none")
+    plt.colorbar(img_obj, ax=axarr[0])
+    plt.colorbar(seg_obj, ax=axarr[1])
+    plt.show()
+
+def blur_and_resize(image, old_size, new_size, order):
+    sigma = 1/4 * old_size / new_size
+    ratio = new_size/old_size
+    
+    blurred_resized_image = ndimage.gaussian_filter(image, sigma=sigma)
+    
+    if len(blurred_resized_image.shape) == 2:
+        zoom_tup = (ratio, ratio)
+    else:
+        zoom_tup = (ratio, ratio, ratio)
+        
+    resized_image = ndimage.zoom(blurred_resized_image, zoom=zoom_tup, order=order)
+    return resized_image
+
+
+def clip_volume(image, norm_scheme, clip_args):
+    if norm_scheme=="CT":
+        lower = clip_args[0]
+        upper = clip_args[1]
+    elif norm_scheme=="MR":
+        # 0.5 - 99.5
+        lower = np.percentile(image[image>0], q=clip_args[0])
+        upper = np.percentile(image[image>0], q=clip_args[1])
+    else:
+        raise ValueError("Normalization Scheme Not Implemented")
+    clipped_image = np.clip(image, a_min=lower, a_max=upper)
+    return clipped_image
+
 
 def load_obj(name):
     with open(name, 'rb') as f:

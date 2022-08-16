@@ -150,7 +150,8 @@ def display_collapsed(subdset, mod, mod_dir, subjs, resolution):
                 
         
 def process_dataset(datasets, 
-                    version, 
+                    version,
+                    save_slices,
                     slurm, 
                     timeout=-1,
                     visualize=False,
@@ -172,7 +173,6 @@ def process_dataset(datasets,
             for dset in dset_names:
                 show_hists = False
                 show_imgs = False
-                save_slices = True
                 job = executor.submit(do.proc_func,
                                       dset,
                                       version,

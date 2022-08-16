@@ -1,31 +1,11 @@
-from multiprocessing.sharedctypes import Value
-from operator import truediv
-from select import select
-from turtle import pos
-import numpy as np
-from torch import mul
 import nibabel as nib
-import numpy as np
-import os
-import math
-import matplotlib.pyplot as plt
-from scipy import ndimage
 from tqdm import tqdm
-import pickle
-from PIL import Image
-from glob import glob
-import SimpleITK as sitk
-import imageio as io
-import nrrd
-import cv2
-import gzip
-import scipy
-import pathlib
 import glob
+import os
 
 #New line!
-from megamedical.utils.registry import paths
 from megamedical.src import preprocess_scripts as pps
+from megamedical.utils.registry import paths
 from megamedical.utils import proc_utils as put
 
 class ACDC:
@@ -62,10 +42,7 @@ class ACDC:
                 try:
                     if redo_processed or (len(glob.glob(os.path.join(processed_dir, "*", image))) == 0):
                         im_dir = os.path.join(self.dset_info[dset_name]["image_root_dir"], image, f"{image}_frame01.nii.gz")
-                        if dset_name == "Challenge2017":
-                            label_dir = os.path.join(self.dset_info[dset_name]["label_root_dir"], image, f"{image}_frame01_gt.nii.gz")
-                        else:
-                            label_dir = os.path.join(self.dset_info[dset_name]["label_root_dir"], f"{image}_frame01_scribble.nii.gz")
+                        label_dir = os.path.join(self.dset_info[dset_name]["label_root_dir"], image, f"{image}_frame01_gt.nii.gz")
                         
                         assert os.path.isfile(im_dir), "Valid image dir required!"
                         assert os.path.isfile(label_dir), "Valid label dir required!"
