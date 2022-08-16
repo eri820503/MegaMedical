@@ -25,6 +25,36 @@ def make_processed_dir(dset, subdset, save_slices, dataset_ver):
     return processed_dir
 
 
+def save_megamedical():                                      
+    # Save 256 resolution
+    np.save(os.path.join(save_dir, "img_256.npy"), image_256)
+    np.save(os.path.join(save_dir, "seg_256.npy"), seg_256)
+
+    # Save 128 resolution
+    np.save(os.path.join(save_dir, "img_128.npy"), image_128)
+    np.save(os.path.join(save_dir, "seg_128.npy"), seg_128)
+
+    
+def save_midslice():                                      
+    # Save 256 resolution
+    np.save(os.path.join(save_dir, "img_256.npy"), image_256)
+    np.save(os.path.join(save_dir, "seg_256.npy"), seg_256)
+
+    # Save 128 resolution
+    np.save(os.path.join(save_dir, "img_128.npy"), image_128)
+    np.save(os.path.join(save_dir, "seg_128.npy"), seg_128)
+
+    
+def save_maxslice():                                      
+    # Save 256 resolution
+    np.save(os.path.join(save_dir, "img_256.npy"), image_256)
+    np.save(os.path.join(save_dir, "seg_256.npy"), seg_256)
+
+    # Save 128 resolution
+    np.save(os.path.join(save_dir, "img_128.npy"), image_128)
+    np.save(os.path.join(save_dir, "seg_128.npy"), seg_128)
+
+
 def produce_slices(root_dir,
                    dataset,
                    subject_name,
@@ -89,8 +119,7 @@ def produce_slices(root_dir,
         else:     
             seg_256 = np.zeros((256, 256, 256, len(unique_labels)))
             seg_128 = np.zeros((128, 128, 128, len(unique_labels)))
-
-        
+            
         for lab_idx, label in enumerate(unique_labels):
             label = int(label)
             bin_mask = np.float32((square_label==label))
@@ -99,7 +128,7 @@ def produce_slices(root_dir,
             bin_seg_256 = blur_and_resize(bin_mask, old_size, new_size=256, order=0)
             bin_seg_128 = blur_and_resize(bin_mask, old_size, new_size=128, order=0)
             
-            #place resized segs in arrays
+            #place resized segs in regular arrays
             seg_256[..., lab_idx] = bin_seg_256
             seg_128[..., lab_idx] = bin_seg_128
             
@@ -107,11 +136,7 @@ def produce_slices(root_dir,
                 for plane in planes:
                     display_processing_slices(image_256, bin_seg_256, plane)
         
-        if save_slices:                                       
-            # Save 256 resolution
-            np.save(os.path.join(save_dir, "img_256.npy"), final_resized_image_256)
-            np.save(os.path.join(save_dir, "seg_256.npy"), final_resized_seg_256)
-            
-            # Save 128 resolution
-            np.save(os.path.join(save_dir, "img_128.npy"), final_resized_image_128)
-            np.save(os.path.join(save_dir, "seg_128.npy"), final_resized_seg_128)
+        if save_slices:
+            save_megamedical()
+            save_midslice()
+            save_maxslice()
