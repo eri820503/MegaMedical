@@ -26,6 +26,7 @@ import h5py
 
 #New line!
 from megamedical.utils.registry import paths
+from megamedical.utils import proc_utils as put
 
 
 class TUCC:
@@ -35,8 +36,8 @@ class TUCC:
         self.dset_info = {
             "retreived_2022_03_06":{
                 "main": "TUCC",
-                "image_root_dir":f"{paths['ROOT']}/megamedical/datasets/TUCC/processed/original_unzipped/retreived_2022_03_04",
-                "label_root_dir":f"{paths['ROOT']}/megamedical/datasets/TUCC/processed/original_unzipped/retreived_2022_03_04",
+                "image_root_dir":f"{paths['DATA']}/TUCC/processed/original_unzipped/retreived_2022_03_04",
+                "label_root_dir":f"{paths['DATA']}/TUCC/processed/original_unzipped/retreived_2022_03_04",
                 "modality_names":["NA"],
                 "planes":[0],
                 "clip_args":None,
@@ -48,12 +49,14 @@ class TUCC:
 
     def proc_func(self,
                 dset_name,
+                  version=None,
                 show_hists=False,
                   show_imgs=False,
                   save_slices=False,
                 redo_processed=True):
+        assert not(version is None and save_slices), "Must specify version for saving."
         assert dset_name in self.dset_info.keys(), "Sub-dataset must be in info dictionary."
-        proc_dir = pps.make_processed_dir(dset_name, self.dset_info[dset_name], save_slices)
+        proc_dir = pps.make_processed_dir(self.name, dset_name, save_slices, version)
         hf = h5py.File(os.path.join(self.dset_info[dset_name]["image_root_dir"],'dataset.hdf5'), 'r')
         images = np.array(hf["image"][:1000])
         segs = np.array(hf["mask"][:1000])

@@ -20,7 +20,7 @@ import glob
 import medpy.io
 
 from megamedical.utils.registry import paths
-
+from megamedical.utils import proc_utils as put
 
 class CannabisT1:
 
@@ -29,8 +29,8 @@ class CannabisT1:
         self.dset_info = {
             "retreived_2018_01_30":{
                 "main":"CannabisT1",
-                "image_root_dir":"/home/vib9/src/data/CannabisT1/processed/original_unzipped/retreived_2018_01_30/CannabisStudy/subjects",
-                "label_root_dir":"/home/vib9/src/data/CannabisT1/processed/original_unzipped/retreived_2018_01_30/CannabisStudy/subjects",
+                "image_root_dir":f"{paths['DATA']}/CannabisT1/processed/original_unzipped/retreived_2018_01_30/CannabisStudy/subjects",
+                "label_root_dir":f"{paths['DATA']}/CannabisT1/processed/original_unzipped/retreived_2018_01_30/CannabisStudy/subjects",
                 "modality_names":["T1"],
                 "planes":[0, 1, 2],
                 "clip_args": None,

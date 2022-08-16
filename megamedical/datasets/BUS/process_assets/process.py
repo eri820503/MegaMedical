@@ -21,7 +21,7 @@ import medpy.io
 
 #New line!
 from megamedical.utils.registry import paths
-
+from megamedical.utils import proc_utils as put
 
 class BUS:
 
@@ -30,8 +30,8 @@ class BUS:
         self.dset_info = {
             "retreived_2022_02_27":{
                 "main":"BUS",
-                "image_root_dir":f"{paths['ROOT']}/megamedical/datasets/BUS/processed/original_unzipped/retreived_2022_02_27/BUS/original",
-                "label_root_dir":f"{paths['ROOT']}/megamedical/datasets/BUS/processed/original_unzipped/retreived_2022_02_27/BUS/GT",
+                "image_root_dir":f"{paths['DATA']}/BUS/processed/original_unzipped/retreived_2022_02_27/BUS/original",
+                "label_root_dir":f"{paths['DATA']}/BUS/processed/original_unzipped/retreived_2022_02_27/BUS/GT",
                 "modality_names":["NA"],
                 "planes":[0],
                 "clip_args": None,
@@ -41,13 +41,16 @@ class BUS:
             }
         }
 
-    def proc_func(dset_name,
+    def proc_func(self,
+                  dset_name,
+                  version=None,
                   show_hists=False,
                   show_imgs=False,
                   save_slices=False,
                   redo_processed=True):
+        assert not(version is None and save_slices), "Must specify version for saving."
         assert dset_name in self.dset_info.keys(), "Sub-dataset must be in info dictionary."
-        proc_dir = pps.make_processed_dir(dset_name, self.dset_info[dset_name], save_slices)
+        proc_dir = pps.make_processed_dir(self.name, dset_name, save_slices, version)
         image_list = os.listdir(self.dset_info[dset_name]["image_root_dir"])
         with tqdm(total=len(image_list), desc=f'Processing: {dset_name}', unit='image') as pbar:
             for image in image_list:

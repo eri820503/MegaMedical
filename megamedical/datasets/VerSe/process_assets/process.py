@@ -25,6 +25,7 @@ import nibabel.processing as nip
 
 #New line!
 from megamedical.utils.registry import paths
+from megamedical.utils import proc_utils as put
 
 
 class VerSe:
@@ -34,8 +35,8 @@ class VerSe:
         self.dset_info = {
             "VerSe19":{
                 "main": "VerSe",
-                "image_root_dir":f"{paths['ROOT']}/megamedical/datasets/VerSe/processed/original_unzipped/VerSe19/dataset-verse19training/rawdata",
-                "label_root_dir":f"{paths['ROOT']}/megamedical/datasets/VerSe/processed/original_unzipped/VerSe19/dataset-verse19training/derivatives",
+                "image_root_dir":f"{paths['DATA']}/VerSe/processed/original_unzipped/VerSe19/dataset-verse19training/rawdata",
+                "label_root_dir":f"{paths['DATA']}/VerSe/processed/original_unzipped/VerSe19/dataset-verse19training/derivatives",
                 "modality_names":["CT"],
                 "planes": [0],
                 "clip_args":[-500,1000],
@@ -45,8 +46,8 @@ class VerSe:
             },
             "VerSe20":{
                 "main": "VerSe",
-                "image_root_dir":f"{paths['ROOT']}/megamedical/datasets/VerSe/processed/original_unzipped/VerSe20/dataset-01training/rawdata",
-                "label_root_dir":f"{paths['ROOT']}/megamedical/datasets/VerSe/processed/original_unzipped/VerSe20/dataset-01training/derivatives",
+                "image_root_dir":f"{paths['DATA']}/VerSe/processed/original_unzipped/VerSe20/dataset-01training/rawdata",
+                "label_root_dir":f"{paths['DATA']}/VerSe/processed/original_unzipped/VerSe20/dataset-01training/derivatives",
                 "modality_names":["CT"],
                 "planes": [0, 1],
                 "clip_args":[-500,1000],
@@ -58,12 +59,14 @@ class VerSe:
 
     def proc_func(self,
                 dset_name,
+                  version=None,
                 show_hists=False,
                   show_imgs=False,
                   save_slices=False,
                 redo_processed=True):
+        assert not(version is None and save_slices), "Must specify version for saving."
         assert dset_name in self.dset_info.keys(), "Sub-dataset must be in info dictionary."
-        proc_dir = pps.make_processed_dir(dset_name, self.dset_info[dset_name], save_slices)
+        proc_dir = pps.make_processed_dir(self.name, dset_name, save_slices, version)
         image_list = os.listdir(self.dset_info[dset_name]["image_root_dir"])
         with tqdm(total=len(image_list), desc=f'Processing: {dset_name}', unit='image') as pbar:
             for image in image_list:
@@ -80,8 +83,8 @@ class VerSe:
                             im_dir = os.path.join(self.dset_info[dset_name]["image_root_dir"], image, f"{image}_dir-ax_ct.nii.gz")
                             label_dir = os.path.join(self.dset_info[dset_name]["label_root_dir"], image, f"{image}_dir-ax_seg-vert_msk.nii.gz")
 
-                            loaded_image = resample_nib(nib.load(im_dir))
-                            loaded_label = np.array(resample_mask_to(nib.load(label_dir), loaded_image).dataobj)
+                            loaded_image = put.resample_nib(nib.load(im_dir))
+                            loaded_label = np.array(put.resample_mask_to(nib.load(label_dir), loaded_image).dataobj)
                             loaded_image = np.array(loaded_image.dataobj)
 
                         assert not (loaded_image is None), "Invalid Image"

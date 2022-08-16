@@ -1,11 +1,14 @@
 import numpy as np
+import submitit
 import math
 import matplotlib.pyplot as plt
 import os
 from megamedical.src import preprocess_scripts as pps
 from megamedical.utils.registry import paths
+import megamedical.utils as utils
 
-def show_processing(dataset_object, subdset, show_hists=False):
+
+def show_processing(dataset_object, subdset, version, show_hists=False):
     assert isinstance(subdset, str), "Must be a string."
     if subdset == "all":
         dset_names = list(dataset_object.dset_info.keys())
@@ -13,10 +16,13 @@ def show_processing(dataset_object, subdset, show_hists=False):
         dset_names = [subdset]
     for dataset in dset_names:
         dataset_object.proc_func(dataset, 
+                                 version=version,
                                  show_hists=show_hists,
                                  show_imgs=True,
+                                 save_slices=False,
                                  redo_processed=True)
       
+
 def show_dataset(dataset_object,  
                  version, 
                  subdset="all",
@@ -105,8 +111,8 @@ def display_non_collapsed(mod_dir, subjs, resolution):
                                 axarr[row, col].axis('off')
             plt.show()
             
-
-def display_collapsed(subdset, mod, mod_dir, subjs, resolution):
+            
+def display_collapsed(subdset, mod, mod_dir, subjs, resolution): 
     images = []
     labels = []
     for sub in subjs:
@@ -143,6 +149,42 @@ def display_collapsed(subdset, mod, mod_dir, subjs, resolution):
         plt.show()
                 
         
-        
-                             
-        
+def process_dataset(datasets, 
+                    version, 
+                    slurm, 
+                    timeout=-1,
+                    visualize=False,
+                    show_hists=False,
+                    redo_processed=True):
+    assert not (len(datasets) > 1 and visualize), "Can't visualize a list of processing."
+    assert not (slurm and visualize), "If you are submitting slurm no vis."
+    assert not (timeout==-1 and slurm), "Must specify timout for slurm."
+
+    dataset_objects = [utils.build_dataset(ds) for ds in datasets]
+
+    if slurm:
+        jobs = []
+        executor = submitit.AutoExecutor(folder=f"{paths['ROOT']}/bash/submitit")
+        executor.update_parameters(timeout_min=timeout, mem_gb=16,
+                                   gpus_per_node=1, slurm_partition="sablab", slurm_wckey="")
+        for do in dataset_objects:
+            dset_names = list(do.dset_info.keys())
+            for dset in dset_names:
+                show_hists = False
+                show_imgs = False
+                save_slices = True
+                job = executor.submit(do.proc_func,
+                                      dset,
+                                      version,
+                                      show_hists,
+                                      show_imgs,
+                                      save_slices,
+                                      redo_processed)
+                jobs.append(job)
+        return jobs
+    else:
+        dataset_object = dataset_objects[0]
+        show_processing(dataset_object, 
+                        subdset="all",
+                        version=version,
+                        show_hists=show_hists)

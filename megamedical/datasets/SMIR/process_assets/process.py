@@ -25,6 +25,7 @@ import glob
 
 #New line!
 from megamedical.utils.registry import paths
+from megamedical.utils import proc_utils as put
 
 
 class SMIR:
@@ -34,8 +35,8 @@ class SMIR:
         self.dset_info = {
             "retreived_2022_03_08":{
                 "main":"SMIR",
-                "image_root_dir":f"{paths['ROOT']}/megamedical/datasets/SMIR/processed/original_unzipped/retreived_2022_03_08/Training",
-                "label_root_dir":f"{paths['ROOT']}/megamedical/datasets/SMIR/processed/original_unzipped/retreived_2022_03_08/Training",
+                "image_root_dir":f"{paths['DATA']}/SMIR/processed/original_unzipped/retreived_2022_03_08/Training",
+                "label_root_dir":f"{paths['DATA']}/SMIR/processed/original_unzipped/retreived_2022_03_08/Training",
                 "modality_names":["FLAIR", "T1"],
                 "planes":[2],
                 "clip_args":None,
@@ -47,12 +48,14 @@ class SMIR:
 
     def proc_func(self,
                 dset_name,
+                  version=None,
                 show_hists=False,
                   show_imgs=False,
                   save_slices=False,
                 redo_processed=True):
+        assert not(version is None and save_slices), "Must specify version for saving."
         assert dset_name in self.dset_info.keys(), "Sub-dataset must be in info dictionary."
-        proc_dir = pps.make_processed_dir(dset_name, self.dset_info[dset_name], save_slices)
+        proc_dir = pps.make_processed_dir(self.name, dset_name, save_slices, version)
         image_list = os.listdir(self.dset_info[dset_name]["image_root_dir"])
         with tqdm(total=len(image_list), desc=f'Processing: {dset_name}', unit='image') as pbar:
             for image in image_list:

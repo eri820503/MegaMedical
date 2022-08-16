@@ -25,6 +25,7 @@ import glob
 
 #New line!
 from megamedical.utils.registry import paths
+from megamedical.utils import proc_utils as put
 
 
 class BrainDevelopment:
@@ -34,8 +35,8 @@ class BrainDevelopment:
         self.dset_info = {
             "HammersAtlasDatabase":{
                 "main":"BrainDevelopment",
-                "image_root_dir":f"{paths['ROOT']}/megamedical/datasets/BrainDevelopment/processed/original_unzipped/HammersAtlasDatabase/Hammers67n20/images",
-                "label_root_dir":f"{paths['ROOT']}/megamedical/datasets/BrainDevelopment/processed/original_unzipped/HammersAtlasDatabase/Hammers67n20/segs",
+                "image_root_dir":f"{paths['DATA']}/BrainDevelopment/processed/original_unzipped/HammersAtlasDatabase/Hammers67n20/images",
+                "label_root_dir":f"{paths['DATA']}/BrainDevelopment/processed/original_unzipped/HammersAtlasDatabase/Hammers67n20/segs",
                 "modality_names":["T1"],
                 "planes":[0, 1, 2],
                 "clip_args":None,
@@ -45,8 +46,8 @@ class BrainDevelopment:
             },
             "PediatricAtlas":{
                 "main":"BrainDevelopment",
-                "image_root_dir":f"{paths['ROOT']}/megamedical/datasets/BrainDevelopment/processed/original_unzipped/PediatricAtlas/images",
-                "label_root_dir":f"{paths['ROOT']}/megamedical/datasets/BrainDevelopment/processed/original_unzipped/PediatricAtlas/segmentations",
+                "image_root_dir":f"{paths['DATA']}/BrainDevelopment/processed/original_unzipped/PediatricAtlas/images",
+                "label_root_dir":f"{paths['DATA']}/BrainDevelopment/processed/original_unzipped/PediatricAtlas/segmentations",
                 "modality_names":["T1"],
                 "planes":[0, 1, 2],
                 "clip_args":None,
@@ -58,12 +59,14 @@ class BrainDevelopment:
 
     def proc_func(self,
                   dset_name,
+                  version=None,
                   show_hists=False,
                   show_imgs=False,
                   save_slices=False,
                   redo_processed=True):
+        assert not(version is None and save_slices), "Must specify version for saving."
         assert dset_name in self.dset_info.keys(), "Sub-dataset must be in info dictionary."
-        proc_dir = pps.make_processed_dir(dset_name, self.dset_info[dset_name], save_slices)
+        proc_dir = pps.make_processed_dir(self.name, dset_name, save_slices, version)
         image_list = os.listdir(self.dset_info[dset_name]["image_root_dir"])
         with tqdm(total=len(image_list), desc=f'Processing: {dset_name}', unit='image') as pbar:
             for image in image_list:

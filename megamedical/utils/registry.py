@@ -1,9 +1,10 @@
 paths = {
-    "ROOT": "/home/vib9/src/MegaMedical"
+    "ROOT": "/home/vib9/src/MegaMedical",
+    "DATA": "/home/vib9/src/MegaMedical/megamedical/datasets"
 }
 
 dataset_registry = {
-    "TeethSeg": "",
+    "TeethSeg": "megamedical.datasets.TeethSeg.process_assets",
     "ACDC": "megamedical.datasets.ACDC.process_assets",
     "AMOS": "megamedical.datasets.AMOS.process_assets",
     "BBBC": "megamedical.datasets.BBBC.process_assets",

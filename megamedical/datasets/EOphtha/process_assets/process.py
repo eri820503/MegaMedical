@@ -24,6 +24,7 @@ import scipy.io
 
 #New line!
 from megamedical.utils.registry import paths
+from megamedical.utils import proc_utils as put
 
 
 class EOphtha:
@@ -33,8 +34,8 @@ class EOphtha:
         self.dset_info = {
             "e_optha_EX":{
                 "main": "EOphtha",
-                "image_root_dir":f"{paths['ROOT']}/megamedical/datasets/EOphtha/processed/original_unzipped/retreived_2022_03_11/e_optha_EX/EX",
-                "label_root_dir":f"{paths['ROOT']}/megamedical/datasets/EOphtha/processed/original_unzipped/retreived_2022_03_11/e_optha_EX/Annotation_EX",
+                "image_root_dir":f"{paths['DATA']}/EOphtha/processed/original_unzipped/retreived_2022_03_11/e_optha_EX/EX",
+                "label_root_dir":f"{paths['DATA']}/EOphtha/processed/original_unzipped/retreived_2022_03_11/e_optha_EX/Annotation_EX",
                 "modality_names":["Retinal"],
                 "planes":[0],
                 "clip_args":None,
@@ -44,8 +45,8 @@ class EOphtha:
             },
              "e_optha_MA":{
                 "main": "EOphtha",
-                "image_root_dir":f"{paths['ROOT']}/megamedical/datasets/EOphtha/processed/original_unzipped/retreived_2022_03_11/e_optha_MA/MA",
-                "label_root_dir":f"{paths['ROOT']}/megamedical/datasets/EOphtha/processed/original_unzipped/retreived_2022_03_11/e_optha_MA/Annotation_MA",
+                "image_root_dir":f"{paths['DATA']}/EOphtha/processed/original_unzipped/retreived_2022_03_11/e_optha_MA/MA",
+                "label_root_dir":f"{paths['DATA']}/EOphtha/processed/original_unzipped/retreived_2022_03_11/e_optha_MA/Annotation_MA",
                 "modality_names":["Retinal"],
                 "planes":[0],
                 "clip_args":None,
@@ -57,12 +58,14 @@ class EOphtha:
 
     def proc_func(self,
                 dset_name,
+                  version=None,
                 show_hists=False,
                   show_imgs=False,
                   save_slices=False,
                 redo_processed=True):
+        assert not(version is None and save_slices), "Must specify version for saving."
         assert dset_name in self.dset_info.keys(), "Sub-dataset must be in info dictionary."
-        proc_dir = pps.make_processed_dir(dset_name, self.dset_info[dset_name], save_slices)
+        proc_dir = pps.make_processed_dir(self.name, dset_name, save_slices, version)
         image_list = os.listdir(self.dset_info[dset_name]["image_root_dir"])
         with tqdm(total=len(image_list), desc=f'Processing: {dset_name}', unit='image') as pbar:
             for image in image_list:

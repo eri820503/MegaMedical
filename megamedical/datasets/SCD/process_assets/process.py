@@ -25,6 +25,7 @@ import glob
 
 #New line!
 from megamedical.utils.registry import paths
+from megamedical.utils import proc_utils as put
 
 
 class SCD:
@@ -34,8 +35,8 @@ class SCD:
         self.dset_info = {
             "LAS":{
                 "main":"SCD",
-                "image_root_dir":f"{paths['ROOT']}/megamedical/datasets/SCD/processed/original_unzipped/LAS/retrieved_2021_11_08",
-                "label_root_dir":f"{paths['ROOT']}/megamedical/datasets/SCD/processed/original_unzipped/LAS/retrieved_2021_11_08",
+                "image_root_dir":f"{paths['DATA']}/SCD/processed/original_unzipped/LAS/retrieved_2021_11_08",
+                "label_root_dir":f"{paths['DATA']}/SCD/processed/original_unzipped/LAS/retrieved_2021_11_08",
                 "modality_names":["MRI"],
                 "planes":[2],
                 "clip_args":None,
@@ -45,8 +46,8 @@ class SCD:
             },
             "LAF_Pre":{
                 "main":"SCD",
-                "image_root_dir":f"{paths['ROOT']}/megamedical/datasets/SCD/processed/original_unzipped/LAF_Pre/retrieved_2021_11_08",
-                "label_root_dir":f"{paths['ROOT']}/megamedical/datasets/SCD/processed/original_unzipped/LAF_Pre/retrieved_2021_11_08",
+                "image_root_dir":f"{paths['DATA']}/SCD/processed/original_unzipped/LAF_Pre/retrieved_2021_11_08",
+                "label_root_dir":f"{paths['DATA']}/SCD/processed/original_unzipped/LAF_Pre/retrieved_2021_11_08",
                 "modality_names":["MRI"],
                 "planes":[2],
                 "clip_args":None,
@@ -56,8 +57,8 @@ class SCD:
             },
             "LAF_Post":{
                 "main":"SCD",
-                "image_root_dir":f"{paths['ROOT']}/megamedical/datasets/SCD/processed/original_unzipped/LAF_Post/retrieved_2021_11_08",
-                "label_root_dir":f"{paths['ROOT']}/megamedical/datasets/SCD/processed/original_unzipped/LAF_Post/retrieved_2021_11_08",
+                "image_root_dir":f"{paths['DATA']}/SCD/processed/original_unzipped/LAF_Post/retrieved_2021_11_08",
+                "label_root_dir":f"{paths['DATA']}/SCD/processed/original_unzipped/LAF_Post/retrieved_2021_11_08",
                 "modality_names":["MRI"],
                 "planes":[2],
                 "clip_args":None,
@@ -67,8 +68,8 @@ class SCD:
             },
             "VIS_pig":{
                 "main":"SCD",
-                "image_root_dir":f"{paths['ROOT']}/megamedical/datasets/SCD/processed/original_unzipped/VIS_pig/retrieved_2021_11_08",
-                "label_root_dir":f"{paths['ROOT']}/megamedical/datasets/SCD/processed/original_unzipped/VIS_pig/retrieved_2021_11_08",
+                "image_root_dir":f"{paths['DATA']}/SCD/processed/original_unzipped/VIS_pig/retrieved_2021_11_08",
+                "label_root_dir":f"{paths['DATA']}/SCD/processed/original_unzipped/VIS_pig/retrieved_2021_11_08",
                 "modality_names":["MRI"],
                 "planes":[2],
                 "clip_args":None,
@@ -78,8 +79,8 @@ class SCD:
             },
             "VIS_human":{
                 "main":"SCD",
-                "image_root_dir":f"{paths['ROOT']}/megamedical/datasets/SCD/processed/original_unzipped/VIS_human/retrieved_2021_11_08",
-                "label_root_dir":f"{paths['ROOT']}/megamedical/datasets/SCD/processed/original_unzipped/VIS_human/retrieved_2021_11_08",
+                "image_root_dir":f"{paths['DATA']}/SCD/processed/original_unzipped/VIS_human/retrieved_2021_11_08",
+                "label_root_dir":f"{paths['DATA']}/SCD/processed/original_unzipped/VIS_human/retrieved_2021_11_08",
                 "modality_names":["MRI"],
                 "planes":[2],
                 "clip_args":None,
@@ -91,12 +92,14 @@ class SCD:
 
     def proc_func(self,
                 dset_name,
+                  version=None,
                 show_hists=False,
                   show_imgs=False,
                   save_slices=False,
                 redo_processed=True):
+        assert not(version is None and save_slices), "Must specify version for saving."
         assert dset_name in self.dset_info.keys(), "Sub-dataset must be in info dictionary."
-        proc_dir = pps.make_processed_dir(dset_name, self.dset_info[dset_name], save_slices)
+        proc_dir = pps.make_processed_dir(self.name, dset_name, save_slices, version)
         image_list = os.listdir(self.dset_info[dset_name]["image_root_dir"])
         with tqdm(total=len(image_list), desc=f'Processing: {dset_name}', unit='image') as pbar:
             for image in image_list:
