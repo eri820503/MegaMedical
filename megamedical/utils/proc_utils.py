@@ -4,12 +4,14 @@ import nibabel.processing as nip
 import numpy as np
 import math
 import matplotlib.pyplot as plt
+from scipy import ndimage
+import scipy
 
 def relative_norm(image):
     return (image - np.amin(image))/(np.amax(image) - np.amin(image))
 
 
-def display_processing_slices(image, seg):
+def display_processing_slices(image, seg, plane):
     f, axarr = plt.subplots(nrows=1,ncols=2,figsize=[8,4])
                     
     if len(image.shape) == 2:

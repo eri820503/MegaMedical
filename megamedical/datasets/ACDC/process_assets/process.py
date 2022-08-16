@@ -19,7 +19,7 @@ class ACDC:
                 "label_root_dir":f"{paths['DATA']}/ACDC/original_unzipped/Challenge2017/training",
                 "modality_names":["MRI"],
                 "planes":[2],
-                "clip_args":None,
+                "clip_args": [0.5, 99.5],
                 "norm_scheme":"MR",
                 "do_clip":True,
                 "proc_size":256
@@ -58,6 +58,7 @@ class ACDC:
                         
                         pps.produce_slices(proc_dir,
                                           dset_name,
+                                          image, 
                                           loaded_image,
                                           loaded_label,
                                           self.dset_info[dset_name],
