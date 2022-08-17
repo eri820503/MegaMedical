@@ -41,7 +41,8 @@ class SMIR:
         with tqdm(total=len(image_list), desc=f'Processing: {dset_name}', unit='image') as pbar:
             for image in image_list:
                 try:
-                    if redo_processed or (len(glob.glob(os.path.join(processed_dir, "*", image))) == 0):
+                    proc_dir_template = os.path.join(proc_dir, f"megamedical_v{version}", dset_name, "*", image)
+                    if redo_processed or (len(glob.glob(proc_dir_template)) == 0):
                         FLAIR_dir = os.path.join(self.dset_info[dset_name]["image_root_dir"], image, "pre/FLAIR.nii.gz")
                         T1_dir = os.path.join(self.dset_info[dset_name]["image_root_dir"], image, "pre/T1.nii.gz")
                         label_dir = os.path.join(self.dset_info[dset_name]["label_root_dir"], image, "wmh.nii.gz")
@@ -63,8 +64,10 @@ class SMIR:
                                           loaded_label,
                                           self.dset_info[dset_name],
                                           show_hists=show_hists,
-                                          show_imgs=show_imgs)
+                                          show_imgs=show_imgs,
+                                          save_slices=save_slices)
                 except Exception as e:
                     print(e)
+                    #raise ValueError
                 pbar.update(1)
         pbar.close()

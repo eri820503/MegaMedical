@@ -41,7 +41,8 @@ class IDRID:
         with tqdm(total=len(image_list), desc=f'Processing: {dset_name}', unit='image') as pbar:
             for image in image_list:
                 try:
-                    if redo_processed or (len(glob.glob(os.path.join(processed_dir, "*", image))) == 0):
+                    proc_dir_template = os.path.join(proc_dir, f"megamedical_v{version}", dset_name, "*", image)
+                    if redo_processed or (len(glob.glob(proc_dir_template)) == 0):
                         im_dir = os.path.join(self.dset_info[dset_name]["image_root_dir"], image)
                         ma_dir = os.path.join(self.dset_info[dset_name]["label_root_dir"], "1. Microaneurysms", f"{image[:-4]}_MA.tif")
                         he_dir = os.path.join(self.dset_info[dset_name]["label_root_dir"], "2. Haemorrhages", f"{image[:-4]}_HE.tif")
@@ -76,8 +77,10 @@ class IDRID:
                                           loaded_label,
                                           self.dset_info[dset_name],
                                           show_hists=show_hists,
-                                          show_imgs=show_imgs)
+                                          show_imgs=show_imgs,
+                                          save_slices=save_slices)
                 except Exception as e:
                     print(e)
+                    #raise ValueError
                 pbar.update(1)
         pbar.close()

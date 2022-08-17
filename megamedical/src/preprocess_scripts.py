@@ -94,6 +94,7 @@ def produce_slices(root_dir,
                 seg_res[..., lab_idx] = bin_seg_res
 
             if save_slices:
+                
                 proc_dir = os.path.join(root_dir, f"megamedical_v{version}", dataset, mode, subject_name)
                 if not os.path.exists(proc_dir):
                     os.makedirs(proc_dir)
