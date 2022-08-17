@@ -57,6 +57,7 @@ class ACDC:
                         assert not (loaded_label is None), "Invalid Label"
                         
                         pps.produce_slices(proc_dir,
+                                          version,
                                           dset_name,
                                           image, 
                                           loaded_image,
