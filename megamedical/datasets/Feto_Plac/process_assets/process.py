@@ -1,28 +1,10 @@
-from ast import DictComp
-import numpy as np
-import nibabel as nib
-import numpy as np
-import os
-import math
-import matplotlib.pyplot as plt
-from scipy import ndimage
-from tqdm import tqdm
-import pickle
 from PIL import Image
-from glob import glob
-import SimpleITK as sitk
-import imageio as io
-import nrrd
-import cv2
-import gzip
-import scipy
-import pathlib
+from tqdm import tqdm
 import glob
-import medpy.io
-import pydicom as dicom
-import scipy.io
+import os
 
 #New line!
+from megamedical.src import preprocess_scripts as pps
 from megamedical.utils.registry import paths
 from megamedical.utils import proc_utils as put
 
@@ -73,7 +55,9 @@ class Feto_Plac:
                             assert not (loaded_label is None), "Invalid Label"
 
                             pps.produce_slices(proc_dir,
+                                          version,
                                           dset_name,
+                                          image, 
                                           loaded_image,
                                           loaded_label,
                                           self.dset_info[dset_name],

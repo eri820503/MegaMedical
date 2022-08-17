@@ -8,44 +8,19 @@ from megamedical.utils.proc_utils import *
 def make_processed_dir(dset, subdset, save_slices, dataset_ver):
     root_dir = os.path.join(paths["DATA"], dset, f"processed")
     
-    megamedical_root = os.path.join(root_dir, f"megamedical_v{dataset_ver}")
-    megamedical_proc = os.path.join(megamedical_root, subdset)
-    
-    maxslice_root = os.path.join(root_dir, f"maxslice_v{dataset_ver}")
-    maxslice_proc = os.path.join(maxslice_root, subdset)
-    
-    midslice_root = os.path.join(root_dir, f"midslice_v{dataset_ver}")
-    midslice_proc = os.path.join(midslice_root, subdset)
-    
-    print("Starting:", megamedical_proc)
+    dirs_to_make = []
+    for prefix in ["megamedical", "maxslice", "midslice"]:
+        dirs_to_make.append(os.path.join(root_dir, f"{prefix}_v{dataset_ver}", subdset))
 
     if save_slices:
-        if not os.path.exists(root_dir):
-            os.makedirs(root_dir)
-        if not os.path.exists(megamedical_root):
-            os.makedirs(megamedical_root)
-        if not os.path.exists(megamedical_proc):
-            os.makedirs(megamedical_proc)
-        if not os.path.exists(maxslice_root):
-            os.makedirs(maxslice_root)
-        if not os.path.exists(maxslice_proc):
-            os.makedirs(maxslice_proc)
-        if not os.path.exists(midslice_root):
-            os.makedirs(midslice_root)
-        if not os.path.exists(midslice_proc):
-            os.makedirs(midslice_proc)
-            
+        for dtm in dirs_to_make:
+            if not os.path.exists(dtm):
+                os.makedirs(dtm)
         for mode in dset_info["modality_names"]:
-            mode_megamedical = os.path.join(megamedical_proc, mode)
-            mode_maxslice = os.path.join(maxslice_proc, mode)
-            mode_midslice = os.path.join(midslice_proc, mode)
-            if not os.path.exists(mode_megamedical):
-                os.makedirs(mode_megamedical)
-            if not os.path.exists(mode_maxslice):
-                os.makedirs(mode_maxslice)
-            if not os.path.exists(mode_midslice):
-                os.makedirs(mode_midslice)
-    
+            for subset in dirs_to_make:
+                mode_dir = os.path.join(subset, mode)
+                if not os.path.exists(mode_dir):
+                    os.makedirs(mode_dir)
     return root_dir
 
 

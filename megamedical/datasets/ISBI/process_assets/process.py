@@ -1,29 +1,10 @@
-from multiprocessing.sharedctypes import Value
-from operator import truediv
-from select import select
-from turtle import pos
-import numpy as np
-from torch import mul
 import nibabel as nib
-import numpy as np
-import os
-import math
-import matplotlib.pyplot as plt
-from scipy import ndimage
 from tqdm import tqdm
-import pickle
-from PIL import Image
-from glob import glob
-import SimpleITK as sitk
-import imageio as io
-import nrrd
-import cv2
-import gzip
-import scipy
-import pathlib
 import glob
+import os
 
 #New line!
+from megamedical.src import preprocess_scripts as pps
 from megamedical.utils.registry import paths
 from megamedical.utils import proc_utils as put
 
@@ -77,7 +58,9 @@ class ISBI:
                         assert not (loaded_label is None), "Invalid Label"
 
                         pps.produce_slices(proc_dir,
+                                          version,
                                           dset_name,
+                                          image, 
                                           loaded_image,
                                           loaded_label,
                                           self.dset_info[dset_name],
