@@ -32,7 +32,7 @@ def produce_slices(root_dir,
                    loaded_label,
                    dset_info,
                    resolutions=[256,128],
-                   save_slices=False, 
+                   save_slices=False,
                    show_hists=False,
                    show_imgs=False):
     # Set the name to be saved
@@ -71,7 +71,7 @@ def produce_slices(root_dir,
             #Resize to several resolutions
             image_res = blur_and_resize(square_image, old_size, new_size=res, order=1)
 
-            if show_imgs:
+            if show_imgs and res==128:
                 for plane in dset_info["planes"]:
                     display_processing_slices(square_image, square_label, plane)
 
@@ -90,11 +90,12 @@ def produce_slices(root_dir,
                 #produce resized segmentations
                 bin_seg_res = blur_and_resize(bin_mask, old_size, new_size=res, order=0)
 
-                #place resized segs in regular arrays
+                #place resized segs in regular array
                 seg_res[..., lab_idx] = bin_seg_res
 
             if save_slices:
-                print(proc_dir)
-                proc_dir = os.path.join(root_dir, f"{ps}_v{dataset_ver}", mode, subject_name)
-                np.save(os.path.join(proc_dir, f"img_{resolution}.npy"), image)
-                np.save(os.path.join(proc_dir, f"seg_{resolution}.npy"), seg)
+                proc_dir = os.path.join(root_dir, f"megamedical_v{version}", dataset, mode, subject_name)
+                if not os.path.exists(proc_dir):
+                    os.makedirs(proc_dir)
+                np.save(os.path.join(proc_dir, f"img_{res}.npy"), image_res)
+                np.save(os.path.join(proc_dir, f"seg_{res}.npy"), seg_res)

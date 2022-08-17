@@ -65,7 +65,8 @@ class ACDC:
                                           loaded_label,
                                           self.dset_info[dset_name],
                                           show_hists=show_hists,
-                                          show_imgs=show_imgs)
+                                          show_imgs=show_imgs,
+                                          save_slices=save_slices)
                 except Exception as e:
                     print(e)
                     raise ValueError

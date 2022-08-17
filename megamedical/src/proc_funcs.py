@@ -191,17 +191,14 @@ def process_dataset(datasets,
         for do in dataset_objects:
             dset_names = list(do.dset_info.keys())
             for dset in dset_names:
-                show_hists = False
-                show_imgs = False
                 if "megamedical" in subsets:
                     do.proc_func(dset,
                                 version,
                                 show_hists,
-                                show_imgs,
+                                visualize,
                                 save_slices,
                                 redo_processed)
                 elif "midslice" in subsets:
                     raise NotImplementedError("Not implemented yet")
                 elif "maxslice" in subsets:
                     raise NotImplementedError("Not implemented yet")
-                jobs.append(job)
