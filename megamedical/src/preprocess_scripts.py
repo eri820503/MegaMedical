@@ -5,7 +5,7 @@ import os
 from megamedical.utils.registry import paths
 from megamedical.utils.proc_utils import *
 
-def make_processed_dir(dset, subdset, save_slices, dataset_ver):
+def make_processed_dir(dset, subdset, save_slices, dataset_ver, dset_info):
     root_dir = os.path.join(paths["DATA"], dset, f"processed")
     
     dirs_to_make = []
@@ -22,27 +22,6 @@ def make_processed_dir(dset, subdset, save_slices, dataset_ver):
                 if not os.path.exists(mode_dir):
                     os.makedirs(mode_dir)
     return root_dir
-
-
-def save_megamedical(root_dir,
-                     dataset_ver, 
-                     mode,
-                     subject_name,
-                     image, 
-                     seg, 
-                     resolution):
-    proc_stems = ["megamedical", "maxslice", "midslice"]
-    for ps in proc_stems:
-        proc_dir = os.path.join(root_dir, f"{ps}_v{dataset_ver}", mode, subject_name)
-        if ps == "megamedical":
-            np.save(os.path.join(proc_dir, f"img_{resolution}.npy"), image)
-            np.save(os.path.join(proc_dir, f"seg_{resolution}.npy"), seg)
-        elif ps == "maxslice":
-            np.save(os.path.join(proc_dir, f"img_{resolution}.npy"), image)
-            np.save(os.path.join(proc_dir, f"seg_{resolution}.npy"), seg)
-        else:
-            np.save(os.path.join(proc_dir, f"img_{resolution}.npy"), image)
-            np.save(os.path.join(proc_dir, f"seg_{resolution}.npy"), seg)
 
 
 def produce_slices(root_dir,
@@ -115,10 +94,7 @@ def produce_slices(root_dir,
                 seg_res[..., lab_idx] = bin_seg_res
 
             if save_slices:
-                save_megamedical(root_dir, 
-                                 version, 
-                                 mode,
-                                 subject_name,
-                                 image_res, 
-                                 seg_res, 
-                                 res)
+                print(proc_dir)
+                proc_dir = os.path.join(root_dir, f"{ps}_v{dataset_ver}", mode, subject_name)
+                np.save(os.path.join(proc_dir, f"img_{resolution}.npy"), image)
+                np.save(os.path.join(proc_dir, f"seg_{resolution}.npy"), seg)

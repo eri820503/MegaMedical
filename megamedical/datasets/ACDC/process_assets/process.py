@@ -36,7 +36,8 @@ class ACDC:
         assert not(version is None and save_slices), "Must specify version for saving."
         assert dset_name in self.dset_info.keys(), "Sub-dataset must be in info dictionary."
         image_list = os.listdir(self.dset_info[dset_name]["image_root_dir"])
-        proc_dir = pps.make_processed_dir(self.name, dset_name, save_slices, version)
+        proc_dir = pps.make_processed_dir(self.name, dset_name, save_slices,
+                                          version, self.dset_info[dset_name])
         with tqdm(total=len(image_list), desc=f'Processing: {dset_name}', unit='image') as pbar:
             for image in image_list:
                 try:

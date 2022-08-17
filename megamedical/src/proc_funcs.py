@@ -1,7 +1,7 @@
-import numpy as np
-import submitit
-import math
-import matplotlib.pyplot as plt
+import numpy as np 
+import submitit 
+import math 
+import matplotlib.pyplot as plt 
 import os
 from megamedical.src import preprocess_scripts as pps
 from megamedical.utils.registry import paths
@@ -153,38 +153,55 @@ def process_dataset(datasets,
                     version,
                     save_slices,
                     slurm, 
-                    timeout=-1,
+                    timeout=540,
                     visualize=False,
                     show_hists=False,
-                    redo_processed=True):
+                    redo_processed=True,
+                    subsets=["megamedical"]):
     assert not (len(datasets) > 1 and visualize), "Can't visualize a list of processing."
     assert not (slurm and visualize), "If you are submitting slurm no vis."
-    assert not (timeout==-1 and slurm), "Must specify timout for slurm."
 
     dataset_objects = [utils.build_dataset(ds) for ds in datasets]
 
     if slurm:
         jobs = []
-        executor = submitit.AutoExecutor(folder=f"{paths['ROOT']}/bash/submitit")
+        slurm_root = os.path.join(paths["ROOT"], "bash/submitit")
+        executor = submitit.AutoExecutor(folder=slurm_root)
+
         executor.update_parameters(timeout_min=timeout, mem_gb=16,
                                    gpus_per_node=1, slurm_partition="sablab", slurm_wckey="")
         for do in dataset_objects:
             dset_names = list(do.dset_info.keys())
             for dset in dset_names:
-                show_hists = False
-                show_imgs = False
-                job = executor.submit(do.proc_func,
-                                      dset,
-                                      version,
-                                      show_hists,
-                                      show_imgs,
-                                      save_slices,
-                                      redo_processed)
+                if "megamedical" in subsets:
+                    job = executor.submit(do.proc_func,
+                                          dset,
+                                          version,
+                                          show_hists,
+                                          visualize,
+                                          save_slices,
+                                          redo_processed)
+                elif "midslice" in subsets:
+                    raise NotImplementedError("Not implemented yet")
+                elif "maxslice" in subsets:
+                    raise NotImplementedError("Not implemented yet")
                 jobs.append(job)
         return jobs
     else:
-        dataset_object = dataset_objects[0]
-        show_processing(dataset_object, 
-                        subdset="all",
-                        version=version,
-                        show_hists=show_hists)
+        for do in dataset_objects:
+            dset_names = list(do.dset_info.keys())
+            for dset in dset_names:
+                show_hists = False
+                show_imgs = False
+                if "megamedical" in subsets:
+                    do.proc_func(dset,
+                                version,
+                                show_hists,
+                                show_imgs,
+                                save_slices,
+                                redo_processed)
+                elif "midslice" in subsets:
+                    raise NotImplementedError("Not implemented yet")
+                elif "maxslice" in subsets:
+                    raise NotImplementedError("Not implemented yet")
+                jobs.append(job)
