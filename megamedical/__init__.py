@@ -8,7 +8,6 @@ from .datasets import BrainDevelopment
 from .datasets import BrainMetShare
 from .datasets import CHAOS
 from .datasets import COCA
-from .datasets import CannabisT1
 from .datasets import CheXplanation
 from .datasets import CoNSeP
 from .datasets import DDR

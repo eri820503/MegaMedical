@@ -1,6 +1,7 @@
 from PIL import Image
 import imageio as io
 from tqdm import tqdm
+import numpy as np
 import glob
 import os
 
@@ -17,10 +18,10 @@ class DDR:
         self.dset_info = {
             "retreived_2022_03_04":{
                 "main":"CoNSeP",
-                "image_root_dir":f"{paths['DATA']}/CoNSeP/processed/original_unzipped/retreived_2022_03_04/CoNSeP/Train/Images",
-                "label_root_dir":f"{paths['DATA']}/CoNSeP/processed/original_unzipped/retreived_2022_03_04/CoNSeP/Train/Labels",
+                "image_root_dir":f"{paths['DATA']}/DDR/original_unzipped/retreived_2022_03_04/CoNSeP/Train/Images",
+                "label_root_dir":f"{paths['DATA']}/DDR/original_unzipped/retreived_2022_03_04/CoNSeP/Train/Labels",
                 "modality_names":["NA"],
-                "planes":[0],
+                "planes":[0, 1, 2],
                 "clip_args": None,
                 "norm_scheme": None,
                 "do_clip": False,

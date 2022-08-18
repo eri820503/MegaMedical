@@ -1,1 +1,0 @@
-from .process import CannabisT1

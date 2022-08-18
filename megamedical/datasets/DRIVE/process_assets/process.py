@@ -1,5 +1,6 @@
 from PIL import Image
 from tqdm import tqdm
+import numpy as np
 import glob
 import os
 
@@ -15,8 +16,8 @@ class DRIVE:
         self.dset_info = {
             "retreived_2022_03_04":{
                 "main": "DRIVE",
-                "image_root_dir":f"{paths['DATA']}/DRIVE/processed/original_unzipped/retreived_2022_03_09/training/images/",
-                "label_root_dir":f"{paths['DATA']}/DRIVE/processed/original_unzipped/retreived_2022_03_09/training/1st_manual/",
+                "image_root_dir":f"{paths['DATA']}/DRIVE/original_unzipped/retreived_2022_03_09/training/images/",
+                "label_root_dir":f"{paths['DATA']}/DRIVE/original_unzipped/retreived_2022_03_09/training/1st_manual/",
                 "modality_names":["Retinal"],
                 "planes": [0],
                 "clip_args":None,

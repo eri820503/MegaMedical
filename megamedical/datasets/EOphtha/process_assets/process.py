@@ -1,5 +1,6 @@
 from PIL import Image
 from tqdm import tqdm
+import numpy as np
 import glob
 import os
 
@@ -15,8 +16,8 @@ class EOphtha:
         self.dset_info = {
             "e_optha_EX":{
                 "main": "EOphtha",
-                "image_root_dir":f"{paths['DATA']}/EOphtha/processed/original_unzipped/retreived_2022_03_11/e_optha_EX/EX",
-                "label_root_dir":f"{paths['DATA']}/EOphtha/processed/original_unzipped/retreived_2022_03_11/e_optha_EX/Annotation_EX",
+                "image_root_dir":f"{paths['DATA']}/EOphtha/original_unzipped/retreived_2022_03_11/e_optha_EX/EX",
+                "label_root_dir":f"{paths['DATA']}/EOphtha/original_unzipped/retreived_2022_03_11/e_optha_EX/Annotation_EX",
                 "modality_names":["Retinal"],
                 "planes":[0],
                 "clip_args":None,
@@ -26,8 +27,8 @@ class EOphtha:
             },
              "e_optha_MA":{
                 "main": "EOphtha",
-                "image_root_dir":f"{paths['DATA']}/EOphtha/processed/original_unzipped/retreived_2022_03_11/e_optha_MA/MA",
-                "label_root_dir":f"{paths['DATA']}/EOphtha/processed/original_unzipped/retreived_2022_03_11/e_optha_MA/Annotation_MA",
+                "image_root_dir":f"{paths['DATA']}/EOphtha/original_unzipped/retreived_2022_03_11/e_optha_MA/MA",
+                "label_root_dir":f"{paths['DATA']}/EOphtha/original_unzipped/retreived_2022_03_11/e_optha_MA/Annotation_MA",
                 "modality_names":["Retinal"],
                 "planes":[0],
                 "clip_args":None,

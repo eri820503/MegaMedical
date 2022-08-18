@@ -15,8 +15,8 @@ class COCA:
         self.dset_info = {
             "Challenge2017":{
                 "main":"ACDC",
-                "image_root_dir":f"{paths['DATA']}/ACDC/processed/original_unzipped/Challenge2017/training",
-                "label_root_dir":f"{paths['DATA']}/ACDC/processed/original_unzipped/Challenge2017/training",
+                "image_root_dir":f"{paths['DATA']}/COCA/original_unzipped/retrieved_2022_03_24/Gated_release_final/patient",
+                "label_root_dir":f"{paths['DATA']}/COCA/original_unzipped/retrieved_2022_03_24/deidentified_nongated",
                 "modality_names":["MRI"],
                 "planes":[2],
                 "clip_args":None,
@@ -42,20 +42,15 @@ class COCA:
                 try:
                     proc_dir_template = os.path.join(proc_dir, f"megamedical_v{version}", dset_name, "*", image)
                     if redo_processed or (len(glob.glob(proc_dir_template)) == 0):
-                        im_dir = os.path.join(self.dset_info[dset_name]["image_root_dir"], image, f"{image}_frame01.nii.gz")
-                        if dset_name == "Challenge2017":
-                            label_dir = os.path.join(self.dset_info[dset_name]["label_root_dir"], image, f"{image}_frame01_gt.nii.gz")
-                        else:
-                            label_dir = os.path.join(self.dset_info[dset_name]["label_root_dir"], f"{image}_frame01_scribble.nii.gz")
+                        im_dir = os.path.join(self.dset_info[dset_name]["image_root_dir"], image, "Pro_Gated_CS_3.0_I30f_3_70%")
+                        label_dir = os.path.join(self.dset_info[dset_name]["label_root_dir"], image)
+                        
+                        # TODO: LOAD DICOM FILES AND STACK THEM
                         
                         assert os.path.isfile(im_dir), "Valid image dir required!"
                         assert os.path.isfile(label_dir), "Valid label dir required!"
                     
-                        loaded_image = put.resample_nib(nib.load(im_dir))
-                        loaded_label = put.resample_mask_to(nib.load(label_dir), loaded_image)
                         
-                        loaded_image = loaded_image.get_fdata()
-                        loaded_label = loaded_label.get_fdata()
 
                         assert not (loaded_image is None), "Invalid Image"
                         assert not (loaded_label is None), "Invalid Label"

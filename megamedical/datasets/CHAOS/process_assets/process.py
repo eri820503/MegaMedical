@@ -33,7 +33,7 @@ class CHAOS:
                 "label_root_dir":f"{paths['DATA']}/CHAOS/original_unzipped/retreived_2022_03_08/Train_Sets/MR",
                 "modality_names":["T2"],
                 "planes":[0],
-                "clip_args": None,
+                "clip_args": [0.5, 99.5],
                 "norm_scheme": "MR",
                 "do_clip": True,
                 "proc_size":256

@@ -2,6 +2,7 @@ from PIL import Image
 import scipy.io
 from tqdm import tqdm
 import glob
+import numpy as np
 import os
 
 #New line!
@@ -17,8 +18,8 @@ class CoNSeP:
         self.dset_info = {
             "retreived_2022_03_04":{
                 "main":"CoNSeP",
-                "image_root_dir":f"{paths['DATA']}/CoNSeP/processed/original_unzipped/retreived_2022_03_04/CoNSeP/Train/Images",
-                "label_root_dir":f"{paths['DATA']}/CoNSeP/processed/original_unzipped/retreived_2022_03_04/CoNSeP/Train/Labels",
+                "image_root_dir":f"{paths['DATA']}/CoNSeP/original_unzipped/retreived_2022_03_04/CoNSeP/Train/Images",
+                "label_root_dir":f"{paths['DATA']}/CoNSeP/original_unzipped/retreived_2022_03_04/CoNSeP/Train/Labels",
                 "modality_names":["NA"],
                 "planes":[0],
                 "clip_args": None,
