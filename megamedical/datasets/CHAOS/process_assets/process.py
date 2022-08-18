@@ -1,5 +1,6 @@
 from PIL import Image
 import pydicom as dicom
+import numpy as np
 from tqdm import tqdm
 import glob
 import os
@@ -17,8 +18,8 @@ class CHAOS:
         self.dset_info = {
             "CT":{
                 "main":"CHAOS",
-                "image_root_dir":f"{paths['DATA']}/CHAOS/processed/original_unzipped/retreived_2022_03_08/Train_Sets/CT",
-                "label_root_dir":f"{paths['DATA']}/CHAOS/processed/original_unzipped/retreived_2022_03_08/Train_Sets/CT",
+                "image_root_dir":f"{paths['DATA']}/CHAOS/original_unzipped/retreived_2022_03_08/Train_Sets/CT",
+                "label_root_dir":f"{paths['DATA']}/CHAOS/original_unzipped/retreived_2022_03_08/Train_Sets/CT",
                 "modality_names":["CT"],
                 "planes":[0],
                 "clip_args": [600,1500],
@@ -28,8 +29,8 @@ class CHAOS:
             },
             "MR":{
                 "main":"CHAOS",
-                "image_root_dir":f"{paths['ROOT']}/megamedical/datasets/CHAOS/processed/original_unzipped/retreived_2022_03_08/Train_Sets/MR",
-                "label_root_dir":f"{paths['ROOT']}/megamedical/datasets/CHAOS/processed/original_unzipped/retreived_2022_03_08/Train_Sets/MR",
+                "image_root_dir":f"{paths['DATA']}/CHAOS/original_unzipped/retreived_2022_03_08/Train_Sets/MR",
+                "label_root_dir":f"{paths['DATA']}/CHAOS/original_unzipped/retreived_2022_03_08/Train_Sets/MR",
                 "modality_names":["T2"],
                 "planes":[0],
                 "clip_args": None,

@@ -18,8 +18,8 @@ class BUS:
         self.dset_info = {
             "retreived_2022_02_27":{
                 "main":"BUS",
-                "image_root_dir":f"{paths['DATA']}/BUS/processed/original_unzipped/retreived_2022_02_27/BUS/original",
-                "label_root_dir":f"{paths['DATA']}/BUS/processed/original_unzipped/retreived_2022_02_27/BUS/GT",
+                "image_root_dir":f"{paths['DATA']}/BUS/original_unzipped/retreived_2022_02_27/BUS/original",
+                "label_root_dir":f"{paths['DATA']}/BUS/original_unzipped/retreived_2022_02_27/BUS/GT",
                 "modality_names":["NA"],
                 "planes":[0],
                 "clip_args": None,
@@ -47,7 +47,10 @@ class BUS:
                     if redo_processed or (len(glob.glob(proc_dir_template)) == 0):
                         im_dir = os.path.join(self.dset_info[dset_name]["image_root_dir"], image)
                         label_dir = os.path.join(self.dset_info[dset_name]["label_root_dir"], image)
-
+                        
+                        assert os.path.isfile(im_dir), "Valid image dir required!"
+                        assert os.path.isfile(label_dir), "Valid label dir required!"
+                        
                         loaded_image = np.array(Image.open(im_dir).convert('L'))
                         loaded_label = np.array(Image.open(label_dir).convert('L'))
 

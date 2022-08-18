@@ -2,6 +2,7 @@ import cv2
 from tqdm import tqdm
 import glob
 import os
+import numpy as np
 
 #New line!
 from megamedical.src import preprocess_scripts as pps
@@ -16,8 +17,8 @@ class BBBC:
         self.dset_info = {
             "BBBC003":{
                 "main":"BBBC",
-                "image_root_dir":f"{paths['DATA']}/BBBC/processed/original_unzipped/BBBC003/mouse_embryos_dic_images",
-                "label_root_dir":f"{paths['DATA']}/BBBC/processed/original_unzipped/BBBC003/mouse_embryos_dic_foreground",
+                "image_root_dir":f"{paths['DATA']}/BBBC/original_unzipped/BBBC003/mouse_embryos_dic_images",
+                "label_root_dir":f"{paths['DATA']}/BBBC/original_unzipped/BBBC003/mouse_embryos_dic_foreground",
                 "modality_names":["NA"],
                 "planes":[0],
                 "clip_args":None,
@@ -45,9 +46,15 @@ class BBBC:
                     if redo_processed or (len(glob.glob(proc_dir_template)) == 0):
                         im_dir = os.path.join(self.dset_info[dset_name]["image_root_dir"], image)
                         label_dir = os.path.join(self.dset_info[dset_name]["label_root_dir"], image)
+                        
+                        assert os.path.isfile(im_dir), "Valid image dir required!"
+                        assert os.path.isfile(label_dir), "Valid label dir required!"
+                        
+                        loaded_image = cv2.imread(im_dir)
+                        loaded_label = cv2.imread(label_dir)
 
-                        loaded_image = np.array(cv2.cvtColor(cv2.imread(im_dir), cv2.COLOR_BGR2GRAY))
-                        loaded_label = np.array(cv2.cvtColor(cv2.imread(label_dir), cv2.COLOR_BGR2GRAY))
+                        loaded_image = np.array(cv2.cvtColor(loaded_image, cv2.COLOR_BGR2GRAY))
+                        loaded_label = np.array(cv2.cvtColor(loaded_label, cv2.COLOR_BGR2GRAY))
 
                         assert not (loaded_image is None), "Invalid Image"
                         assert not (loaded_label is None), "Invalid Label"

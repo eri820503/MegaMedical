@@ -2,6 +2,7 @@ import nibabel as nib
 from tqdm import tqdm
 import glob
 import os
+import numpy as np
 
 #New line!
 from megamedical.src import preprocess_scripts as pps
@@ -16,22 +17,22 @@ class BrainDevelopment:
         self.dset_info = {
             "HammersAtlasDatabase":{
                 "main":"BrainDevelopment",
-                "image_root_dir":f"{paths['DATA']}/BrainDevelopment/processed/original_unzipped/HammersAtlasDatabase/Hammers67n20/images",
-                "label_root_dir":f"{paths['DATA']}/BrainDevelopment/processed/original_unzipped/HammersAtlasDatabase/Hammers67n20/segs",
+                "image_root_dir":f"{paths['DATA']}/BrainDevelopment/original_unzipped/HammersAtlasDatabase/Hammers67n20/images",
+                "label_root_dir":f"{paths['DATA']}/BrainDevelopment/original_unzipped/HammersAtlasDatabase/Hammers67n20/segs",
                 "modality_names":["T1"],
                 "planes":[0, 1, 2],
-                "clip_args":None,
+                "clip_args": [0.5, 99.5],
                 "norm_scheme":"MR",
                 "do_clip":True,
                 "proc_size":256
             },
             "PediatricAtlas":{
                 "main":"BrainDevelopment",
-                "image_root_dir":f"{paths['DATA']}/BrainDevelopment/processed/original_unzipped/PediatricAtlas/images",
-                "label_root_dir":f"{paths['DATA']}/BrainDevelopment/processed/original_unzipped/PediatricAtlas/segmentations",
+                "image_root_dir":f"{paths['DATA']}/BrainDevelopment/original_unzipped/PediatricAtlas/images",
+                "label_root_dir":f"{paths['DATA']}/BrainDevelopment/original_unzipped/PediatricAtlas/segmentations",
                 "modality_names":["T1"],
                 "planes":[0, 1, 2],
-                "clip_args":None,
+                "clip_args": [0.5, 99.5],
                 "norm_scheme":"MR",
                 "do_clip":True,
                 "proc_size":256
@@ -55,15 +56,17 @@ class BrainDevelopment:
                     proc_dir_template = os.path.join(proc_dir, f"megamedical_v{version}", dset_name, "*", image)
                     if redo_processed or (len(glob.glob(proc_dir_template)) == 0):
                         im_dir = os.path.join(self.dset_info[dset_name]["image_root_dir"], image)
-
-                        if dset_name == "HammersAtlasDatabase":
-                            label_dir = os.path.join(self.dset_info[dset_name]["label_root_dir"], image.replace(".nii.gz", "-seg.nii.gz"))
-                            loaded_image = np.array(nib.load(im_dir).dataobj)
-                            loaded_label = np.array(nib.load(label_dir).dataobj)[...,0]
-                        else:
-                            label_dir = os.path.join(self.dset_info[dset_name]["label_root_dir"], image.replace(".nii.gz", "_seg_83ROI.nii.gz"))
-                            loaded_image = np.array(nib.load(im_dir).dataobj)[...,0]
-                            loaded_label = np.array(nib.load(label_dir).dataobj)
+                        seg_addon = "-seg.nii.gz" if dset_name == "HammersAtlasDatabase" else "_seg_83ROI.nii.gz"
+                        label_dir = os.path.join(self.dset_info[dset_name]["label_root_dir"], image.replace(".nii.gz", seg_addon))
+                        
+                        assert os.path.isfile(im_dir), "Valid image dir required!"
+                        assert os.path.isfile(label_dir), "Valid label dir required!"
+                        
+                        loaded_image = nib.load(im_dir)
+                        loaded_label = nib.load(label_dir)
+                        
+                        loaded_image = loaded_image.get_fdata().squeeze()
+                        loaded_label = loaded_label.get_fdata().squeeze()
 
                         assert not (loaded_image is None), "Invalid Image"
                         assert not (loaded_label is None), "Invalid Label"
@@ -80,6 +83,6 @@ class BrainDevelopment:
                                           save_slices=save_slices)
                 except Exception as e:
                     print(e)
-                    #raise ValueError
+                    raise ValueError
                 pbar.update(1)
         pbar.close()

@@ -1,5 +1,7 @@
 import medpy.io
 from tqdm import tqdm
+import nibabel as nib
+import numpy as np
 import glob
 import os
 
@@ -16,37 +18,37 @@ class BRATS:
         self.dset_info = {
             "2016_LGG":{
                 "main":"BRATS",
-                "image_root_dir":f"{paths['DATA']}/BRATS/processed/original_unzipped/2016/BRATS2015_Training/LGG",
-                "label_root_dir":f"{paths['DATA']}/BRATS/processed/original_unzipped/2016/BRATS2015_Training/LGG",
+                "image_root_dir":f"{paths['DATA']}/BRATS/original_unzipped/2016/BRATS2015_Training/LGG",
+                "label_root_dir":f"{paths['DATA']}/BRATS/original_unzipped/2016/BRATS2015_Training/LGG",
                 "modality_names":["FLAIR","T1","T1c","T2"],
                 "planes":[0, 1, 2],
-                "clip_args":None,
+                "clip_args": [0.5, 99.5],
                 "norm_scheme":"MR",
                 "do_clip":True,
                 "proc_size":256
             },
             "2016_HGG":{
                 "main":"BRATS",
-                "image_root_dir":f"{paths['DATA']}/BRATS/processed/original_unzipped/2016/BRATS2015_Training/HGG",
-                "label_root_dir":f"{paths['DATA']}/BRATS/processed/original_unzipped/2016/BRATS2015_Training/HGG",
+                "image_root_dir":f"{paths['DATA']}/BRATS/original_unzipped/2016/BRATS2015_Training/HGG",
+                "label_root_dir":f"{paths['DATA']}/BRATS/original_unzipped/2016/BRATS2015_Training/HGG",
                 "modality_names":["FLAIR","T1","T1c","T2"],
                 "planes":[0, 1, 2],
-                "clip_args":None,
+                "clip_args": [0.5, 99.5],
                 "norm_scheme":"MR",
                 "do_clip":True,
                 "proc_size":256
             },
             "2021":{
                 "main":"BRATS",
-                "image_root_dir":f"{paths['DATA']}/BRATS/processed/original_unzipped/2021/RSNA_ASNR_MICCAI_BraTS2021_TrainingData_16July2021",
-                "label_root_dir":f"{paths['DATA']}/BRATS/processed/original_unzipped/2021/RSNA_ASNR_MICCAI_BraTS2021_TrainingData_16July2021",
+                "image_root_dir":f"{paths['DATA']}/BRATS/original_unzipped/2021/RSNA_ASNR_MICCAI_BraTS2021_TrainingData_16July2021",
+                "label_root_dir":f"{paths['DATA']}/BRATS/original_unzipped/2021/RSNA_ASNR_MICCAI_BraTS2021_TrainingData_16July2021",
                 "modality_names":["FLAIR","T1","T1c","T2"],
                 "planes":[0, 1, 2],
-                "clip_args":None,
+                "clip_args": [0.5, 99.5],
                 "norm_scheme":"MR",
                 "do_clip":True,
                 "proc_size":256
-            },
+            }
         }
 
     def proc_func(self,
@@ -74,27 +76,33 @@ class BRATS:
 
                             label_dir = os.path.join(self.dset_info[dset_name]["label_root_dir"], image, f"{image}_seg.nii.gz")
 
-                            flair_image = np.array(nib.load(flair_im_dir).dataobj)
-                            t1_image = np.array(nib.load(t1_im_dir).dataobj)
-                            t1c_image = np.array(nib.load(t1c_im_dir).dataobj)
-                            t2_image = np.array(nib.load(t2_im_dir).dataobj)
+                            flair_image = put.resample_nib(nib.load(flair_im_dir))
+                            t1_image = put.resample_nib(nib.load(t1_im_dir))
+                            t1c_image = put.resample_nib(nib.load(t1c_im_dir))
+                            t2_image = put.resample_nib(nib.load(t2_im_dir))
+                            loaded_label = put.resample_mask_to(nib.load(label_dir), flair_image)
+                            
+                            flair_image = flair_image.get_fdata()
+                            t1_image = t1_image.get_fdata()
+                            t1c_image = t1c_image.get_fdata()
+                            t2_image = t2_image.get_fdata()
+                            loaded_label = loaded_label.get_fdata()
 
-                            loaded_image = np.stack([flair_image, t1_image, t1c_image, t2_image])
-                            loaded_label = np.array(nib.load(label_dir).dataobj)
+                            loaded_image = np.stack([flair_image, t1_image, t1c_image, t2_image], axis=-1)
                         else:
                             flair_im_dir = glob.glob(os.path.join(subj_folder, "VSD.Brain.XX.O.MR_Flair*/VSD.Brain.XX.O.MR_Flair*.mha"))[0]
                             t1_im_dir = glob.glob(os.path.join(subj_folder, "VSD.Brain.XX.O.MR_T1*/VSD.Brain.XX.O.MR_T1*.mha"))[0]
                             t1c_im_dir = glob.glob(os.path.join(subj_folder, "VSD.Brain.XX.O.MR_T1c*/VSD.Brain.XX.O.MR_T1c*.mha"))[0]
                             t2_im_dir = glob.glob(os.path.join(subj_folder, "VSD.Brain.XX.O.MR_T2*/VSD.Brain.XX.O.MR_T2*.mha"))[0]
 
-                            label_dir = glob.glob(os.path.join(dset_info["label_root_dir"], image, "VSD.Brain_*/VSD.Brain_*.mha"))[0]
+                            label_dir = glob.glob(os.path.join(self.dset_info[dset_name]["label_root_dir"], image, "VSD.Brain_*/VSD.Brain_*.mha"))[0]
 
                             flair_image, _ = medpy.io.load(flair_im_dir)
                             t1_image, _ = medpy.io.load(t1_im_dir)
                             t1c_image, _ = medpy.io.load(t1c_im_dir)
                             t2_image, _ = medpy.io.load(t2_im_dir)
 
-                            loaded_image = np.stack([flair_image, t1_image, t1c_image, t2_image], -1)
+                            loaded_image = np.stack([flair_image, t1_image, t1c_image, t2_image], axis=-1)
                             loaded_label, _ = medpy.io.load(label_dir)
 
                         assert not (loaded_image is None), "Invalid Image"
@@ -112,6 +120,6 @@ class BRATS:
                                           save_slices=save_slices)
                 except Exception as e:
                     print(e)
-                    #raise ValueError
+                    raise ValueError
                 pbar.update(1)
         pbar.close()

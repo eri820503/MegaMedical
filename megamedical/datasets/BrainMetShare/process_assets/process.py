@@ -1,5 +1,6 @@
 from PIL import Image
 from tqdm import tqdm
+import numpy as np
 import glob
 import os
 
@@ -16,8 +17,8 @@ class BrainMetShare:
         self.dset_info = {
             "retrieved_2022_03_04":{
                 "main": "BrainMetShare",
-                "image_root_dir":f"{paths['DATA']}/BrainMetShare/processed/original_unzipped/retrieved_2022_03_04/stanford_release_brainmask/mets_stanford_releaseMask_train",
-                "label_root_dir":f"{paths['DATA']}/BrainMetShare/processed/original_unzipped/retrieved_2022_03_04/stanford_release_brainmask/mets_stanford_releaseMask_train",
+                "image_root_dir":f"{paths['DATA']}/BrainMetShare/original_unzipped/retrieved_2022_03_04/stanford_release_brainmask/mets_stanford_releaseMask_train",
+                "label_root_dir":f"{paths['DATA']}/BrainMetShare/original_unzipped/retrieved_2022_03_04/stanford_release_brainmask/mets_stanford_releaseMask_train",
                 "modality_names":["T1", "T1-spin-pre", "T1-spin-post", "T2-FLAIR"],
                 "planes":[0],
                 "clip_args":None,
@@ -43,12 +44,14 @@ class BrainMetShare:
                     proc_dir_template = os.path.join(proc_dir, f"megamedical_v{version}", dset_name, "*", image)
                     if redo_processed or (len(glob.glob(proc_dir_template)) == 0):
                         "T1", "T1-spin-pre", "T1-spin-post", "T2-FLAIR"
-                        t1_im_dirs = [os.path.join(self.dset_info[dset_name]["image_root_dir"], image, "0", slice) for slice in os.listdir(os.path.join(self.dset_info["image_root_dir"], image, "0"))]
-                        t1_spin_pre_dirs = [os.path.join(self.dset_info[dset_name]["image_root_dir"], image, "1", slice) for slice in os.listdir(os.path.join(self.dset_info["image_root_dir"], image, "1"))]
-                        t1_spin_post_dirs = [os.path.join(self.dset_info[dset_name]["image_root_dir"], image, "2", slice) for slice in os.listdir(os.path.join(self.dset_info["image_root_dir"], image, "2"))]
-                        t2_flair_dirs = [os.path.join(self.dset_info[dset_name]["image_root_dir"], image, "3", slice) for slice in os.listdir(os.path.join(self.dset_info["image_root_dir"], image, "3"))]
+                        image_dir = os.path.join(self.dset_info[dset_name]["image_root_dir"], image)
+                        
+                        t1_im_dirs = [os.path.join(image_dir, "0", slice) for slice in os.listdir(os.path.join(image_dir, "0"))]
+                        t1_spin_pre_dirs = [os.path.join(image_dir, "1", slice) for slice in os.listdir(os.path.join(image_dir, "1"))]
+                        t1_spin_post_dirs = [os.path.join(image_dir, "2", slice) for slice in os.listdir(os.path.join(image_dir, "2"))]
+                        t2_flair_dirs = [os.path.join(image_dir, "3", slice) for slice in os.listdir(os.path.join(image_dir, "3"))]
 
-                        label_dirs = [os.path.join(self.dset_info[dset_name]["label_root_dir"], image, "seg", slice) for slice in os.listdir(os.path.join(self.dset_info["label_root_dir"], image, "seg"))]
+                        label_dirs = [os.path.join(image_dir, "seg", slice) for slice in os.listdir(os.path.join(image_dir, "seg"))]
 
                         t1_images = np.stack([np.array(Image.open(im_dir).convert('L')) for im_dir in t1_im_dirs])
                         t1_spin_pre_image = np.stack([np.array(Image.open(im_dir).convert('L')) for im_dir in t1_spin_pre_dirs])

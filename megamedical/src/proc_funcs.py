@@ -165,15 +165,14 @@ def process_dataset(datasets,
 
     if slurm:
         jobs = []
-        slurm_root = os.path.join(paths["ROOT"], "bash/submitit")
-        executor = submitit.AutoExecutor(folder=slurm_root)
-
-        executor.update_parameters(timeout_min=timeout, mem_gb=16,
-                                   gpus_per_node=1, slurm_partition="sablab", slurm_wckey="")
         for do in dataset_objects:
             dset_names = list(do.dset_info.keys())
             for dset in dset_names:
                 if "megamedical" in subsets:
+                    slurm_root = os.path.join(paths["ROOT"], f"bash/submitit/{do.name}/{dset}")
+                    executor = submitit.AutoExecutor(folder=slurm_root)
+                    executor.update_parameters(timeout_min=timeout, mem_gb=16,
+                                               gpus_per_node=1, slurm_partition="sablab", slurm_wckey="")
                     job = executor.submit(do.proc_func,
                                           dset,
                                           version,
