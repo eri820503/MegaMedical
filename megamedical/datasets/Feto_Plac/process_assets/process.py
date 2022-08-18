@@ -36,7 +36,7 @@ class Feto_Plac:
                 redo_processed=True):
         assert not(version is None and save_slices), "Must specify version for saving."
         assert dset_name in self.dset_info.keys(), "Sub-dataset must be in info dictionary."
-        proc_dir = pps.make_processed_dir(self.name, dset_name, save_slices, version)
+        proc_dir = pps.make_processed_dir(self.name, dset_name, save_slices, version, self.dset_info[dset_name])
         image_list = os.listdir(self.dset_info[dset_name]["image_root_dir"])
         with tqdm(total=len(image_list), desc=f'Processing: {dset_name}', unit='image') as pbar:
             for video in image_list:
@@ -65,8 +65,8 @@ class Feto_Plac:
                                           show_hists=show_hists,
                                           show_imgs=show_imgs,
                                           save_slices=save_slices)
-                except Exception as e:
-                    print(e)
-                    #raise ValueError
-                pbar.update(1)
-        pbar.close()
+                    except Exception as e:
+                        print(e)
+                        #raise ValueError
+                    pbar.update(1)
+            pbar.close()

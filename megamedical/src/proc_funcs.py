@@ -202,3 +202,5 @@ def process_dataset(datasets,
                     raise NotImplementedError("Not implemented yet")
                 elif "maxslice" in subsets:
                     raise NotImplementedError("Not implemented yet")
+                else:
+                    raise ValueError("Not a valid dset type in subsets.")
