@@ -1,5 +1,6 @@
 from PIL import Image
 from tqdm import tqdm
+import numpy as np
 import glob
 import os
 
@@ -16,8 +17,8 @@ class ISBI_EM:
         self.dset_info = {
             "EM_isbi_2012":{
                 "main": "ISBI_EM",
-                "image_root_dir":f"{paths['DATA']}/ISBI_EM/processed/original_unzipped/EM_isbi_2012/images",
-                "label_root_dir":f"{paths['DATA']}/ISBI_EM/processed/original_unzipped/EM_isbi_2012/labels",
+                "image_root_dir":f"{paths['DATA']}/ISBI_EM/original_unzipped/EM_isbi_2012/images",
+                "label_root_dir":f"{paths['DATA']}/ISBI_EM/original_unzipped/EM_isbi_2012/labels",
                 "modality_names":["EM"],
                 "planes":[0],
                 "clip_args":None,

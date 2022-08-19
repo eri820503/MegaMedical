@@ -1,5 +1,6 @@
 from PIL import Image
 from tqdm import tqdm
+import numpy as np
 import glob
 import os
 
@@ -16,8 +17,8 @@ class Feto_Plac:
         self.dset_info = {
             "retreived_2022_03_09":{
                 "main": "Feto_Plac",
-                "image_root_dir":f"{paths['DATA']}/Feto_Plac/processed/original_unzipped/retreived_2022_03_09/FetoscopyPlacentaDataset/Vessel_segmentation_annotations",
-                "label_root_dir":f"{paths['DATA']}/Feto_Plac/processed/original_unzipped/retreived_2022_03_09/FetoscopyPlacentaDataset/Vessel_segmentation_annotations",
+                "image_root_dir":f"{paths['DATA']}/Feto_Plac/original_unzipped/retreived_2022_03_09/FetoscopyPlacentaDataset/Vessel_segmentation_annotations",
+                "label_root_dir":f"{paths['DATA']}/Feto_Plac/original_unzipped/retreived_2022_03_09/FetoscopyPlacentaDataset/Vessel_segmentation_annotations",
                 "modality_names":["Video"],
                 "planes":[0],
                 "clip_args":None,

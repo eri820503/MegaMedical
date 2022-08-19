@@ -1,5 +1,6 @@
 import nibabel as nib
 from tqdm import tqdm
+import numpy as np
 import glob
 import os
 
@@ -16,11 +17,11 @@ class ISLES:
         self.dset_info = {
             "ISLES2017":{
                 "main":"ISLES",
-                "image_root_dir":f"{paths['DATA']}/ISLES/processed/original_unzipped/ISLES2017/training",
-                "label_root_dir":f"{paths['DATA']}/ISLES/processed/original_unzipped/ISLES2017/training",
+                "image_root_dir":f"{paths['DATA']}/ISLES/original_unzipped/ISLES2017/training",
+                "label_root_dir":f"{paths['DATA']}/ISLES/original_unzipped/ISLES2017/training",
                 "modality_names":["ADC","MIT","TTP","Tmax","rCBF","rCBV"],
-                "planes":[2],
-                "clip_args":None,
+                "planes":[0, 1, 2],
+                "clip_args": [0.5, 99.5],
                 "norm_scheme":"MR",
                 "do_clip":True,
                 "proc_size":256
@@ -54,15 +55,24 @@ class ISLES:
 
                         label_dir = glob.glob(os.path.join(self.dset_info[dset_name]["label_root_dir"], image, "VSD.Brain.XX.O.OT*/VSD.Brain.XX.O.OT*.nii"))[0]
 
-                        ADC = np.array(nib.load(ADC_im_dir).dataobj)
-                        MIT = np.array(nib.load(MIT_im_dir).dataobj)
-                        TTP = np.array(nib.load(TTP_im_dir).dataobj)
-                        Tmax = np.array(nib.load(Tmax_im_dir).dataobj)
-                        rCBF = np.array(nib.load(rCBF_im_dir).dataobj)
-                        rCBV = np.array(nib.load(rCBV_im_dir).dataobj)
+                        ADC = put.resample_nib(nib.load(ADC_im_dir))
+                        MIT = put.resample_nib(nib.load(MIT_im_dir))
+                        TTP = put.resample_nib(nib.load(TTP_im_dir))
+                        Tmax = put.resample_nib(nib.load(Tmax_im_dir))
+                        rCBF = put.resample_nib(nib.load(rCBF_im_dir))
+                        rCBV = put.resample_nib(nib.load(rCBV_im_dir))
 
+                        loaded_label = put.resample_mask_to(nib.load(label_dir), ADC)
+                        
+                        ADC = ADC.get_fdata()
+                        MIT = MIT.get_fdata()
+                        TTP = TTP.get_fdata()
+                        Tmax = Tmax.get_fdata()
+                        rCBF = rCBF.get_fdata()
+                        rCBV = rCBV.get_fdata()
+                        
                         loaded_image = np.stack([ADC, MIT, TTP, Tmax, rCBF, rCBV], -1)
-                        loaded_label = np.array(nib.load(label_dir).dataobj)
+                        loaded_label = loaded_label.get_fdata()
 
                         assert not (loaded_image is None), "Invalid Image"
                         assert not (loaded_label is None), "Invalid Label"

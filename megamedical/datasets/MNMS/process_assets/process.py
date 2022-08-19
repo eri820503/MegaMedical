@@ -1,5 +1,6 @@
 import nibabel as nib
 from tqdm import tqdm
+import numpy as np
 import glob
 import os
 
@@ -16,11 +17,11 @@ class MNMS:
         self.dset_info = {
             "2020":{
                 "main":"MNMS",
-                "image_root_dir":f"{paths['DATA']}/MNMS/processed/original_unzipped/2020/OpenDataset",
-                "label_root_dir":f"{paths['DATA']}/MNMS/processed/original_unzipped/2020/OpenDataset",
+                "image_root_dir":f"{paths['DATA']}/MNMS/original_unzipped/2020/OpenDataset",
+                "label_root_dir":f"{paths['DATA']}/MNMS/original_unzipped/2020/OpenDataset",
                 "modality_names":["T1"],
                 "planes":[2],
-                "clip_args":None,
+                "clip_args": [0.5, 99.5],
                 "norm_scheme":"MR",
                 "do_clip":True,
                 "proc_size":256
@@ -45,9 +46,16 @@ class MNMS:
                     if redo_processed or (len(glob.glob(proc_dir_template)) == 0):
                         im_dir = os.path.join(self.dset_info[dset_name]["image_root_dir"], image, f"{image}_sa.nii.gz")
                         label_dir = os.path.join(self.dset_info[dset_name]["label_root_dir"], image, f"{image}_sa_gt.nii.gz")
-
-                        loaded_image = np.array(nib.load(im_dir).dataobj)[...,0]
-                        loaded_label = np.array(nib.load(label_dir).dataobj)[...,0]
+                        
+                        loaded_image = nib.load(im_dir)
+                        loaded_label = nib.load(label_dir)
+                        
+                        loaded_image = loaded_image.get_fdata()
+                        loaded_label = loaded_label.get_fdata()
+                        
+                        # What is this? Why 0?
+                        loaded_image = loaded_image[...,0]
+                        loaded_label = loaded_label[...,0]
 
                         assert not (loaded_image is None), "Invalid Image"
                         assert not (loaded_label is None), "Invalid Label"

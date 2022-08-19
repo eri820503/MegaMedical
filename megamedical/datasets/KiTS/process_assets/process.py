@@ -16,10 +16,10 @@ class KiTS:
         self.dset_info = {
             "KiTS19":{
                 "main":"KiTS",
-                "image_root_dir":f"{paths['DATA']}/KiTS/processed/original_unzipped/KiTS19",
-                "label_root_dir":f"{paths['DATA']}/KiTS/processed/original_unzipped/KiTS19",
+                "image_root_dir":f"{paths['DATA']}/KiTS/original_unzipped/KiTS19",
+                "label_root_dir":f"{paths['DATA']}/KiTS/original_unzipped/KiTS19",
                 "modality_names":["CT"],
-                "planes":[0],
+                "planes":[0, 1, 2],
                 "clip_args":[-500,1000],
                 "norm_scheme":"CT",
                 "do_clip":True,

@@ -1,5 +1,6 @@
 from PIL import Image
 from tqdm import tqdm
+import numpy as np
 import glob
 import os
 
@@ -16,8 +17,8 @@ class IDRID:
         self.dset_info = {
             "retreived_2022_03_04":{
                 "main": "IDRID",
-                "image_root_dir":f"{paths['DATA']}/IDRID/processed/original_unzipped/retreived_2022_03_04/A. Segmentation/1. Original Images/a. Training Set",
-                "label_root_dir":f"{paths['DATA']}/IDRID/processed/original_unzipped/retreived_2022_03_04/A. Segmentation/2. All Segmentation Groundtruths/a. Training Set",
+                "image_root_dir":f"{paths['DATA']}/IDRID/original_unzipped/retreived_2022_03_04/A. Segmentation/1. Original Images/a. Training Set",
+                "label_root_dir":f"{paths['DATA']}/IDRID/original_unzipped/retreived_2022_03_04/A. Segmentation/2. All Segmentation Groundtruths/a. Training Set",
                 "modality_names":["Retinal"],
                 "planes":[0],
                 "clip_args":None,

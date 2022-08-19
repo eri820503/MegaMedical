@@ -16,11 +16,11 @@ class I2CVB:
         self.dset_info = {
             "retrieved_2022_03_08":{
                 "main":"I2CVB",
-                "image_root_dir":f"{paths['DATA']}/I2CVB/processed/original_unzipped/retrieved_2022_03_08/images",
-                "label_root_dir":f"{paths['DATA']}/I2CVB/processed/original_unzipped/retrieved_2022_03_08/segs",
+                "image_root_dir":f"{paths['DATA']}/I2CVB/original_unzipped/retrieved_2022_03_08/images",
+                "label_root_dir":f"{paths['DATA']}/I2CVB/original_unzipped/retrieved_2022_03_08/segs",
                 "modality_names":["MRI"],
                 "planes":[0, 1, 2],
-                "clip_args":None,
+                "clip_args": [0.5, 99.5],
                 "norm_scheme":"MR",
                 "do_clip":True,
                 "proc_size":256

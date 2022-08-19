@@ -1,6 +1,7 @@
 import cv2
 from tqdm import tqdm
 import glob
+import numpy as np
 import os
 
 #New line!
@@ -16,8 +17,8 @@ class LGGFlair:
         self.dset_info = {
             "retrieved_2021_10_11":{
                 "main":"LGGFlair",
-                "image_root_dir":f"{paths['DATA']}/LGGFlair/processed/original_unzipped/retrieved_2021_10_11",
-                "label_root_dir":f"{paths['DATA']}/LGGFlair/processed/original_unzipped/retrieved_2021_10_11",
+                "image_root_dir":f"{paths['DATA']}/LGGFlair/original_unzipped/retrieved_2021_10_11",
+                "label_root_dir":f"{paths['DATA']}/LGGFlair/original_unzipped/retrieved_2021_10_11",
                 "modality_names":["Flair"],
                 "planes":[2],
                 "clip_args":None,

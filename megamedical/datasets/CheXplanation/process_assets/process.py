@@ -4,6 +4,7 @@ import glob
 from PIL import Image
 import numpy as np
 import json
+from pycocotools import mask
 import os
 
 #New line!
@@ -12,33 +13,13 @@ from megamedical.utils.registry import paths
 from megamedical.utils import proc_utils as put
 
 
-def create_mask(polygons, img_dims):
-    """
-    Creates a binary mask (of the original matrix size) given a list of polygon
-    annotations format.
-    Args:
-        polygons (list): [[[x11,y11],[x12,y12],...[x1n,y1n]],...]
-    Returns:
-        mask (np.array): binary mask, 1 where the pixel is predicted to be the,
-    pathology, 0 otherwise
-    """
-    poly = Image.new('1', (img_dims[1], img_dims[0]))
-    print(polygons)
-    for polygon in polygons:
-        coords = [(point[0], point[1]) for point in polygon]
-        ImageDraw.Draw(poly).polygon(coords,  outline=1, fill=1)
-
-    binary_mask = np.array(poly, dtype="int")
-    return binary_mask
-
-
 class CheXplanation:
 
     def __init__(self):
-        self.name = "Chexplanation"
+        self.name = "CheXplanation"
         self.dset_info = {
             "retreived_2022_03_04":{
-                "main":"CoNSeP",
+                "main":"Chexplanation",
                 "image_root_dir":f"{paths['DATA']}/CheXplanation/original_unzipped/v1.0/CheXplanation/CheXpert-v1.0/valid",
                 "label_root_dir":f"{paths['DATA']}/CheXplanation/original_unzipped/v1.0/CheXplanation",
                 "modality_names":["NA"],
@@ -74,10 +55,13 @@ class CheXplanation:
                         assert os.path.isfile(im_dir), "Valid image dir required!"
                         
                         loaded_image = np.array(Image.open(im_dir).convert('L'))
+                        loaded_labels = []
+                        
                         subj_dict = label_json[f"{image}_study1_view1_frontal"]
                         for label in subj_dict.keys():
-                            loaded_bin_mask = create_mask(subj_dict[label]["counts"], subj_dict[label]["size"])
-
+                            loaded_labels.append(mask.decode(subj_dict[label]))
+                        loaded_label = np.argmax(np.stack(loaded_labels), axis=0)
+                       
                         assert not (loaded_image is None), "Invalid Image"
                         assert not (loaded_label is None), "Invalid Label"
 

@@ -16,11 +16,11 @@ class FeTA:
         self.dset_info = {
             "retrieved_2022_02_16":{
                 "main":"FeTA",
-                "image_root_dir":f"{paths['DATA']}/FeTA/processed/original_unzipped/retrieved_2022_02_16/affine_subjs",
-                "label_root_dir":f"{paths['DATA']}/FeTA/processed/original_unzipped/retrieved_2022_02_16/affine_subjs",
+                "image_root_dir":f"{paths['DATA']}/FeTA/original_unzipped/retrieved_2022_02_16/affine_subjs",
+                "label_root_dir":f"{paths['DATA']}/FeTA/original_unzipped/retrieved_2022_02_16/affine_subjs",
                 "modality_names":["MRI"],
                 "planes":[0, 1, 2],
-                "clip_args":None,
+                "clip_args": [0.5, 99.5],
                 "norm_scheme":"MR",
                 "do_clip":True,
                 "proc_size":256
@@ -48,8 +48,11 @@ class FeTA:
                         im_dir = os.path.join(self.dset_info[dset_name]["image_root_dir"], image, f"{im_id}_img.nii.gz")
                         label_dir = os.path.join(self.dset_info[dset_name]["label_root_dir"], image, f"{im_id}_seg.nii.gz")
 
-                        loaded_image = np.array(nib.load(im_dir).dataobj)
-                        loaded_label = np.array(nib.load(label_dir).dataobj)
+                        loaded_image = put.resample_nib(nib.load(im_dir))
+                        loaded_label = put.resample_mask_to(nib.load(label_dir), loaded_image)
+                        
+                        loaded_image = loaded_image.get_fdata()
+                        loaded_label = loaded_label.get_fdata()
 
                         assert not (loaded_image is None), "Invalid Image"
                         assert not (loaded_label is None), "Invalid Label"

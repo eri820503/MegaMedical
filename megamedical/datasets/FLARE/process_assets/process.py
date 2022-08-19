@@ -16,8 +16,8 @@ class FLARE:
         self.dset_info = {
             "FLARE21":{
                 "main": "FLARE",
-                "image_root_dir":f"{paths['DATA']}/FLARE/processed/original_unzipped/FLARE21/images",
-                "label_root_dir":f"{paths['DATA']}/FLARE/processed/original_unzipped/FLARE21/TrainingMask",
+                "image_root_dir":f"{paths['DATA']}/FLARE/original_unzipped/FLARE21/images",
+                "label_root_dir":f"{paths['DATA']}/FLARE/original_unzipped/FLARE21/TrainingMask",
                 "modality_names":["FLAIR"],
                 "planes":[0, 1, 2],
                 "clip_args":[-500,1000],
@@ -50,8 +50,8 @@ class FLARE:
                         assert os.path.isfile(im_dir), "Valid image dir required!"
                         assert os.path.isfile(label_dir), "Valid label dir required!"
 
-                        loaded_image = preprocess_scripts.resample_nib(nib.load(im_dir))
-                        loaded_label = preprocess_scripts.resample_mask_to(nib.load(label_dir), loaded_image)
+                        loaded_image = pps.resample_nib(nib.load(im_dir))
+                        loaded_label = pps.resample_mask_to(nib.load(label_dir), loaded_image)
 
                         loaded_image = loaded_image.get_fdata()
                         loaded_label = loaded_label.get_fdata()

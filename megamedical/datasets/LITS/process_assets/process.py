@@ -16,8 +16,8 @@ class LITS:
         self.dset_info = {
             "retreived_2022_03_08":{
                 "main":"LITS",
-                "image_root_dir":f"{paths['DATA']}/LITS/processed/original_unzipped/retreived_2022_03_08/media/nas/01_Datasets/CT/LITS/volumes",
-                "label_root_dir":f"{paths['DATA']}/LITS/processed/original_unzipped/retreived_2022_03_08/media/nas/01_Datasets/CT/LITS/segmentations",
+                "image_root_dir":f"{paths['DATA']}/LITS/original_unzipped/retreived_2022_03_08/media/nas/01_Datasets/CT/LITS/volumes",
+                "label_root_dir":f"{paths['DATA']}/LITS/original_unzipped/retreived_2022_03_08/media/nas/01_Datasets/CT/LITS/segmentations",
                 "modality_names":["CT"],
                 "planes":[0, 1, 2],
                 "clip_args":[-500,1000],

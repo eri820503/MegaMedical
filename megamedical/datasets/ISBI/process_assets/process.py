@@ -16,11 +16,11 @@ class ISBI:
         self.dset_info = {
             "retrieved_2021_10_12":{
                 "main":"ISBI",
-                "image_root_dir":f"{paths['DATA']}/ISBI/processed/original_unzipped/retrieved_2021_10_12/images",
-                "label_root_dir":f"{paths['DATA']}/ISBI/processed/original_unzipped/retrieved_2021_10_12/segs",
+                "image_root_dir":f"{paths['DATA']}/ISBI/original_unzipped/retrieved_2021_10_12/images",
+                "label_root_dir":f"{paths['DATA']}/ISBI/original_unzipped/retrieved_2021_10_12/segs",
                 "modality_names":["MRI"],
                 "planes":[0, 1, 2],
-                "clip_args":None,
+                "clip_args": [0.5, 99.5],
                 "norm_scheme":"MR",
                 "do_clip":True,
                 "proc_size":256
