@@ -149,10 +149,11 @@ def display_collapsed(subdset, mod, mod_dir, subjs, resolution):
         plt.show()
                 
         
-def process_dataset(datasets, 
-                    version,
-                    save_slices,
-                    slurm, 
+def process_dataset(datasets,
+                    subdsets=None,
+                    version="4.0",
+                    save_slices=False,
+                    slurm=False, 
                     timeout=540,
                     visualize=False,
                     show_hists=False,
@@ -166,7 +167,7 @@ def process_dataset(datasets,
     if slurm:
         jobs = []
         for do in dataset_objects:
-            dset_names = list(do.dset_info.keys())
+            dset_names = list(do.dset_info.keys()) if subdsets is None else subdsets
             for dset in dset_names:
                 if "megamedical" in subsets:
                     slurm_root = os.path.join(paths["ROOT"], f"bash/submitit/{do.name}/{dset}")
@@ -188,7 +189,7 @@ def process_dataset(datasets,
         return jobs
     else:
         for do in dataset_objects:
-            dset_names = list(do.dset_info.keys())
+            dset_names = list(do.dset_info.keys()) if subdsets is None else subdsets
             for dset in dset_names:
                 if "megamedical" in subsets:
                     do.proc_func(dset,

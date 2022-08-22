@@ -16,30 +16,30 @@ class MSD:
         self.dset_info = {
             "BrainTumour":{
                 "main":"MSD",
-                "image_root_dir":f"{paths['DATA']}/MSD/processed/original_unzipped/BrainTumour/retrieved_2018_07_03/images",
-                "label_root_dir":f"{paths['DATA']}/MSD/processed/original_unzipped/BrainTumour/retrieved_2018_07_03/segs",
+                "image_root_dir":f"{paths['DATA']}/MSD/original_unzipped/BrainTumour/retrieved_2018_07_03/images",
+                "label_root_dir":f"{paths['DATA']}/MSD/original_unzipped/BrainTumour/retrieved_2018_07_03/segs",
                 "modality_names":["FLAIR", "T1w", "T1gd","T2w"],
                 "planes":[0, 1, 2],
-                "clip_args":None,
+                "clip_args": [0.5, 99.5],
                 "norm_scheme":"MR",
                 "do_clip":True,
                 "proc_size":256
             },
             "Heart":{
                 "main":"MSD",
-                "image_root_dir":f"{paths['DATA']}/MSD/processed/original_unzipped/Heart/retrieved_2021_04_25/images",
-                "label_root_dir":f"{paths['DATA']}/MSD/processed/original_unzipped/Heart/retrieved_2021_04_25/segs",
+                "image_root_dir":f"{paths['DATA']}/MSD/original_unzipped/Heart/retrieved_2021_04_25/images",
+                "label_root_dir":f"{paths['DATA']}/MSD/original_unzipped/Heart/retrieved_2021_04_25/segs",
                 "modality_names":["Mono"],
                 "planes":[0, 1, 2],
-                "clip_args":None,
+                "clip_args": [0.5, 99.5],
                 "norm_scheme":"MR",
                 "do_clip":True,
                 "proc_size":256
             },
             "Liver":{
                 "main":"MSD",
-                "image_root_dir":f"{paths['DATA']}/MSD/processed/original_unzipped/Liver/retrieved_2018_05_26/images",
-                "label_root_dir":f"{paths['DATA']}/MSD/processed/original_unzipped/Liver/retrieved_2018_05_26/segs",
+                "image_root_dir":f"{paths['DATA']}/MSD/original_unzipped/Liver/retrieved_2018_05_26/images",
+                "label_root_dir":f"{paths['DATA']}/MSD/original_unzipped/Liver/retrieved_2018_05_26/segs",
                 "modality_names":["PVP-CT"],
                 "planes":[0, 1, 2],
                 "clip_args":[-250,250],
@@ -49,30 +49,30 @@ class MSD:
             },
             "Hippocampus":{
                 "main":"MSD",
-                "image_root_dir":f"{paths['DATA']}/MSD/processed/original_unzipped/Hippocampus/retrieved_2021_04_22/images",
-                "label_root_dir":f"{paths['DATA']}/MSD/processed/original_unzipped/Hippocampus/retrieved_2021_04_22/segs",
+                "image_root_dir":f"{paths['DATA']}/MSD/original_unzipped/Hippocampus/retrieved_2021_04_22/images",
+                "label_root_dir":f"{paths['DATA']}/MSD/original_unzipped/Hippocampus/retrieved_2021_04_22/segs",
                 "modality_names":["Mono"],
                 "planes":[0, 1, 2],
-                "clip_args":None,
+                "clip_args": [0.5, 99.5],
                 "norm_scheme":"MR",
                 "do_clip":True,
                 "proc_size":256
             },
             "Prostate":{
                 "main":"MSD",
-                "image_root_dir":f"{paths['DATA']}/MSD/processed/original_unzipped/Prostate/retrieved_2018_05_31/images",
-                "label_root_dir":f"{paths['DATA']}/MSD/processed/original_unzipped/Prostate/retrieved_2018_05_31/segs",
+                "image_root_dir":f"{paths['DATA']}/MSD/original_unzipped/Prostate/retrieved_2018_05_31/images",
+                "label_root_dir":f"{paths['DATA']}/MSD/original_unzipped/Prostate/retrieved_2018_05_31/segs",
                 "modality_names":["T2","ADC"],
-                "planes":[0, 1, 2],
-                "clip_args":None,
+                "planes":[2],
+                "clip_args": [0.5, 99.5],
                 "norm_scheme":"MR",
                 "do_clip":True,
                 "proc_size":256
             },
             "Lung":{
                 "main":"MSD",
-                "image_root_dir":f"{paths['DATA']}/MSD/processed/original_unzipped/Lung/retrieved_2018_05_31/images",
-                "label_root_dir":f"{paths['DATA']}/MSD/processed/original_unzipped/Lung/retrieved_2018_05_31/segs",
+                "image_root_dir":f"{paths['DATA']}/MSD/original_unzipped/Lung/retrieved_2018_05_31/images",
+                "label_root_dir":f"{paths['DATA']}/MSD/original_unzipped/Lung/retrieved_2018_05_31/segs",
                 "modality_names":["CT"],
                 "planes":[0, 1, 2],
                 "clip_args":[-500,1000],
@@ -82,8 +82,8 @@ class MSD:
             },
             "Pancreas":{
                 "main":"MSD",
-                "image_root_dir":f"{paths['DATA']}/MSD/processed/original_unzipped/Pancreas/retrieved_2021_04_22/images",
-                "label_root_dir":f"{paths['DATA']}/MSD/processed/original_unzipped/Pancreas/retrieved_2021_04_22/segs",
+                "image_root_dir":f"{paths['DATA']}/MSD/original_unzipped/Pancreas/retrieved_2021_04_22/images",
+                "label_root_dir":f"{paths['DATA']}/MSD/original_unzipped/Pancreas/retrieved_2021_04_22/segs",
                 "modality_names":["PVP-CT"],
                 "planes":[0, 1, 2],
                 "clip_args":[-500,1000],
@@ -93,8 +93,8 @@ class MSD:
             },
             "HepaticVessel":{
                 "main":"MSD",
-                "image_root_dir":f"{paths['DATA']}/MSD/processed/original_unzipped/HepaticVessel/retrieved_2021_04_22/images",
-                "label_root_dir":f"{paths['DATA']}/MSD/processed/original_unzipped/HepaticVessel/retrieved_2021_04_22/segs",
+                "image_root_dir":f"{paths['DATA']}/MSD/original_unzipped/HepaticVessel/retrieved_2021_04_22/images",
+                "label_root_dir":f"{paths['DATA']}/MSD/original_unzipped/HepaticVessel/retrieved_2021_04_22/segs",
                 "modality_names":["CT"],
                 "planes":[0, 1, 2],
                 "clip_args":[-500,1000],
@@ -104,8 +104,8 @@ class MSD:
             },
             "Spleen":{
                 "main":"MSD",
-                "image_root_dir":f"{paths['DATA']}/MSD/processed/original_unzipped/Spleen/retrieved_2021_04_22/images",
-                "label_root_dir":f"{paths['DATA']}/MSD/processed/original_unzipped/Spleen/retrieved_2021_04_22/segs",
+                "image_root_dir":f"{paths['DATA']}/MSD/original_unzipped/Spleen/retrieved_2021_04_22/images",
+                "label_root_dir":f"{paths['DATA']}/MSD/original_unzipped/Spleen/retrieved_2021_04_22/segs",
                 "modality_names":["CT"],
                 "planes":[0, 1, 2],
                 "clip_args":[-500,1000],
@@ -115,8 +115,8 @@ class MSD:
             },
             "Colon":{
                 "main":"MSD",
-                "image_root_dir":f"{paths['DATA']}/MSD/processed/original_unzipped/Colon/retrieved_2021_04_22/images",
-                "label_root_dir":f"{paths['DATA']}/MSD/processed/original_unzipped/Colon/retrieved_2021_04_22/segs",
+                "image_root_dir":f"{paths['DATA']}/MSD/original_unzipped/Colon/retrieved_2021_04_22/images",
+                "label_root_dir":f"{paths['DATA']}/MSD/original_unzipped/Colon/retrieved_2021_04_22/segs",
                 "modality_names":["CT"],
                 "planes":[0, 1, 2],
                 "clip_args":[-500,1000],
@@ -147,9 +147,13 @@ class MSD:
 
                         assert os.path.isfile(im_dir), "Valid image dir required!"
                         assert os.path.isfile(label_dir), "Valid label dir required!"
-
-                        loaded_image = put.resample_nib(nib.load(im_dir))
-                        loaded_label = put.resample_mask_to(nib.load(label_dir), loaded_image)
+                        
+                        loaded_image = nib.load(im_dir)
+                        loaded_label = nib.load(label_dir)
+                        
+                        if len(loaded_image.shape) == 3:
+                            loaded_image = put.resample_nib(loaded_image)
+                            loaded_label = put.resample_mask_to(loaded_label, loaded_image)
 
                         loaded_image = loaded_image.get_fdata()
                         loaded_label = loaded_label.get_fdata()
