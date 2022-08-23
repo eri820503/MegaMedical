@@ -1,5 +1,6 @@
 import nibabel as nib
 from tqdm import tqdm
+import numpy as np
 import glob
 import os
 
@@ -14,15 +15,37 @@ class PanNuke:
     def __init__(self):
         self.name = "PanNuke"
         self.dset_info = {
-            "Challenge2017":{
-                "main":"ACDC",
-                "image_root_dir":f"{paths['DATA']}/ACDC/processed/original_unzipped/Challenge2017/training",
-                "label_root_dir":f"{paths['DATA']}/ACDC/processed/original_unzipped/Challenge2017/training",
-                "modality_names":["MRI"],
-                "planes":[2],
+            "Fold1":{
+                "main":"PanNuke",
+                "image_root_dir":f"{paths['DATA']}/PanNuke/original_unzipped/retreived_2022_03_04/Fold1/images/fold1/images.npy",
+                "label_root_dir":f"{paths['DATA']}/PanNuke/original_unzipped/retreived_2022_03_04/Fold1/masks/fold1/masks.npy",
+                "modality_names":["NA"],
+                "planes":[0],
                 "clip_args":None,
-                "norm_scheme":"MR",
-                "do_clip":True,
+                "norm_scheme":None,
+                "do_clip":False,
+                "proc_size":256
+            },
+            "Fold2":{
+                "main":"PanNuke",
+                "image_root_dir":f"{paths['DATA']}/PanNuke/original_unzipped/retreived_2022_03_04/Fold2/images/fold2/images.npy",
+                "label_root_dir":f"{paths['DATA']}/PanNuke/original_unzipped/retreived_2022_03_04/Fold2/masks/fold2/masks.npy",
+                "modality_names":["NA"],
+                "planes":[0],
+                "clip_args":None,
+                "norm_scheme":None,
+                "do_clip":False,
+                "proc_size":256
+            },
+            "Fold3":{
+                "main":"PanNuke",
+                "image_root_dir":f"{paths['DATA']}/PanNuke/original_unzipped/retreived_2022_03_04/Fold3/images/fold3/images.npy",
+                "label_root_dir":f"{paths['DATA']}/PanNuke/original_unzipped/retreived_2022_03_04/Fold3/masks/fold3/masks.npy",
+                "modality_names":["NA"],
+                "planes":[0],
+                "clip_args":None,
+                "norm_scheme":None,
+                "do_clip":False,
                 "proc_size":256
             }
         }
@@ -37,26 +60,23 @@ class PanNuke:
         assert not(version is None and save_slices), "Must specify version for saving."
         assert dset_name in self.dset_info.keys(), "Sub-dataset must be in info dictionary."
         proc_dir = pps.make_processed_dir(self.name, dset_name, save_slices, version, self.dset_info[dset_name])
-        image_list = os.listdir(self.dset_info[dset_name]["image_root_dir"])
+        
+        volumes_array = np.load(self.dset_info[dset_name]["image_root_dir"])
+        labels_array = np.load(self.dset_info[dset_name]["label_root_dir"])
+        
+        image_list = list(range(images.shape[0]))
         with tqdm(total=len(image_list), desc=f'Processing: {dset_name}', unit='image') as pbar:
             for image in image_list:
                 try:
                     proc_dir_template = os.path.join(proc_dir, f"megamedical_v{version}", dset_name, "*", image)
                     if redo_processed or (len(glob.glob(proc_dir_template)) == 0):
-                        im_dir = os.path.join(self.dset_info[dset_name]["image_root_dir"], image, f"{image}_frame01.nii.gz")
-                        if dset_name == "Challenge2017":
-                            label_dir = os.path.join(self.dset_info[dset_name]["label_root_dir"], image, f"{image}_frame01_gt.nii.gz")
-                        else:
-                            label_dir = os.path.join(self.dset_info[dset_name]["label_root_dir"], f"{image}_frame01_scribble.nii.gz")
-                        
-                        assert os.path.isfile(im_dir), "Valid image dir required!"
-                        assert os.path.isfile(label_dir), "Valid label dir required!"
 
-                        loaded_image = put.resample_nib(nib.load(im_dir))
-                        loaded_label = put.resample_mask_to(nib.load(label_dir), loaded_image)
+                        loaded_image = volumes_array[image,...]
+                        loaded_label = labels_array[image,...]
                         
-                        loaded_image = loaded_image.get_fdata()
-                        loaded_label = loaded_label.get_fdata()
+                        background_label = np.zeros(loaded_label.shape[0], loaded_label.shape[1])
+                        loaded_label = np.concatenate([background_label, loaded_label], axis=2)
+                        loaded_label = np.argmax(loaded_label, axis=2)
 
                         assert not (loaded_image is None), "Invalid Image"
                         assert not (loaded_label is None), "Invalid Label"

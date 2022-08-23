@@ -16,11 +16,11 @@ class OASIS:
         self.dset_info = {
             "retrieved_2021_01_26":{
                 "main":"OASIS",
-                "image_root_dir":f"{paths['DATA']}/OASIS/processed/original_unzipped/retrieved_2021_01_26",
-                "label_root_dir":f"{paths['DATA']}/OASIS/processed/original_unzipped/retrieved_2021_01_26",
+                "image_root_dir":f"{paths['DATA']}/OASIS/original_unzipped/retrieved_2021_01_26",
+                "label_root_dir":f"{paths['DATA']}/OASIS/original_unzipped/retrieved_2021_01_26",
                 "modality_names":["T1"],
                 "planes":[0, 1, 2],
-                "clip_args":None,
+                "clip_args": [0.5, 99.5],
                 "norm_scheme":"MR",
                 "do_clip":True,
                 "proc_size":256

@@ -16,8 +16,8 @@ class OCTA500:
         self.dset_info = {
             "OCTA_3M":{
                 "main":"OCTA500",
-                "image_root_dir":f"{paths['DATA']}/OCTA500/processed/original_unzipped/retrieved_04_01/OCTA_3M/Projection Maps/OCT(FULL)",
-                "label_root_dir":f"{paths['DATA']}/OCTA500/processed/original_unzipped/retrieved_04_01/OCTA_3M/GroundTruth",
+                "image_root_dir":f"{paths['DATA']}/OCTA500/original_unzipped/retrieved_04_01/OCTA_3M/Projection Maps/OCT(FULL)",
+                "label_root_dir":f"{paths['DATA']}/OCTA500/original_unzipped/retrieved_04_01/OCTA_3M/GroundTruth",
                 "modality_names":["Retinal"],
                 "planes":[0],
                 "clip_args":None,
@@ -27,8 +27,8 @@ class OCTA500:
             },
             "OCTA_6M":{
                 "main":"OCTA500",
-                "image_root_dir":f"{paths['DATA']}/OCTA500/processed/original_unzipped/retrieved_04_01/OCTA_6M/Projection Maps/OCT(FULL)",
-                "label_root_dir":f"{paths['DATA']}/OCTA500/processed/original_unzipped/retrieved_04_01/OCTA_6M/GroundTruth",
+                "image_root_dir":f"{paths['DATA']}/OCTA500/original_unzipped/retrieved_04_01/OCTA_6M/Projection Maps/OCT(FULL)",
+                "label_root_dir":f"{paths['DATA']}/OCTA500/original_unzipped/retrieved_04_01/OCTA_6M/GroundTruth",
                 "modality_names":["Retinal"],
                 "planes":[0],
                 "clip_args":None,
