@@ -57,7 +57,7 @@ class WBC:
                     if redo_processed or (len(glob.glob(proc_dir_template)) == 0):
                         im_dir = os.path.join(self.dset_info[dset_name]["image_root_dir"], image) 
                         label_dir = os.path.join(self.dset_info[dset_name]["label_root_dir"], f"{image[:-4]}.png")
-
+        
                         loaded_image = np.array(Image.open(im_dir).convert('L'))
                         loaded_label = np.array(Image.open(label_dir))
 
