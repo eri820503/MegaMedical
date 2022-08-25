@@ -16,11 +16,11 @@ class SpineWeb:
         self.dset_info = {
             "Dataset7":{
                 "main":"SpineWeb",
-                "image_root_dir":f"{paths['DATA']}/SpineWeb/processed/original_unzipped/retreived_2022_03_04/Dataset7/IVD_Challenge_Data",
-                "label_root_dir":f"{paths['DATA']}/SpineWeb/processed/original_unzipped/retreived_2022_03_04/Dataset7/IVD_Challenge_Data",
+                "image_root_dir":f"{paths['DATA']}/SpineWeb/original_unzipped/retreived_2022_03_04/Dataset7/IVD_Challenge_Data",
+                "label_root_dir":f"{paths['DATA']}/SpineWeb/original_unzipped/retreived_2022_03_04/Dataset7/IVD_Challenge_Data",
                 "modality_names":["MR"],
                 "planes":[0],
-                "clip_args":None,
+                "clip_args": [0.5, 99.5],
                 "norm_scheme":"MR",
                 "do_clip":True,
                 "proc_size":256

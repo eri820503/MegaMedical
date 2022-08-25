@@ -2,6 +2,7 @@ import nibabel as nib
 from tqdm import tqdm
 import glob
 import os
+import numpy as np
 
 #New line!
 from megamedical.src import preprocess_scripts as pps
@@ -16,8 +17,8 @@ class SMIR:
         self.dset_info = {
             "retreived_2022_03_08":{
                 "main":"SMIR",
-                "image_root_dir":f"{paths['DATA']}/SMIR/processed/original_unzipped/retreived_2022_03_08/Training",
-                "label_root_dir":f"{paths['DATA']}/SMIR/processed/original_unzipped/retreived_2022_03_08/Training",
+                "image_root_dir":f"{paths['DATA']}/SMIR/original_unzipped/retreived_2022_03_08/Training",
+                "label_root_dir":f"{paths['DATA']}/SMIR/original_unzipped/retreived_2022_03_08/Training",
                 "modality_names":["FLAIR", "T1"],
                 "planes":[2],
                 "clip_args":None,

@@ -1,5 +1,6 @@
 import h5py
 from tqdm import tqdm
+import numpy as np
 import glob
 import os
 
@@ -16,8 +17,8 @@ class TUCC:
         self.dset_info = {
             "retreived_2022_03_06":{
                 "main": "TUCC",
-                "image_root_dir":f"{paths['DATA']}/TUCC/processed/original_unzipped/retreived_2022_03_04",
-                "label_root_dir":f"{paths['DATA']}/TUCC/processed/original_unzipped/retreived_2022_03_04",
+                "image_root_dir":f"{paths['DATA']}/TUCC/original_unzipped/retreived_2022_03_04",
+                "label_root_dir":f"{paths['DATA']}/TUCC/original_unzipped/retreived_2022_03_04",
                 "modality_names":["NA"],
                 "planes":[0],
                 "clip_args":None,
@@ -38,17 +39,19 @@ class TUCC:
         assert dset_name in self.dset_info.keys(), "Sub-dataset must be in info dictionary."
         proc_dir = pps.make_processed_dir(self.name, dset_name, save_slices, version, self.dset_info[dset_name])
         hf = h5py.File(os.path.join(self.dset_info[dset_name]["image_root_dir"],'dataset.hdf5'), 'r')
-        images = np.array(hf["image"][:1000])
-        segs = np.array(hf["mask"][:1000])
+  
+        chosen_inds = np.sort(np.random.choice(np.arange(len(hf["image"])), 1000))
+        images = hf["image"]
+        segs = hf["mask"]
 
         with tqdm(total=1000, desc=f'Processing: {dset_name}', unit='image') as pbar:
-            for idx, image in enumerate([f"img{i}" for i in range(1000)]):
+            for image in chosen_inds:
                 try:
-                    proc_dir_template = os.path.join(proc_dir, f"megamedical_v{version}", dset_name, "*", image)
+                    proc_dir_template = os.path.join(proc_dir, f"megamedical_v{version}", dset_name, "*", f"img{image}")
                     if redo_processed or (len(glob.glob(proc_dir_template)) == 0):
 
-                        loaded_image = images[idx, ...]
-                        loaded_label = segs[idx, ...]
+                        loaded_image = np.array(images[image, ...])
+                        loaded_label = np.array(segs[image, ...])
 
                         assert not (loaded_image is None), "Invalid Image"
                         assert not (loaded_label is None), "Invalid Label"
@@ -56,7 +59,7 @@ class TUCC:
                         pps.produce_slices(proc_dir,
                                           version,
                                           dset_name,
-                                          image, 
+                                          f"img{image}", 
                                           loaded_image,
                                           loaded_label,
                                           self.dset_info[dset_name],

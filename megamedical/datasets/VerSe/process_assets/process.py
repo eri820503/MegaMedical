@@ -16,8 +16,8 @@ class VerSe:
         self.dset_info = {
             "VerSe19":{
                 "main": "VerSe",
-                "image_root_dir":f"{paths['DATA']}/VerSe/processed/original_unzipped/VerSe19/dataset-verse19training/rawdata",
-                "label_root_dir":f"{paths['DATA']}/VerSe/processed/original_unzipped/VerSe19/dataset-verse19training/derivatives",
+                "image_root_dir":f"{paths['DATA']}/VerSe/original_unzipped/VerSe19/dataset-verse19training/rawdata",
+                "label_root_dir":f"{paths['DATA']}/VerSe/original_unzipped/VerSe19/dataset-verse19training/derivatives",
                 "modality_names":["CT"],
                 "planes": [0],
                 "clip_args":[-500,1000],
@@ -27,8 +27,8 @@ class VerSe:
             },
             "VerSe20":{
                 "main": "VerSe",
-                "image_root_dir":f"{paths['DATA']}/VerSe/processed/original_unzipped/VerSe20/dataset-01training/rawdata",
-                "label_root_dir":f"{paths['DATA']}/VerSe/processed/original_unzipped/VerSe20/dataset-01training/derivatives",
+                "image_root_dir":f"{paths['DATA']}/VerSe/original_unzipped/VerSe20/dataset-01training/rawdata",
+                "label_root_dir":f"{paths['DATA']}/VerSe/original_unzipped/VerSe20/dataset-01training/derivatives",
                 "modality_names":["CT"],
                 "planes": [0, 1],
                 "clip_args":[-500,1000],
@@ -58,16 +58,15 @@ class VerSe:
                         if dset_name == "VerSe19":
                             im_dir = os.path.join(self.dset_info[dset_name]["image_root_dir"], image, f"{image}_ct.nii.gz")
                             label_dir = os.path.join(self.dset_info[dset_name]["label_root_dir"], image, f"{image}_seg-vert_msk.nii.gz")
-
-                            loaded_image = np.array(nib.load(im_dir).dataobj)
-                            loaded_label = np.array(nib.load(label_dir).dataobj)
                         else:
                             im_dir = os.path.join(self.dset_info[dset_name]["image_root_dir"], image, f"{image}_dir-ax_ct.nii.gz")
                             label_dir = os.path.join(self.dset_info[dset_name]["label_root_dir"], image, f"{image}_dir-ax_seg-vert_msk.nii.gz")
 
-                            loaded_image = put.resample_nib(nib.load(im_dir))
-                            loaded_label = np.array(put.resample_mask_to(nib.load(label_dir), loaded_image).dataobj)
-                            loaded_image = np.array(loaded_image.dataobj)
+                        loaded_image = put.resample_nib(nib.load(im_dir))
+                        loaded_label = put.resample_mask_to(nib.load(label_dir), loaded_image)
+                        
+                        loaded_image = loaded_image.get_fdata()
+                        loaded_label = loaded_label.get_fdata()
 
                         assert not (loaded_image is None), "Invalid Image"
                         assert not (loaded_label is None), "Invalid Label"

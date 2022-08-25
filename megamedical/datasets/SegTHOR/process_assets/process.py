@@ -16,8 +16,8 @@ class SegTHOR:
         self.dset_info = {
             "retreived_2022_03_02":{
                 "main":"SegTHOR",
-                "image_root_dir":f"{paths['DATA']}/SegTHOR/processed/original_unzipped/retreived_2022_03_02/train",
-                "label_root_dir":f"{paths['DATA']}/SegTHOR/processed/original_unzipped/retreived_2022_03_02/train",
+                "image_root_dir":f"{paths['DATA']}/SegTHOR/original_unzipped/retreived_2022_03_02/train",
+                "label_root_dir":f"{paths['DATA']}/SegTHOR/original_unzipped/retreived_2022_03_02/train",
                 "modality_names":["CT"],
                 "planes":[0, 1, 2],
                 "clip_args": [-500,1000],

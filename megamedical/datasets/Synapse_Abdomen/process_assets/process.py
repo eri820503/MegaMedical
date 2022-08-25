@@ -16,8 +16,8 @@ class Synapse_Abdomen:
         self.dset_info = {
             "retrieved_2022_01_24":{
                 "main":"Synapse_Abdomen",
-                "image_root_dir":f"{paths['DATA']}/Synapse_Abdomen/processed/original_unzipped/retrieved_2022_01_24/images",
-                "label_root_dir":f"{paths['DATA']}/Synapse_Abdomen/processed/original_unzipped/retrieved_2022_01_24/segs",
+                "image_root_dir":f"{paths['DATA']}/Synapse_Abdomen/original_unzipped/retrieved_2022_01_24/images",
+                "label_root_dir":f"{paths['DATA']}/Synapse_Abdomen/original_unzipped/retrieved_2022_01_24/segs",
                 "modality_names":["CT"],
                 "planes":[0, 1, 2],
                 "clip_args":[-500,1000],

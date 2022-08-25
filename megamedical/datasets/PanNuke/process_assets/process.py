@@ -76,10 +76,10 @@ class PanNuke:
                         loaded_image = volumes_array[image,...]
                         loaded_image = 0.2989*loaded_image[...,0] + 0.5870*loaded_image[...,1] + 0.1140*loaded_image[...,2] 
                         
-                        loaded_label = labels_array[image,...]
-                        background_label = np.zeros((loaded_label.shape[0], loaded_label.shape[1], 1))
-                        loaded_label = np.concatenate([background_label, loaded_label], axis=2)
-                        loaded_label = np.argmax(loaded_label, axis=2)
+                        loaded_label = np.transpose(labels_array[image,...], (2, 0, 1))
+                        background_label = np.zeros((1, loaded_label.shape[1], loaded_label.shape[2]))
+                        loaded_label = np.concatenate([background_label, loaded_label], axis=0)
+                        loaded_label = np.argmax(loaded_label, axis=0)
 
                         assert not (loaded_image is None), "Invalid Image"
                         assert not (loaded_label is None), "Invalid Label"

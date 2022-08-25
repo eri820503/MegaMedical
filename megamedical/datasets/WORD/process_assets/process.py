@@ -37,14 +37,14 @@ class WORD:
         assert not(version is None and save_slices), "Must specify version for saving."
         assert dset_name in self.dset_info.keys(), "Sub-dataset must be in info dictionary."
         proc_dir = pps.make_processed_dir(self.name, dset_name, save_slices, version, self.dset_info[dset_name])
-        image_list = os.listdir(self.dset_info["image_root_dir"])
+        image_list = os.listdir(self.dset_info[dset_name]["image_root_dir"])
         with tqdm(total=len(image_list), desc=f'Processing: {dset_name}', unit='image') as pbar:
             for sub_num, image in enumerate(image_list):
                 try:
                     proc_dir_template = os.path.join(proc_dir, f"megamedical_v{version}", dset_name, "*", image)
                     if redo_processed or (len(glob.glob(proc_dir_template)) == 0):
-                        im_dir = os.path.join(self.dset_info["image_root_dir"], image)
-                        label_dir = os.path.join(self.dset_info["label_root_dir"], image)
+                        im_dir = os.path.join(self.dset_info[dset_name]["image_root_dir"], image)
+                        label_dir = os.path.join(self.dset_info[dset_name]["label_root_dir"], image)
 
                         assert os.path.isfile(im_dir), "Valid image dir required!"
                         assert os.path.isfile(label_dir), "Valid label dir required!"

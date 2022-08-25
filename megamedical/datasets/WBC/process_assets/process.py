@@ -1,5 +1,6 @@
 from PIL import Image
 from tqdm import tqdm
+import numpy as np
 import glob
 import os
 
@@ -17,8 +18,8 @@ class WBC:
         self.dset_info = {
             "CV":{
                 "main": "WBC",
-                "image_root_dir":f"{paths['DATA']}/WBC/processed/original_unzipped/CV/images",
-                "label_root_dir":f"{paths['DATA']}/WBC/processed/original_unzipped/CV/segs",
+                "image_root_dir":f"{paths['DATA']}/WBC/original_unzipped/CV/images",
+                "label_root_dir":f"{paths['DATA']}/WBC/original_unzipped/CV/segs",
                 "modality_names":["EM"],
                 "planes":[0],
                 "clip_args":None,
@@ -28,8 +29,8 @@ class WBC:
             },
             "JTSC":{
                 "main": "WBC",
-                "image_root_dir":f"{paths['DATA']}/WBC/processed/original_unzipped/JTSC/images",
-                "label_root_dir":f"{paths['DATA']}/WBC/processed/original_unzipped/JTSC/segs",
+                "image_root_dir":f"{paths['DATA']}/WBC/original_unzipped/JTSC/images",
+                "label_root_dir":f"{paths['DATA']}/WBC/original_unzipped/JTSC/segs",
                 "modality_names":["EM"],
                 "planes":[0],
                 "clip_args":None,

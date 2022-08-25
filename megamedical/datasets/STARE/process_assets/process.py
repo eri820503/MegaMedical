@@ -1,6 +1,7 @@
 import imageio as io
 from tqdm import tqdm
 import glob
+import gzip
 import os
 
 #New line!
@@ -16,8 +17,8 @@ class STARE:
         self.dset_info = {
             "retrieved_2021_12_06":{
                 "main": "STARE",
-                "image_root_dir":f"{paths['DATA']}/STARE/processed/original_unzipped/retrieved_2021_12_06/images",
-                "label_root_dir":f"{paths['DATA']}/STARE/processed/original_unzipped/retrieved_2021_12_06/labels",
+                "image_root_dir":f"{paths['DATA']}/STARE/original_unzipped/retrieved_2021_12_06/images",
+                "label_root_dir":f"{paths['DATA']}/STARE/original_unzipped/retrieved_2021_12_06/labels",
                 "modality_names":["Retinal"],
                 "planes":[0],
                 "clip_args":None,

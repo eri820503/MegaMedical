@@ -1,5 +1,6 @@
 from PIL import Image
 from tqdm import tqdm
+import numpy as np
 import glob
 import os
 
@@ -16,8 +17,8 @@ class ROSE:
         self.dset_info = {
             "ROSE-1-DVC":{
                 "main": "ROSE",
-                "image_root_dir":f"{paths['DATA']}/ROSE/processed/original_unzipped/ROSE-1-DVC/img",
-                "label_root_dir":f"{paths['DATA']}/ROSE/processed/original_unzipped/ROSE-1-DVC/gt",
+                "image_root_dir":f"{paths['DATA']}/ROSE/original_unzipped/ROSE-1-DVC/img",
+                "label_root_dir":f"{paths['DATA']}/ROSE/original_unzipped/ROSE-1-DVC/gt",
                 "modality_names":["Retinal"],
                 "planes":[0],
                 "clip_args":None,
@@ -27,8 +28,8 @@ class ROSE:
             },
             "ROSE-1-SVC":{
                 "main": "ROSE",
-                "image_root_dir":f"{paths['DATA']}/ROSE/processed/original_unzipped/ROSE-1-SVC/img",
-                "label_root_dir":f"{paths['DATA']}/ROSE/processed/original_unzipped/ROSE-1-SVC/gt",
+                "image_root_dir":f"{paths['DATA']}/ROSE/original_unzipped/ROSE-1-SVC/img",
+                "label_root_dir":f"{paths['DATA']}/ROSE/original_unzipped/ROSE-1-SVC/gt",
                 "modality_names":["Retinal"],
                 "planes":[0],
                 "clip_args":None,
@@ -38,8 +39,8 @@ class ROSE:
             },
             "ROSE-1-SVC_DVC":{
                 "main": "ROSE",
-                "image_root_dir":f"{paths['DATA']}/ROSE/processed/original_unzipped/ROSE-1-SVC_DVC/img",
-                "label_root_dir":f"{paths['DATA']}/ROSE/processed/original_unzipped/ROSE-1-SVC_DVC/gt",
+                "image_root_dir":f"{paths['DATA']}/ROSE/original_unzipped/ROSE-1-SVC_DVC/img",
+                "label_root_dir":f"{paths['DATA']}/ROSE/original_unzipped/ROSE-1-SVC_DVC/gt",
                 "modality_names":["Retinal"],
                 "planes":[0],
                 "clip_args":None,
@@ -49,8 +50,8 @@ class ROSE:
             },
             "ROSE-2":{
                 "main": "ROSE",
-                "image_root_dir":f"{paths['DATA']}/ROSE/processed/original_unzipped/ROSE-2/img",
-                "label_root_dir":f"{paths['DATA']}/ROSE/processed/original_unzipped/ROSE-2/gt",
+                "image_root_dir":f"{paths['DATA']}/ROSE/original_unzipped/ROSE-2/img",
+                "label_root_dir":f"{paths['DATA']}/ROSE/original_unzipped/ROSE-2/gt",
                 "modality_names":["Retinal"],
                 "planes":[0],
                 "clip_args":None,

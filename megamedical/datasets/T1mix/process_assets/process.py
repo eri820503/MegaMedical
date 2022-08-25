@@ -1,5 +1,6 @@
 import nibabel as nib
 from tqdm import tqdm
+import numpy as np
 import glob
 import os
 
@@ -16,11 +17,11 @@ class T1mix:
         self.dset_info = {
             "retrieved_2021_06_10":{
                 "main":"T1mix",
-                "image_root_dir":f"{paths['DATA']}/T1mix/processed/original_unzipped/retrieved_2021_06_10/train/vols",
-                "label_root_dir":f"{paths['DATA']}/T1mix/processed/original_unzipped/retrieved_2021_06_10/train/asegs",
+                "image_root_dir":f"{paths['DATA']}/T1mix/original_unzipped/retrieved_2021_06_10/train/vols",
+                "label_root_dir":f"{paths['DATA']}/T1mix/original_unzipped/retrieved_2021_06_10/train/asegs",
                 "modality_names":["T1"],
                 "planes":[0, 1, 2],
-                "clip_args":None,
+                "clip_args": [0.5, 99.5],
                 "norm_scheme":"MR",
                 "do_clip":True,
                 "proc_size":256

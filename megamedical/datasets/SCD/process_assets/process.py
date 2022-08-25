@@ -17,8 +17,8 @@ class SCD:
         self.dset_info = {
             "LAS":{
                 "main":"SCD",
-                "image_root_dir":f"{paths['DATA']}/SCD/processed/original_unzipped/LAS/retrieved_2021_11_08",
-                "label_root_dir":f"{paths['DATA']}/SCD/processed/original_unzipped/LAS/retrieved_2021_11_08",
+                "image_root_dir":f"{paths['DATA']}/SCD/original_unzipped/LAS/retrieved_2021_11_08",
+                "label_root_dir":f"{paths['DATA']}/SCD/original_unzipped/LAS/retrieved_2021_11_08",
                 "modality_names":["MRI"],
                 "planes":[2],
                 "clip_args":None,
@@ -28,8 +28,8 @@ class SCD:
             },
             "LAF_Pre":{
                 "main":"SCD",
-                "image_root_dir":f"{paths['DATA']}/SCD/processed/original_unzipped/LAF_Pre/retrieved_2021_11_08",
-                "label_root_dir":f"{paths['DATA']}/SCD/processed/original_unzipped/LAF_Pre/retrieved_2021_11_08",
+                "image_root_dir":f"{paths['DATA']}/SCD/original_unzipped/LAF_Pre/retrieved_2021_11_08",
+                "label_root_dir":f"{paths['DATA']}/SCD/original_unzipped/LAF_Pre/retrieved_2021_11_08",
                 "modality_names":["MRI"],
                 "planes":[2],
                 "clip_args":None,
@@ -39,8 +39,8 @@ class SCD:
             },
             "LAF_Post":{
                 "main":"SCD",
-                "image_root_dir":f"{paths['DATA']}/SCD/processed/original_unzipped/LAF_Post/retrieved_2021_11_08",
-                "label_root_dir":f"{paths['DATA']}/SCD/processed/original_unzipped/LAF_Post/retrieved_2021_11_08",
+                "image_root_dir":f"{paths['DATA']}/SCD/original_unzipped/LAF_Post/retrieved_2021_11_08",
+                "label_root_dir":f"{paths['DATA']}/SCD/original_unzipped/LAF_Post/retrieved_2021_11_08",
                 "modality_names":["MRI"],
                 "planes":[2],
                 "clip_args":None,
@@ -50,8 +50,8 @@ class SCD:
             },
             "VIS_pig":{
                 "main":"SCD",
-                "image_root_dir":f"{paths['DATA']}/SCD/processed/original_unzipped/VIS_pig/retrieved_2021_11_08",
-                "label_root_dir":f"{paths['DATA']}/SCD/processed/original_unzipped/VIS_pig/retrieved_2021_11_08",
+                "image_root_dir":f"{paths['DATA']}/SCD/original_unzipped/VIS_pig/retrieved_2021_11_08",
+                "label_root_dir":f"{paths['DATA']}/SCD/original_unzipped/VIS_pig/retrieved_2021_11_08",
                 "modality_names":["MRI"],
                 "planes":[2],
                 "clip_args":None,
@@ -61,8 +61,8 @@ class SCD:
             },
             "VIS_human":{
                 "main":"SCD",
-                "image_root_dir":f"{paths['DATA']}/SCD/processed/original_unzipped/VIS_human/retrieved_2021_11_08",
-                "label_root_dir":f"{paths['DATA']}/SCD/processed/original_unzipped/VIS_human/retrieved_2021_11_08",
+                "image_root_dir":f"{paths['DATA']}/SCD/original_unzipped/VIS_human/retrieved_2021_11_08",
+                "label_root_dir":f"{paths['DATA']}/SCD/original_unzipped/VIS_human/retrieved_2021_11_08",
                 "modality_names":["MRI"],
                 "planes":[2],
                 "clip_args":None,
