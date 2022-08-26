@@ -1,6 +1,9 @@
 # random imports
 import numpy as np
 import os
+import seaborn as sns
+import matplotlib.pyplot as plt
+from collections import Counter
 
 from megamedical.utils.registry import paths
 from megamedical.utils.proc_utils import *
@@ -100,3 +103,47 @@ def produce_slices(root_dir,
                     os.makedirs(proc_dir)
                 np.save(os.path.join(proc_dir, f"img_{res}.npy"), image_res)
                 np.save(os.path.join(proc_dir, f"seg_{res}.npy"), seg_res)
+                
+                
+def label_dist(dataset,
+               proc_func,
+               subdset,
+               version,
+               visualize,
+               save_hists):
+
+    def get_unique_labels(proc_dir,
+                          version,
+                          dset_name,
+                          image, 
+                          loaded_image,
+                          loaded_label,
+                          dset_info,
+                          show_hists,
+                          show_imgs,
+                          save_slices):
+        planes = dset_info["planes"]
+        all_labels = np.unique(loaded_label)
+        all_labels = np.delete(all_labels, [0])
+        midslice_labels = {}
+        for plane in planes:
+            lab_shape = loaded_label.shape
+            if len(lab_shape) == 2:
+                midslice_labels[plane] = all_labels
+            else:
+                midslice_labels[plane] = np.unique(np.take(loaded_label, lab_shape[plane]//2, plane))
+        return all_labels, midslice_labels
+    
+    label_info = proc_func(subdset,
+                           get_unique_labels,
+                           accumulate=True,
+                           version=version)
+    
+    total_label_info = [li[0] for li in label_info]
+    flat_total_label_info = [label for subj in total_label_info for label in subj]
+    frequency_label_dict = dict(Counter(flat_total_label_info))
+    if visualize:
+        ax = sns.barplot(x=list(frequency_label_dict.keys()), y=list(frequency_label_dict.values()))
+        ax.bar_label(ax.containers[0])
+        ax.set(title=f"Label Frequency for {dataset}/{subdset}")
+        plt.show()

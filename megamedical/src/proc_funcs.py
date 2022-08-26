@@ -8,7 +8,10 @@ from megamedical.utils.registry import paths
 import megamedical.utils as utils
 
 
-def show_processing(dataset_object, subdset, version, show_hists=False):
+def show_processing(dataset_object, 
+                    subdset, 
+                    version, 
+                    show_hists=False):
     assert isinstance(subdset, str), "Must be a string."
     if subdset == "all":
         dset_names = list(dataset_object.dset_info.keys())
@@ -208,15 +211,17 @@ def get_label_dist(datasets,
                 executor = submitit.AutoExecutor(folder=slurm_root)
                 executor.update_parameters(timeout_min=timeout, mem_gb=16,
                                            gpus_per_node=1, slurm_partition="sablab", slurm_wckey="")
-                job = executor.submit(do.proc_func,
+                job = executor.submit(pps.label_dist,
+                                      do.name,
+                                      do.proc_func,
                                       dset,
-                                      pps.label_dist,
                                       version,
                                       visualize,
                                       save_hists)
             else:
-                do.proc_func(dset,
-                            pps.label_dist,
-                            version,
-                            visualize,
-                            save_hists)
+                pps.label_dist(do.name,
+                                do.proc_func,
+                                dset,
+                                version,
+                                visualize,
+                                save_hists)
