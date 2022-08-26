@@ -29,6 +29,7 @@ class TeethSeg:
 
     def proc_func(self,
                   dset_name,
+                  proc_func,
                   version=None,
                   show_hists=False,
                   show_imgs=False,
@@ -61,16 +62,16 @@ class TeethSeg:
                         assert not (loaded_image is None), "Invalid Image"
                         assert not (loaded_label is None), "Invalid Label"
 
-                        pps.produce_slices(proc_dir,
-                                          version,
-                                          dset_name,
-                                          image, 
-                                          loaded_image,
-                                          loaded_label,
-                                          self.dset_info[dset_name],
-                                          show_hists=show_hists,
-                                          show_imgs=show_imgs,
-                                          save_slices=save_slices)
+                        proc_func(proc_dir,
+                                  version,
+                                  dset_name,
+                                  image, 
+                                  loaded_image,
+                                  loaded_label,
+                                  self.dset_info[dset_name],
+                                  show_hists=show_hists,
+                                  show_imgs=show_imgs,
+                                  save_slices=save_slices)
                 except Exception as e:
                     print(e)
                     #raise ValueError

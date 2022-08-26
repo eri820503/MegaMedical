@@ -193,6 +193,7 @@ def process_dataset(datasets,
             for dset in dset_names:
                 if "megamedical" in subsets:
                     do.proc_func(dset,
+                                pps.produce_slices,
                                 version,
                                 show_hists,
                                 visualize,
