@@ -30,9 +30,9 @@ class ACDC:
                   dset_name,
                   proc_func,
                   version=None,
-                  show_hists=False,
                   show_imgs=False,
                   save_slices=False,
+                  show_hists=False,
                   redo_processed=True):
         assert not(version is None and save_slices), "Must specify version for saving."
         assert dset_name in self.dset_info.keys(), "Sub-dataset must be in info dictionary."

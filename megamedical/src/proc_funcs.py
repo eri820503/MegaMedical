@@ -151,57 +151,72 @@ def display_collapsed(subdset, mod, mod_dir, subjs, resolution):
         
 def process_dataset(datasets,
                     subdsets=None,
-                    version="4.0",
                     save_slices=False,
                     slurm=False, 
-                    timeout=540,
                     visualize=False,
-                    show_hists=False,
                     redo_processed=True,
-                    subsets=["megamedical"]):
+                    show_hists=False,
+                    version="4.0",
+                    timeout=540):
     assert not (len(datasets) > 1 and visualize), "Can't visualize a list of processing."
     assert not (slurm and visualize), "If you are submitting slurm no vis."
 
     dataset_objects = [utils.build_dataset(ds) for ds in datasets]
 
-    if slurm:
-        jobs = []
-        for do in dataset_objects:
-            dset_names = list(do.dset_info.keys()) if subdsets is None else subdsets
-            for dset in dset_names:
-                if "megamedical" in subsets:
-                    slurm_root = os.path.join(paths["ROOT"], f"bash/submitit/{do.name}/{dset}")
-                    executor = submitit.AutoExecutor(folder=slurm_root)
-                    executor.update_parameters(timeout_min=timeout, mem_gb=16,
-                                               gpus_per_node=1, slurm_partition="sablab", slurm_wckey="")
-                    job = executor.submit(do.proc_func,
-                                          dset,
-                                          version,
-                                          show_hists,
-                                          visualize,
-                                          save_slices,
-                                          redo_processed)
-                elif "midslice" in subsets:
-                    raise NotImplementedError("Not implemented yet")
-                elif "maxslice" in subsets:
-                    raise NotImplementedError("Not implemented yet")
-                jobs.append(job)
-        return jobs
-    else:
-        for do in dataset_objects:
-            dset_names = list(do.dset_info.keys()) if subdsets is None else subdsets
-            for dset in dset_names:
-                if "megamedical" in subsets:
-                    do.proc_func(dset,
-                                pps.produce_slices,
-                                version,
-                                show_hists,
-                                visualize,
-                                save_slices,
-                                redo_processed)
-                elif "midslice" in subsets:
-                    raise NotImplementedError("Not implemented yet")
-                elif "maxslice" in subsets:
-                    raise NotImplementedError("Not implemented yet")
-                else:
-                    raise ValueError("Not a valid dset type in subsets.")
+    for do in dataset_objects:
+        dset_names = list(do.dset_info.keys()) if subdsets is None else subdsets
+        for dset in dset_names:
+            if slurm:
+                slurm_root = os.path.join(paths["ROOT"], f"bash/submitit/{do.name}/{dset}")
+                executor = submitit.AutoExecutor(folder=slurm_root)
+                executor.update_parameters(timeout_min=timeout, mem_gb=16,
+                                           gpus_per_node=1, slurm_partition="sablab", slurm_wckey="")
+                job = executor.submit(do.proc_func,
+                                      dset,
+                                      version,
+                                      visualize,
+                                      save_slices,
+                                      show_hists,
+                                      redo_processed)
+            else:
+                do.proc_func(dset,
+                            pps.produce_slices,
+                            version,
+                            visualize,
+                            save_slices,
+                            show_hists,
+                            redo_processed)
+                    
+
+def get_label_dist(datasets,
+                    subdsets=None,
+                    save_hists=False,
+                    slurm=False, 
+                    visualize=False,
+                    version="4.0",
+                    timeout=540):
+    assert not (len(datasets) > 1 and visualize), "Can't visualize a list of processing."
+    assert not (slurm and visualize), "If you are submitting slurm no vis."
+
+    dataset_objects = [utils.build_dataset(ds) for ds in datasets]
+
+    for do in dataset_objects:
+        dset_names = list(do.dset_info.keys()) if subdsets is None else subdsets
+        for dset in dset_names:
+            if slurm:
+                slurm_root = os.path.join(paths["ROOT"], f"bash/submitit/{do.name}/{dset}")
+                executor = submitit.AutoExecutor(folder=slurm_root)
+                executor.update_parameters(timeout_min=timeout, mem_gb=16,
+                                           gpus_per_node=1, slurm_partition="sablab", slurm_wckey="")
+                job = executor.submit(do.proc_func,
+                                      dset,
+                                      pps.label_dist,
+                                      version,
+                                      visualize,
+                                      save_hists)
+            else:
+                do.proc_func(dset,
+                            pps.label_dist,
+                            version,
+                            visualize,
+                            save_hists)
