@@ -1,7 +1,7 @@
 from PIL import Image
 import pydicom as dicom
 import numpy as np
-from tqdm import tqdm
+from tqdm.notebook import tqdm_notebook
 import glob
 import os
 
@@ -22,6 +22,7 @@ class CHAOS:
                 "label_root_dir":f"{paths['DATA']}/CHAOS/original_unzipped/retreived_2022_03_08/Train_Sets/CT",
                 "modality_names":["CT"],
                 "planes":[0],
+                "labels": [1,2,3],
                 "clip_args": [600,1500],
                 "norm_scheme": "CT",
                 "do_clip": True,
@@ -33,6 +34,7 @@ class CHAOS:
                 "label_root_dir":f"{paths['DATA']}/CHAOS/original_unzipped/retreived_2022_03_08/Train_Sets/MR",
                 "modality_names":["T2"],
                 "planes":[0],
+                "labels": [1,2,3],
                 "clip_args": [0.5, 99.5],
                 "norm_scheme": "MR",
                 "do_clip": True,
@@ -41,18 +43,21 @@ class CHAOS:
         }
 
     def proc_func(self,
-                dset_name,
-                proc_func,
-                version=None,
-                show_hists=False,
-                show_imgs=False,
-                save_slices=False,
-                redo_processed=True):
+                  dset_name,
+                  proc_func,
+                  load_images=True,
+                  accumulate=False,
+                  version=None,
+                  show_imgs=False,
+                  save=False,
+                  show_hists=False,
+                  redo_processed=True):
         assert not(version is None and save_slices), "Must specify version for saving."
         assert dset_name in self.dset_info.keys(), "Sub-dataset must be in info dictionary."
         proc_dir = pps.make_processed_dir(self.name, dset_name, save_slices, version, self.dset_info[dset_name])
         image_list = os.listdir(self.dset_info[dset_name]["image_root_dir"])
-        with tqdm(total=len(image_list), desc=f'Processing: {dset_name}', unit='image') as pbar:
+        accumulator = []
+        for image in tqdm_notebook(image_list, desc=f'Processing: {dset_name}'):
             for image in image_list:
                 try:
                     proc_dir_template = os.path.join(proc_dir, f"megamedical_v{version}", dset_name, "*", image)
@@ -64,31 +69,41 @@ class CHAOS:
                             DicomDir = os.path.join(self.dset_info[dset_name]["image_root_dir"], image, "T2SPIR/DICOM_anon")
                             GroundDir = os.path.join(self.dset_info[dset_name]["image_root_dir"], image, "T2SPIR/Ground")
 
-                        planes = []
-                        for plane in os.listdir(DicomDir):
-                            planes.append(dicom.dcmread(os.path.join(DicomDir, plane)).pixel_array)
-                        loaded_image = np.stack(planes)
+                        if load_images:
+                            planes = []
+                            for plane in os.listdir(DicomDir):
+                                planes.append(dicom.dcmread(os.path.join(DicomDir, plane)).pixel_array)
+                            loaded_image = np.stack(planes)
+                            
+                            gt_planes = []
+                            for gt_plane in os.listdir(GroundDir):
+                                gt_planes.append(np.array(Image.open(os.path.join(GroundDir, gt_plane)).convert('L')))
+                            loaded_label = np.stack(gt_planes)
+                            
+                            assert not (loaded_label is None), "Invalid Label"
+                            assert not (loaded_image is None), "Invalid Image"
+                        else:
+                            loaded_image = None
+                            gt_planes = []
+                            for gt_plane in os.listdir(GroundDir):
+                                gt_planes.append(np.array(Image.open(os.path.join(GroundDir, gt_plane)).convert('L')))
+                            loaded_label = np.stack(gt_planes)
 
-                        gt_planes = []
-                        for gt_plane in os.listdir(GroundDir):
-                            gt_planes.append(np.array(Image.open(os.path.join(GroundDir, gt_plane)).convert('L')))
-                        loaded_label = np.stack(gt_planes)
+                        proc_return = proc_func(proc_dir,
+                                              version,
+                                              dset_name,
+                                              image, 
+                                              loaded_image,
+                                              loaded_label,
+                                              self.dset_info[dset_name],
+                                              show_hists=show_hists,
+                                              show_imgs=show_imgs,
+                                              save=save)
 
-                        assert not (loaded_image is None), "Invalid Image"
-                        assert not (loaded_label is None), "Invalid Label"
-
-                        proc_func(proc_dir,
-                                  version,
-                                  dset_name,
-                                  image, 
-                                  loaded_image,
-                                  loaded_label,
-                                  self.dset_info[dset_name],
-                                  show_hists=show_hists,
-                                  show_imgs=show_imgs,
-                                  save_slices=save_slices)
-                except Exception as e:
-                    print(e)
-                    #raise ValueError
-                pbar.update(1)
-        pbar.close()
+                    if accumulate:
+                        accumulator.append(proc_return)
+            except Exception as e:
+                print(e)
+                #raise ValueError
+        if accumulate:
+            return proc_dir, accumulator

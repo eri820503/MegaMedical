@@ -154,7 +154,7 @@ def display_collapsed(subdset, mod, mod_dir, subjs, resolution):
         
 def process_dataset(datasets,
                     subdsets=None,
-                    save_slices=False,
+                    save=False,
                     slurm=False, 
                     visualize=False,
                     redo_processed=True,
@@ -178,7 +178,7 @@ def process_dataset(datasets,
                                       dset,
                                       version,
                                       visualize,
-                                      save_slices,
+                                      save,
                                       show_hists,
                                       redo_processed)
             else:
@@ -186,14 +186,14 @@ def process_dataset(datasets,
                             pps.produce_slices,
                             version,
                             visualize,
-                            save_slices,
+                            save,
                             show_hists,
                             redo_processed)
                     
 
 def get_label_dist(datasets,
                     subdsets=None,
-                    save_hists=False,
+                    save=False,
                     slurm=False, 
                     visualize=False,
                     version="4.0",
@@ -217,11 +217,11 @@ def get_label_dist(datasets,
                                       dset,
                                       version,
                                       visualize,
-                                      save_hists)
+                                      save)
             else:
                 pps.label_dist(do.name,
                                 do.proc_func,
                                 dset,
                                 version,
                                 visualize,
-                                save_hists)
+                                save)

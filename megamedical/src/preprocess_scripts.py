@@ -8,14 +8,14 @@ from collections import Counter
 from megamedical.utils.registry import paths
 from megamedical.utils.proc_utils import *
 
-def make_processed_dir(dset, subdset, save_slices, dataset_ver, dset_info):
+def make_processed_dir(dset, subdset, save, dataset_ver, dset_info):
     root_dir = os.path.join(paths["DATA"], dset, f"processed")
     
     dirs_to_make = []
     for prefix in ["megamedical", "maxslice", "midslice"]:
         dirs_to_make.append(os.path.join(root_dir, f"{prefix}_v{dataset_ver}", subdset))
 
-    if save_slices:
+    if save:
         for dtm in dirs_to_make:
             if not os.path.exists(dtm):
                 os.makedirs(dtm)
@@ -35,7 +35,7 @@ def produce_slices(root_dir,
                    loaded_label,
                    dset_info,
                    resolutions=[256,128],
-                   save_slices=False,
+                   save=False,
                    show_hists=False,
                    show_imgs=False):
     # Set the name to be saved
@@ -96,7 +96,7 @@ def produce_slices(root_dir,
                 #place resized segs in regular array
                 seg_res[..., lab_idx] = bin_seg_res
 
-            if save_slices:
+            if save:
                 
                 proc_dir = os.path.join(root_dir, f"megamedical_v{version}", dataset, mode, subject_name)
                 if not os.path.exists(proc_dir):
@@ -110,7 +110,7 @@ def label_dist(dataset,
                subdset,
                version,
                visualize,
-               save_hists):
+               save):
 
     def get_unique_labels(proc_dir,
                           version,
@@ -121,7 +121,7 @@ def label_dist(dataset,
                           dset_info,
                           show_hists,
                           show_imgs,
-                          save_slices):
+                          save):
         planes = dset_info["planes"]
         all_labels = np.unique(loaded_label)
         all_labels = np.delete(all_labels, [0])
@@ -134,16 +134,24 @@ def label_dist(dataset,
                 midslice_labels[plane] = np.unique(np.take(loaded_label, lab_shape[plane]//2, plane))
         return all_labels, midslice_labels
     
-    label_info = proc_func(subdset,
-                           get_unique_labels,
-                           accumulate=True,
-                           version=version)
+    proc_dir, label_info = proc_func(subdset,
+                                   get_unique_labels,
+                                   accumulate=True,
+                                   version=version,
+                                   save=save)
     
     total_label_info = [li[0] for li in label_info]
     flat_total_label_info = [label for subj in total_label_info for label in subj]
     frequency_label_dict = dict(Counter(flat_total_label_info))
+    ax = sns.barplot(x=list(frequency_label_dict.keys()), y=list(frequency_label_dict.values()))
     if visualize:
-        ax = sns.barplot(x=list(frequency_label_dict.keys()), y=list(frequency_label_dict.values()))
         ax.bar_label(ax.containers[0])
         ax.set(title=f"Label Frequency for {dataset}/{subdset}")
         plt.show()
+    if save:
+        fig = ax.get_figure()
+        save_dir = os.path.join(proc_dir, "figures")
+        if not os.path.exists(save_dir):
+            os.makedirs(save_dir)
+        fig_dir = os.path.join(save_dir, "lab_info.png")
+        fig.savefig(fig_dir)
