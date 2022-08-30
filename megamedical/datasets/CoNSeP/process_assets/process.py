@@ -38,9 +38,9 @@ class CoNSeP:
                   show_imgs=False,
                   save_slices=False, 
                   redo_processed=True):
-        assert not(version is None and save_slices), "Must specify version for saving."
+        assert not(version is None and save), "Must specify version for saving."
         assert dset_name in self.dset_info.keys(), "Sub-dataset must be in info dictionary."
-        proc_dir = pps.make_processed_dir(self.name, dset_name, save_slices, version, self.dset_info[dset_name])
+        proc_dir = pps.make_processed_dir(self.name, dset_name, save, version, self.dset_info[dset_name])
         image_list = os.listdir(self.dset_info[dset_name]["image_root_dir"])
         with tqdm(total=len(image_list), desc=f'Processing: {dset_name}', unit='image') as pbar:
             for image in image_list:

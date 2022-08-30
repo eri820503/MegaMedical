@@ -32,13 +32,15 @@ class BrainMetShare:
     def proc_func(self,
                   dset_name,
                   proc_func,
+                  load_images=True,
+                  accumulate=False,
                   version=None,
-                  show_hists=False,
                   show_imgs=False,
-                  save_slices=False,
+                  save=False,
+                  show_hists=False,
                   redo_processed=True):
         assert dset_name in self.dset_info.keys(), "Sub-dataset must be in info dictionary."
-        proc_dir = pps.make_processed_dir(self.name, dset_name, save_slices, version, self.dset_info[dset_name])
+        proc_dir = pps.make_processed_dir(self.name, dset_name, save, version, self.dset_info[dset_name])
         image_list = os.listdir(self.dset_info[dset_name]["image_root_dir"])
         accumulator = []
         for image in tqdm_notebook(image_list, desc=f'Processing: {dset_name}'):

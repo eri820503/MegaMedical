@@ -37,9 +37,9 @@ class TUCC:
                   show_imgs=False,
                   save_slices=False,
                   redo_processed=True):
-        assert not(version is None and save_slices), "Must specify version for saving."
+        assert not(version is None and save), "Must specify version for saving."
         assert dset_name in self.dset_info.keys(), "Sub-dataset must be in info dictionary."
-        proc_dir = pps.make_processed_dir(self.name, dset_name, save_slices, version, self.dset_info[dset_name])
+        proc_dir = pps.make_processed_dir(self.name, dset_name, save, version, self.dset_info[dset_name])
         hf = h5py.File(os.path.join(self.dset_info[dset_name]["image_root_dir"],'dataset.hdf5'), 'r')
   
         chosen_inds = np.sort(np.random.choice(np.arange(len(hf["image"])), 1000))
