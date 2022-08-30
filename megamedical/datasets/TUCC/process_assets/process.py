@@ -21,6 +21,7 @@ class TUCC:
                 "label_root_dir":f"{paths['DATA']}/TUCC/original_unzipped/retreived_2022_03_04",
                 "modality_names":["NA"],
                 "planes":[0],
+                "labels": [1,2,3],
                 "clip_args":None,
                 "norm_scheme":"MR",
                 "do_clip":False,
@@ -51,24 +52,30 @@ class TUCC:
                     proc_dir_template = os.path.join(proc_dir, f"megamedical_v{version}", dset_name, "*", f"img{image}")
                     if redo_processed or (len(glob.glob(proc_dir_template)) == 0):
 
-                        loaded_image = np.array(images[image, ...])
-                        loaded_label = np.array(segs[image, ...])
+                        if load_images:
+                            loaded_image = np.array(images[image, ...])
+                            loaded_label = np.array(segs[image, ...])
+                            assert not (loaded_label is None), "Invalid Label"
+                            assert not (loaded_image is None), "Invalid Image"
+                        else:
+                            loaded_image = None
+                            loaded_label = np.array(segs[image, ...])
 
-                        assert not (loaded_image is None), "Invalid Image"
-                        assert not (loaded_label is None), "Invalid Label"
+                        proc_return = proc_func(proc_dir,
+                                                  version,
+                                                  dset_name,
+                                                  image, 
+                                                  loaded_image,
+                                                  loaded_label,
+                                                  self.dset_info[dset_name],
+                                                  show_hists=show_hists,
+                                                  show_imgs=show_imgs,
+                                                  save=save)
 
-                        proc_func(proc_dir,
-                                  version,
-                                  dset_name,
-                                  image, 
-                                  loaded_image,
-                                  loaded_label,
-                                  self.dset_info[dset_name],
-                                  show_hists=show_hists,
-                                  show_imgs=show_imgs,
-                                  save_slices=save_slices)
+                        if accumulate:
+                            accumulator.append(proc_return)
                 except Exception as e:
                     print(e)
                     #raise ValueError
-                pbar.update(1)
-        pbar.close()
+            if accumulate:
+                return proc_dir, accumulator

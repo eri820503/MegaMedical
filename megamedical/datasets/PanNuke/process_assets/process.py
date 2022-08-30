@@ -1,5 +1,5 @@
 import nibabel as nib
-from tqdm import tqdm
+from tqdm.notebook import tqdm_notebook
 from PIL import Image
 import numpy as np
 import glob
@@ -22,6 +22,7 @@ class PanNuke:
                 "label_root_dir":f"{paths['DATA']}/PanNuke/original_unzipped/retreived_2022_03_04/Fold1/masks/fold1/masks.npy",
                 "modality_names":["NA"],
                 "planes":[0],
+                "labels": [1,2,3],
                 "clip_args":None,
                 "norm_scheme":None,
                 "do_clip":False,
@@ -33,6 +34,7 @@ class PanNuke:
                 "label_root_dir":f"{paths['DATA']}/PanNuke/original_unzipped/retreived_2022_03_04/Fold2/masks/fold2/masks.npy",
                 "modality_names":["NA"],
                 "planes":[0],
+                "labels": [1,2,3],
                 "clip_args":None,
                 "norm_scheme":None,
                 "do_clip":False,
@@ -44,6 +46,7 @@ class PanNuke:
                 "label_root_dir":f"{paths['DATA']}/PanNuke/original_unzipped/retreived_2022_03_04/Fold3/masks/fold3/masks.npy",
                 "modality_names":["NA"],
                 "planes":[0],
+                "labels": [1,2,3],
                 "clip_args":None,
                 "norm_scheme":None,
                 "do_clip":False,
@@ -54,10 +57,12 @@ class PanNuke:
     def proc_func(self,
                   dset_name,
                   proc_func,
+                  load_images=True,
+                  accumulate=False,
                   version=None,
-                  show_hists=False,
                   show_imgs=False,
-                  save_slices=False,
+                  save=False,
+                  show_hists=False,
                   redo_processed=True):
         assert not(version is None and save_slices), "Must specify version for saving."
         assert dset_name in self.dset_info.keys(), "Sub-dataset must be in info dictionary."
@@ -85,18 +90,21 @@ class PanNuke:
                         assert not (loaded_image is None), "Invalid Image"
                         assert not (loaded_label is None), "Invalid Label"
 
-                        proc_func(proc_dir,
-                                  version,
-                                  dset_name,
-                                  image, 
-                                  loaded_image,
-                                  loaded_label,
-                                  self.dset_info[dset_name],
-                                  show_hists=show_hists,
-                                  show_imgs=show_imgs,
-                                  save_slices=save_slices)
-                except Exception as e:
-                    print(e)
-                    raise ValueError
-                pbar.update(1)
-        pbar.close()
+                        proc_return = proc_func(proc_dir,
+                                              version,
+                                              dset_name,
+                                              image, 
+                                              loaded_image,
+                                              loaded_label,
+                                              self.dset_info[dset_name],
+                                              show_hists=show_hists,
+                                              show_imgs=show_imgs,
+                                              save=save)
+
+                    if accumulate:
+                        accumulator.append(proc_return)
+            except Exception as e:
+                print(e)
+                #raise ValueError
+        if accumulate:
+            return proc_dir, accumulator
