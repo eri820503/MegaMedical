@@ -45,35 +45,34 @@ class STARE:
         image_list = os.listdir(self.dset_info[dset_name]["image_root_dir"])
         accumulator = []
         for image in tqdm_notebook(image_list, desc=f'Processing: {dset_name}'):
-            for image in image_list:
-                try:
-                    proc_dir_template = os.path.join(proc_dir, f"megamedical_v{version}", dset_name, "*", image)
-                    if redo_processed or (len(glob.glob(proc_dir_template)) == 0):
-                        im_dir = os.path.join(self.dset_info[dset_name]["image_root_dir"], image)
-                        label_dir = os.path.join(self.dset_info[dset_name]["label_root_dir"], f"{image[:-6]}vk.ppm.gz")
-                        with gzip.open(im_dir,'r') as fin:        
-                            loaded_image = io.imread(fin, as_gray=True)
-                        with gzip.open(label_dir,'r') as fin2:        
-                            loaded_label = io.imread(fin2, as_gray=True)
+            try:
+                proc_dir_template = os.path.join(proc_dir, f"megamedical_v{version}", dset_name, "*", image)
+                if redo_processed or (len(glob.glob(proc_dir_template)) == 0):
+                    im_dir = os.path.join(self.dset_info[dset_name]["image_root_dir"], image)
+                    label_dir = os.path.join(self.dset_info[dset_name]["label_root_dir"], f"{image[:-6]}vk.ppm.gz")
+                    with gzip.open(im_dir,'r') as fin:        
+                        loaded_image = io.imread(fin, as_gray=True)
+                    with gzip.open(label_dir,'r') as fin2:        
+                        loaded_label = io.imread(fin2, as_gray=True)
 
-                        assert not (loaded_image is None), "Invalid Image"
-                        assert not (loaded_label is None), "Invalid Label"
+                    assert not (loaded_image is None), "Invalid Image"
+                    assert not (loaded_label is None), "Invalid Label"
 
-                        proc_return = proc_func(proc_dir,
-                                              version,
-                                              dset_name,
-                                              image, 
-                                              loaded_image,
-                                              loaded_label,
-                                              self.dset_info[dset_name],
-                                              show_hists=show_hists,
-                                              show_imgs=show_imgs,
-                                              save=save)
+                    proc_return = proc_func(proc_dir,
+                                          version,
+                                          dset_name,
+                                          image, 
+                                          loaded_image,
+                                          loaded_label,
+                                          self.dset_info[dset_name],
+                                          show_hists=show_hists,
+                                          show_imgs=show_imgs,
+                                          save=save)
 
-                        if accumulate:
-                            accumulator.append(proc_return)
-                except Exception as e:
-                    print(e)
-                    #raise ValueError
+                    if accumulate:
+                        accumulator.append(proc_return)
+            except Exception as e:
+                print(e)
+                #raise ValueError
         if accumulate:
             return proc_dir, accumulator

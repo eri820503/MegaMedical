@@ -45,51 +45,50 @@ class IDRID:
         image_list = os.listdir(self.dset_info[dset_name]["image_root_dir"])
         accumulator = []
         for image in tqdm_notebook(image_list, desc=f'Processing: {dset_name}'):
-            for image in image_list:
-                try:
-                    proc_dir_template = os.path.join(proc_dir, f"megamedical_v{version}", dset_name, "*", image)
-                    if redo_processed or (len(glob.glob(proc_dir_template)) == 0):
-                        im_dir = os.path.join(self.dset_info[dset_name]["image_root_dir"], image)
-                        ma_dir = os.path.join(self.dset_info[dset_name]["label_root_dir"], "1. Microaneurysms", f"{image[:-4]}_MA.tif")
-                        he_dir = os.path.join(self.dset_info[dset_name]["label_root_dir"], "2. Haemorrhages", f"{image[:-4]}_HE.tif")
-                        ex_dir = os.path.join(self.dset_info[dset_name]["label_root_dir"], "3. Hard Exudates", f"{image[:-4]}_EX.tif")
-                        se_dir = os.path.join(self.dset_info[dset_name]["label_root_dir"], "4. Soft Exudates", f"{image[:-4]}_SE.tif")
-                        od_dir = os.path.join(self.dset_info[dset_name]["label_root_dir"], "5. Optic Disc", f"{image[:-4]}_OD.tif")
+            try:
+                proc_dir_template = os.path.join(proc_dir, f"megamedical_v{version}", dset_name, "*", image)
+                if redo_processed or (len(glob.glob(proc_dir_template)) == 0):
+                    im_dir = os.path.join(self.dset_info[dset_name]["image_root_dir"], image)
+                    ma_dir = os.path.join(self.dset_info[dset_name]["label_root_dir"], "1. Microaneurysms", f"{image[:-4]}_MA.tif")
+                    he_dir = os.path.join(self.dset_info[dset_name]["label_root_dir"], "2. Haemorrhages", f"{image[:-4]}_HE.tif")
+                    ex_dir = os.path.join(self.dset_info[dset_name]["label_root_dir"], "3. Hard Exudates", f"{image[:-4]}_EX.tif")
+                    se_dir = os.path.join(self.dset_info[dset_name]["label_root_dir"], "4. Soft Exudates", f"{image[:-4]}_SE.tif")
+                    od_dir = os.path.join(self.dset_info[dset_name]["label_root_dir"], "5. Optic Disc", f"{image[:-4]}_OD.tif")
 
-                        loaded_image = np.array(Image.open(im_dir).convert('L'))
+                    loaded_image = np.array(Image.open(im_dir).convert('L'))
 
-                        loaded_label = np.array(Image.open(ma_dir))
-                        if os.path.exists(he_dir):
-                            he = np.array(Image.open(he_dir))*2
-                            loaded_label += he
-                        if os.path.exists(ex_dir):
-                            ex = np.array(Image.open(ex_dir))*3
-                            loaded_label += ex
-                        if os.path.exists(se_dir):
-                            se = np.array(Image.open(se_dir))*4
-                            loaded_label += se
-                        if os.path.exists(od_dir):
-                            od = np.array(Image.open(od_dir))*5
-                            loaded_label += od
+                    loaded_label = np.array(Image.open(ma_dir))
+                    if os.path.exists(he_dir):
+                        he = np.array(Image.open(he_dir))*2
+                        loaded_label += he
+                    if os.path.exists(ex_dir):
+                        ex = np.array(Image.open(ex_dir))*3
+                        loaded_label += ex
+                    if os.path.exists(se_dir):
+                        se = np.array(Image.open(se_dir))*4
+                        loaded_label += se
+                    if os.path.exists(od_dir):
+                        od = np.array(Image.open(od_dir))*5
+                        loaded_label += od
 
-                        assert not (loaded_image is None), "Invalid Image"
-                        assert not (loaded_label is None), "Invalid Label"
+                    assert not (loaded_image is None), "Invalid Image"
+                    assert not (loaded_label is None), "Invalid Label"
 
-                        proc_return = proc_func(proc_dir,
-                                              version,
-                                              dset_name,
-                                              image, 
-                                              loaded_image,
-                                              loaded_label,
-                                              self.dset_info[dset_name],
-                                              show_hists=show_hists,
-                                              show_imgs=show_imgs,
-                                              save=save)
+                    proc_return = proc_func(proc_dir,
+                                          version,
+                                          dset_name,
+                                          image, 
+                                          loaded_image,
+                                          loaded_label,
+                                          self.dset_info[dset_name],
+                                          show_hists=show_hists,
+                                          show_imgs=show_imgs,
+                                          save=save)
 
-                        if accumulate:
-                            accumulator.append(proc_return)
-                except Exception as e:
-                    print(e)
-                    #raise ValueError
+                    if accumulate:
+                        accumulator.append(proc_return)
+            except Exception as e:
+                print(e)
+                #raise ValueError
         if accumulate:
             return proc_dir, accumulator

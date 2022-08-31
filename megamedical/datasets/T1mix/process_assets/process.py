@@ -45,37 +45,36 @@ class T1mix:
         image_list = os.listdir(self.dset_info[dset_name]["image_root_dir"])
         accumulator = []
         for image in tqdm_notebook(image_list, desc=f'Processing: {dset_name}'):
-            for image in image_list:
-                try:
-                    proc_dir_template = os.path.join(proc_dir, f"megamedical_v{version}", dset_name, "*", image)
-                    if not("OASIS" in image) and (redo_processed or (len(glob.glob(proc_dir_template)) == 0)):
-                        im_dir = os.path.join(self.dset_info[dset_name]["image_root_dir"], image)
-                        label_dir = os.path.join(self.dset_info[dset_name]["label_root_dir"], image.replace("norm", "aseg"))
+            try:
+                proc_dir_template = os.path.join(proc_dir, f"megamedical_v{version}", dset_name, "*", image)
+                if not("OASIS" in image) and (redo_processed or (len(glob.glob(proc_dir_template)) == 0)):
+                    im_dir = os.path.join(self.dset_info[dset_name]["image_root_dir"], image)
+                    label_dir = os.path.join(self.dset_info[dset_name]["label_root_dir"], image.replace("norm", "aseg"))
 
-                        if load_images:
-                            loaded_image = np.load(im_dir)['vol_data']
-                            loaded_label = np.load(label_dir)['vol_data']
-                            assert not (loaded_label is None), "Invalid Label"
-                            assert not (loaded_image is None), "Invalid Image"
-                        else:
-                            loaded_image = None
-                            loaded_label = np.load(label_dir)['vol_data']
+                    if load_images:
+                        loaded_image = np.load(im_dir)['vol_data']
+                        loaded_label = np.load(label_dir)['vol_data']
+                        assert not (loaded_label is None), "Invalid Label"
+                        assert not (loaded_image is None), "Invalid Image"
+                    else:
+                        loaded_image = None
+                        loaded_label = np.load(label_dir)['vol_data']
 
-                        proc_return = proc_func(proc_dir,
-                                                  version,
-                                                  dset_name,
-                                                  image, 
-                                                  loaded_image,
-                                                  loaded_label,
-                                                  self.dset_info[dset_name],
-                                                  show_hists=show_hists,
-                                                  show_imgs=show_imgs,
-                                                  save=save)
+                    proc_return = proc_func(proc_dir,
+                                              version,
+                                              dset_name,
+                                              image, 
+                                              loaded_image,
+                                              loaded_label,
+                                              self.dset_info[dset_name],
+                                              show_hists=show_hists,
+                                              show_imgs=show_imgs,
+                                              save=save)
 
-                        if accumulate:
-                            accumulator.append(proc_return)
-                except Exception as e:
-                    print(e)
-                    #raise ValueError
+                    if accumulate:
+                        accumulator.append(proc_return)
+            except Exception as e:
+                print(e)
+                #raise ValueError
         if accumulate:
             return proc_dir, accumulator

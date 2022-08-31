@@ -57,41 +57,40 @@ class BrainDevelopment:
         image_list = os.listdir(self.dset_info[dset_name]["image_root_dir"])
         accumulator = []
         for image in tqdm_notebook(image_list, desc=f'Processing: {dset_name}'):
-            for image in image_list:
-                try:
-                    proc_dir_template = os.path.join(proc_dir, f"megamedical_v{version}", dset_name, "*", image)
-                    if redo_processed or (len(glob.glob(proc_dir_template)) == 0):
-                        im_dir = os.path.join(self.dset_info[dset_name]["image_root_dir"], image)
-                        seg_addon = "-seg.nii.gz" if dset_name == "HammersAtlasDatabase" else "_seg_83ROI.nii.gz"
-                        label_dir = os.path.join(self.dset_info[dset_name]["label_root_dir"], image.replace(".nii.gz", seg_addon))
-                        
-                        assert os.path.isfile(im_dir), "Valid image dir required!"
-                        assert os.path.isfile(label_dir), "Valid label dir required!"
-                        
-                        if load_images:
-                            loaded_image = put.resample_nib(nib.load(im_dir)).get_fdata().squeeze()
-                            loaded_label = put.resample_mask_to(nib.load(label_dir), loaded_image).get_fdata().squeeze()
-                            assert not (loaded_label is None), "Invalid Label"
-                            assert not (loaded_image is None), "Invalid Image"
-                        else:
-                            loaded_image = None
-                            loaded_label = nib.load(label_dir).get_fdata().squeeze()
+            try:
+                proc_dir_template = os.path.join(proc_dir, f"megamedical_v{version}", dset_name, "*", image)
+                if redo_processed or (len(glob.glob(proc_dir_template)) == 0):
+                    im_dir = os.path.join(self.dset_info[dset_name]["image_root_dir"], image)
+                    seg_addon = "-seg.nii.gz" if dset_name == "HammersAtlasDatabase" else "_seg_83ROI.nii.gz"
+                    label_dir = os.path.join(self.dset_info[dset_name]["label_root_dir"], image.replace(".nii.gz", seg_addon))
 
-                        proc_return = proc_func(proc_dir,
-                                              version,
-                                              dset_name,
-                                              image, 
-                                              loaded_image,
-                                              loaded_label,
-                                              self.dset_info[dset_name],
-                                              show_hists=show_hists,
-                                              show_imgs=show_imgs,
-                                              save=save)
+                    assert os.path.isfile(im_dir), "Valid image dir required!"
+                    assert os.path.isfile(label_dir), "Valid label dir required!"
 
-                        if accumulate:
-                            accumulator.append(proc_return)
-                except Exception as e:
-                    print(e)
-                    #raise ValueError
+                    if load_images:
+                        loaded_image = put.resample_nib(nib.load(im_dir)).get_fdata().squeeze()
+                        loaded_label = put.resample_mask_to(nib.load(label_dir), loaded_image).get_fdata().squeeze()
+                        assert not (loaded_label is None), "Invalid Label"
+                        assert not (loaded_image is None), "Invalid Image"
+                    else:
+                        loaded_image = None
+                        loaded_label = nib.load(label_dir).get_fdata().squeeze()
+
+                    proc_return = proc_func(proc_dir,
+                                          version,
+                                          dset_name,
+                                          image, 
+                                          loaded_image,
+                                          loaded_label,
+                                          self.dset_info[dset_name],
+                                          show_hists=show_hists,
+                                          show_imgs=show_imgs,
+                                          save=save)
+
+                    if accumulate:
+                        accumulator.append(proc_return)
+            except Exception as e:
+                print(e)
+                #raise ValueError
         if accumulate:
             return proc_dir, accumulator

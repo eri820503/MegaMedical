@@ -135,18 +135,19 @@ def label_dist(dataset,
         return all_labels, midslice_labels
     
     proc_dir, label_info = proc_func(subdset,
-                                   get_unique_labels,
-                                   accumulate=True,
-                                   version=version,
-                                   save=save)
-    
+                                     get_unique_labels,
+                                     load_images=False,
+                                     accumulate=True,
+                                     version=version,
+                                     save=save)
+    num_subjects = len(label_info)
     total_label_info = [li[0] for li in label_info]
     flat_total_label_info = [label for subj in total_label_info for label in subj]
     frequency_label_dict = dict(Counter(flat_total_label_info))
     ax = sns.barplot(x=list(frequency_label_dict.keys()), y=list(frequency_label_dict.values()))
     if visualize:
         ax.bar_label(ax.containers[0])
-        ax.set(title=f"Label Frequency for {dataset}/{subdset}")
+        ax.set(title=f"Label Frequency for {dataset}/{subdset} of {num_subjects} many subjects.")
         plt.show()
     if save:
         fig = ax.get_figure()

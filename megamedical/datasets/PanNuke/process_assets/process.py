@@ -73,38 +73,37 @@ class PanNuke:
         
         image_list = list(range(volumes_array.shape[0]))
         for image in tqdm_notebook(image_list, desc=f'Processing: {dset_name}'):
-            for image in image_list:
-                try:
-                    proc_dir_template = os.path.join(proc_dir, f"megamedical_v{version}", dset_name, "*", str(image))
-                    if redo_processed or (len(glob.glob(proc_dir_template)) == 0):
-                        
-                        # "clever" hack to get Image.fromarray to work
-                        loaded_image = volumes_array[image,...]
-                        loaded_image = 0.2989*loaded_image[...,0] + 0.5870*loaded_image[...,1] + 0.1140*loaded_image[...,2] 
-                        
-                        loaded_label = np.transpose(labels_array[image,...], (2, 0, 1))
-                        background_label = np.zeros((1, loaded_label.shape[1], loaded_label.shape[2]))
-                        loaded_label = np.concatenate([background_label, loaded_label], axis=0)
-                        loaded_label = np.argmax(loaded_label, axis=0)
+            try:
+                proc_dir_template = os.path.join(proc_dir, f"megamedical_v{version}", dset_name, "*", str(image))
+                if redo_processed or (len(glob.glob(proc_dir_template)) == 0):
 
-                        assert not (loaded_image is None), "Invalid Image"
-                        assert not (loaded_label is None), "Invalid Label"
+                    # "clever" hack to get Image.fromarray to work
+                    loaded_image = volumes_array[image,...]
+                    loaded_image = 0.2989*loaded_image[...,0] + 0.5870*loaded_image[...,1] + 0.1140*loaded_image[...,2] 
 
-                        proc_return = proc_func(proc_dir,
-                                              version,
-                                              dset_name,
-                                              image, 
-                                              loaded_image,
-                                              loaded_label,
-                                              self.dset_info[dset_name],
-                                              show_hists=show_hists,
-                                              show_imgs=show_imgs,
-                                              save=save)
+                    loaded_label = np.transpose(labels_array[image,...], (2, 0, 1))
+                    background_label = np.zeros((1, loaded_label.shape[1], loaded_label.shape[2]))
+                    loaded_label = np.concatenate([background_label, loaded_label], axis=0)
+                    loaded_label = np.argmax(loaded_label, axis=0)
 
-                        if accumulate:
-                            accumulator.append(proc_return)
-                except Exception as e:
-                    print(e)
-                    #raise ValueError
+                    assert not (loaded_image is None), "Invalid Image"
+                    assert not (loaded_label is None), "Invalid Label"
+
+                    proc_return = proc_func(proc_dir,
+                                          version,
+                                          dset_name,
+                                          image, 
+                                          loaded_image,
+                                          loaded_label,
+                                          self.dset_info[dset_name],
+                                          show_hists=show_hists,
+                                          show_imgs=show_imgs,
+                                          save=save)
+
+                    if accumulate:
+                        accumulator.append(proc_return)
+            except Exception as e:
+                print(e)
+                #raise ValueError
         if accumulate:
             return proc_dir, accumulator

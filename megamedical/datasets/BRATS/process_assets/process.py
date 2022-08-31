@@ -70,76 +70,75 @@ class BRATS:
         image_list = os.listdir(self.dset_info[dset_name]["image_root_dir"])
         accumulator = []
         for image in tqdm_notebook(image_list, desc=f'Processing: {dset_name}'):
-            for image in image_list:
-                try:
-                    proc_dir_template = os.path.join(proc_dir, f"megamedical_v{version}", dset_name, "*", image)
-                    if redo_processed or (len(glob.glob(proc_dir_template)) == 0):
-                        subj_folder = os.path.join(self.dset_info[dset_name]["image_root_dir"], image)
-                        if dset_name == "2021":
-                            if load_images:
-                                flair_im_dir = os.path.join(subj_folder, f"{image}_flair.nii.gz")
-                                t1_im_dir = os.path.join(subj_folder, f"{image}_t1.nii.gz")
-                                t1c_im_dir = os.path.join(subj_folder, f"{image}_t1ce.nii.gz")
-                                t2_im_dir = os.path.join(subj_folder, f"{image}_t2.nii.gz")
-                                label_dir = os.path.join(self.dset_info[dset_name]["label_root_dir"], image, f"{image}_seg.nii.gz")
-                                
-                                flair_image = put.resample_nib(nib.load(flair_im_dir))
-                                t1_image = put.resample_nib(nib.load(t1_im_dir))
-                                t1c_image = put.resample_nib(nib.load(t1c_im_dir))
-                                t2_image = put.resample_nib(nib.load(t2_im_dir))
-                                loaded_label = put.resample_mask_to(nib.load(label_dir), flair_image)
-                                
-                                flair_image = flair_image.get_fdata()
-                                t1_image = t1_image.get_fdata()
-                                t1c_image = t1c_image.get_fdata()
-                                t2_image = t2_image.get_fdata()
-                                
-                                loaded_image = np.stack([flair_image, t1_image, t1c_image, t2_image], axis=-1)
-                                loaded_label = loaded_label.get_fdata()
-                                assert not (loaded_label is None), "Invalid Label"
-                                assert not (loaded_image is None), "Invalid Image"
-                            else:
-                                label_dir = os.path.join(self.dset_info[dset_name]["label_root_dir"], image, f"{image}_seg.nii.gz")
-                                loaded_image = None
-                                loaded_label = nib.load(label_dir).get_fdata()
+            try:
+                proc_dir_template = os.path.join(proc_dir, f"megamedical_v{version}", dset_name, "*", image)
+                if redo_processed or (len(glob.glob(proc_dir_template)) == 0):
+                    subj_folder = os.path.join(self.dset_info[dset_name]["image_root_dir"], image)
+                    if dset_name == "2021":
+                        if load_images:
+                            flair_im_dir = os.path.join(subj_folder, f"{image}_flair.nii.gz")
+                            t1_im_dir = os.path.join(subj_folder, f"{image}_t1.nii.gz")
+                            t1c_im_dir = os.path.join(subj_folder, f"{image}_t1ce.nii.gz")
+                            t2_im_dir = os.path.join(subj_folder, f"{image}_t2.nii.gz")
+                            label_dir = os.path.join(self.dset_info[dset_name]["label_root_dir"], image, f"{image}_seg.nii.gz")
+
+                            flair_image = put.resample_nib(nib.load(flair_im_dir))
+                            t1_image = put.resample_nib(nib.load(t1_im_dir))
+                            t1c_image = put.resample_nib(nib.load(t1c_im_dir))
+                            t2_image = put.resample_nib(nib.load(t2_im_dir))
+                            loaded_label = put.resample_mask_to(nib.load(label_dir), flair_image)
+
+                            flair_image = flair_image.get_fdata()
+                            t1_image = t1_image.get_fdata()
+                            t1c_image = t1c_image.get_fdata()
+                            t2_image = t2_image.get_fdata()
+
+                            loaded_image = np.stack([flair_image, t1_image, t1c_image, t2_image], axis=-1)
+                            loaded_label = loaded_label.get_fdata()
+                            assert not (loaded_label is None), "Invalid Label"
+                            assert not (loaded_image is None), "Invalid Image"
                         else:
-                            if load_images:
-                                flair_im_dir = glob.glob(os.path.join(subj_folder, "VSD.Brain.XX.O.MR_Flair*/VSD.Brain.XX.O.MR_Flair*.mha"))[0]
-                                t1_im_dir = glob.glob(os.path.join(subj_folder, "VSD.Brain.XX.O.MR_T1*/VSD.Brain.XX.O.MR_T1*.mha"))[0]
-                                t1c_im_dir = glob.glob(os.path.join(subj_folder, "VSD.Brain.XX.O.MR_T1c*/VSD.Brain.XX.O.MR_T1c*.mha"))[0]
-                                t2_im_dir = glob.glob(os.path.join(subj_folder, "VSD.Brain.XX.O.MR_T2*/VSD.Brain.XX.O.MR_T2*.mha"))[0]
-                                label_dir = glob.glob(os.path.join(self.dset_info[dset_name]["label_root_dir"], image, "VSD.Brain_*/VSD.Brain_*.mha"))[0]
-                                
-                                flair_image, _ = medpy.io.load(flair_im_dir)
-                                t1_image, _ = medpy.io.load(t1_im_dir)
-                                t1c_image, _ = medpy.io.load(t1c_im_dir)
-                                t2_image, _ = medpy.io.load(t2_im_dir)
-                                
-                                loaded_image = np.stack([flair_image, t1_image, t1c_image, t2_image], axis=-1)
-                                loaded_label, _ = medpy.io.load(label_dir)
-                                assert not (loaded_label is None), "Invalid Label"
-                                assert not (loaded_image is None), "Invalid Image"
-                            else:
-                                label_dir = glob.glob(os.path.join(self.dset_info[dset_name]["label_root_dir"], image, "VSD.Brain_*/VSD.Brain_*.mha"))[0]
-                                
-                                loaded_image = None
-                                loaded_label, _ = medpy.io.load(label_dir)
+                            label_dir = os.path.join(self.dset_info[dset_name]["label_root_dir"], image, f"{image}_seg.nii.gz")
+                            loaded_image = None
+                            loaded_label = nib.load(label_dir).get_fdata()
+                    else:
+                        if load_images:
+                            flair_im_dir = glob.glob(os.path.join(subj_folder, "VSD.Brain.XX.O.MR_Flair*/VSD.Brain.XX.O.MR_Flair*.mha"))[0]
+                            t1_im_dir = glob.glob(os.path.join(subj_folder, "VSD.Brain.XX.O.MR_T1*/VSD.Brain.XX.O.MR_T1*.mha"))[0]
+                            t1c_im_dir = glob.glob(os.path.join(subj_folder, "VSD.Brain.XX.O.MR_T1c*/VSD.Brain.XX.O.MR_T1c*.mha"))[0]
+                            t2_im_dir = glob.glob(os.path.join(subj_folder, "VSD.Brain.XX.O.MR_T2*/VSD.Brain.XX.O.MR_T2*.mha"))[0]
+                            label_dir = glob.glob(os.path.join(self.dset_info[dset_name]["label_root_dir"], image, "VSD.Brain_*/VSD.Brain_*.mha"))[0]
 
-                        proc_return = proc_func(proc_dir,
-                                              version,
-                                              dset_name,
-                                              image, 
-                                              loaded_image,
-                                              loaded_label,
-                                              self.dset_info[dset_name],
-                                              show_hists=show_hists,
-                                              show_imgs=show_imgs,
-                                              save=save)
+                            flair_image, _ = medpy.io.load(flair_im_dir)
+                            t1_image, _ = medpy.io.load(t1_im_dir)
+                            t1c_image, _ = medpy.io.load(t1c_im_dir)
+                            t2_image, _ = medpy.io.load(t2_im_dir)
 
-                        if accumulate:
-                            accumulator.append(proc_return)
-                except Exception as e:
-                    print(e)
-                    #raise ValueError
+                            loaded_image = np.stack([flair_image, t1_image, t1c_image, t2_image], axis=-1)
+                            loaded_label, _ = medpy.io.load(label_dir)
+                            assert not (loaded_label is None), "Invalid Label"
+                            assert not (loaded_image is None), "Invalid Image"
+                        else:
+                            label_dir = glob.glob(os.path.join(self.dset_info[dset_name]["label_root_dir"], image, "VSD.Brain_*/VSD.Brain_*.mha"))[0]
+
+                            loaded_image = None
+                            loaded_label, _ = medpy.io.load(label_dir)
+
+                    proc_return = proc_func(proc_dir,
+                                          version,
+                                          dset_name,
+                                          image, 
+                                          loaded_image,
+                                          loaded_label,
+                                          self.dset_info[dset_name],
+                                          show_hists=show_hists,
+                                          show_imgs=show_imgs,
+                                          save=save)
+
+                    if accumulate:
+                        accumulator.append(proc_return)
+            except Exception as e:
+                print(e)
+                #raise ValueError
         if accumulate:
             return proc_dir, accumulator
