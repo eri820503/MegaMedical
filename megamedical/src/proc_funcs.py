@@ -200,6 +200,13 @@ def get_label_dist(datasets,
                     timeout=120):
     assert not (len(datasets) > 1 and visualize), "Can't visualize a list of processing."
     assert not (slurm and visualize), "If you are submitting slurm no vis."
+        
+    if datasets == "all":
+        datasets = os.listdir(paths["DATA"])
+        datasets.remove("RibSeg")
+        datasets.remove("EchoNet")
+        datasets.remove("SegThy")
+        datasets.remove("TotalSeg")
 
     dataset_objects = [utils.build_dataset(ds) for ds in datasets]
 
