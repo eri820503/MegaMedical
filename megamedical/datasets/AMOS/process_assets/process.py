@@ -53,18 +53,18 @@ class AMOS:
                         assert os.path.isfile(im_dir), "Valid image dir required!"
                         assert os.path.isfile(label_dir), "Valid label dir required!"
 
-                    if load_images:
-                        loaded_image = put.resample_nib(nib.load(im_dir))
-                        loaded_label = put.resample_mask_to(nib.load(label_dir), loaded_image)
-                        
-                        loaded_image = loaded_image.get_fdata()
-                        loaded_label = loaded_label.get_fdata()
-                        assert not (loaded_label is None), "Invalid Label"
-                        assert not (loaded_image is None), "Invalid Image"
-                    else:
-                        loaded_image = None
-                        loaded_label = nib.load(label_dir).get_fdata()
-                        
+                        if load_images:
+                            loaded_image = put.resample_nib(nib.load(im_dir))
+                            loaded_label = put.resample_mask_to(nib.load(label_dir), loaded_image)
+
+                            loaded_image = loaded_image.get_fdata()
+                            loaded_label = loaded_label.get_fdata()
+                            assert not (loaded_label is None), "Invalid Label"
+                            assert not (loaded_image is None), "Invalid Image"
+                        else:
+                            loaded_image = None
+                            loaded_label = nib.load(label_dir).get_fdata()
+
                         proc_return = proc_func(proc_dir,
                                               version,
                                               dset_name,

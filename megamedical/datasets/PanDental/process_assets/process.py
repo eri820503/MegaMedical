@@ -89,10 +89,10 @@ class PanDental:
                                               show_imgs=show_imgs,
                                               save=save)
 
-                    if accumulate:
-                        accumulator.append(proc_return)
-            except Exception as e:
-                print(e)
-                #raise ValueError
+                            if accumulate:
+                                accumulator.append(proc_return)
+                    except Exception as e:
+                        print(e)
+                        #raise ValueError
         if accumulate:
             return proc_dir, accumulator

@@ -197,7 +197,7 @@ def get_label_dist(datasets,
                     slurm=False, 
                     visualize=False,
                     version="4.0",
-                    timeout=540):
+                    timeout=120):
     assert not (len(datasets) > 1 and visualize), "Can't visualize a list of processing."
     assert not (slurm and visualize), "If you are submitting slurm no vis."
 
@@ -210,7 +210,7 @@ def get_label_dist(datasets,
                 slurm_root = os.path.join(paths["ROOT"], f"bash/submitit/{do.name}/{dset}")
                 executor = submitit.AutoExecutor(folder=slurm_root)
                 executor.update_parameters(timeout_min=timeout, mem_gb=16,
-                                           gpus_per_node=1, slurm_partition="sablab", slurm_wckey="")
+                                           gpus_per_node=0, slurm_partition="sablab", slurm_wckey="")
                 job = executor.submit(pps.label_dist,
                                       do.name,
                                       do.proc_func,

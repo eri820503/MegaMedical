@@ -72,7 +72,7 @@ class PanNuke:
         labels_array = np.load(self.dset_info[dset_name]["label_root_dir"])
         
         image_list = list(range(volumes_array.shape[0]))
-        with tqdm(total=len(image_list), desc=f'Processing: {dset_name}', unit='image') as pbar:
+        for image in tqdm_notebook(image_list, desc=f'Processing: {dset_name}'):
             for image in image_list:
                 try:
                     proc_dir_template = os.path.join(proc_dir, f"megamedical_v{version}", dset_name, "*", str(image))
@@ -101,10 +101,10 @@ class PanNuke:
                                               show_imgs=show_imgs,
                                               save=save)
 
-                    if accumulate:
-                        accumulator.append(proc_return)
-            except Exception as e:
-                print(e)
-                #raise ValueError
+                        if accumulate:
+                            accumulator.append(proc_return)
+                except Exception as e:
+                    print(e)
+                    #raise ValueError
         if accumulate:
             return proc_dir, accumulator

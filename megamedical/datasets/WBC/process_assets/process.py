@@ -90,5 +90,5 @@ class WBC:
                 except Exception as e:
                     print(e)
                     #raise ValueError
-            if accumulate:
-                return proc_dir, accumulator
+        if accumulate:
+            return proc_dir, accumulator

@@ -47,7 +47,7 @@ class CheXplanation:
         proc_dir = pps.make_processed_dir(self.name, dset_name, save, version, self.dset_info[dset_name])
         image_list = os.listdir(self.dset_info[dset_name]["image_root_dir"])
         accumulator = []
-        with tqdm(total=len(image_list), desc=f'Processing: {dset_name}', unit='image') as pbar:
+        for image in tqdm_notebook(image_list, desc=f'Processing: {dset_name}'):
             label_dir = os.path.join(self.dset_info[dset_name]["label_root_dir"], "gt_segmentation_val.json")
             label_file = open(label_dir)
             label_json = json.load(label_file)
@@ -57,8 +57,8 @@ class CheXplanation:
                     if redo_processed or (len(glob.glob(proc_dir_template)) == 0):
                         im_dir = os.path.join(self.dset_info[dset_name]["image_root_dir"], image, "study1/view1_frontal.jpg")
                         assert os.path.isfile(im_dir), "Valid image dir required!"
-                       
-                       if load_images:
+                        
+                        if load_images:
                             loaded_image = np.array(Image.open(im_dir).convert('L'))
                             loaded_labels = []
                             subj_dict = label_json[f"{image}_study1_view1_frontal"]
@@ -86,10 +86,10 @@ class CheXplanation:
                                               show_imgs=show_imgs,
                                               save=save)
 
-                    if accumulate:
-                        accumulator.append(proc_return)
-            except Exception as e:
-                print(e)
-                #raise ValueError
+                        if accumulate:
+                            accumulator.append(proc_return)
+                except Exception as e:
+                    print(e)
+                    #raise ValueError
         if accumulate:
             return proc_dir, accumulator
