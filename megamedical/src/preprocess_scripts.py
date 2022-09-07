@@ -191,9 +191,9 @@ def label_dist(dataset,
             flat_max_plane_labels = [label for subj in max_plane_unique_labels for label in subj]
             total_maxslice_label_dict[plane] = dict(Counter(flat_max_plane_labels))
         
+        sns.set(rc = {'figure.figsize':(30,5)})
         for plane in planes:
             if visualize:
-                sns.set(rc = {'figure.figsize':(30,5)})
                 ax1 = sns.barplot(x=list(total_midslice_label_dict[plane].keys()), y=list(total_midslice_label_dict[plane].values()))
                 ax1.set(title=f"Midslice | Plane {plane} | Label Frequency for {dataset}/{subdset} of {num_subjects} many subjects.")
                 ax1.bar_label(ax1.containers[0])
@@ -203,7 +203,7 @@ def label_dist(dataset,
                 ax2.bar_label(ax2.containers[0])
                 plt.show()
             if save:
-                save_dir = os.path.join(proc_dir, "figures", dataset)
+                save_dir = os.path.join(proc_dir, "figures", subdset)
                 if not os.path.exists(save_dir):
                     os.makedirs(save_dir)
                 mid_dict_dir = os.path.join(save_dir, f"mid_lab_dict_{plane}")
