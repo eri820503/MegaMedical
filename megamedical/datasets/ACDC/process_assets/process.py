@@ -19,7 +19,6 @@ class ACDC:
                 "label_root_dir": f"{paths['DATA']}/ACDC/original_unzipped/Challenge2017/training",
                 "modality_names": ["MRI"],
                 "planes": [2],
-                "labels": [1,2,3],
                 "clip_args": [0.5, 99.5],
                 "norm_scheme":"MR",
                 "do_clip":True,

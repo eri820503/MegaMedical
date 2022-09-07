@@ -167,15 +167,15 @@ def process_dataset(datasets,
     dataset_objects = [utils.build_dataset(ds) for ds in datasets]
 
     for do in dataset_objects:
-        dset_names = list(do.dset_info.keys()) if subdsets is None else subdsets
-        for dset in dset_names:
+        subdset_names = list(do.dset_info.keys()) if subdsets is None else subdsets
+        for subdset in subdset_names:
             if slurm:
                 slurm_root = os.path.join(paths["ROOT"], f"bash/submitit/{do.name}/{dset}")
                 executor = submitit.AutoExecutor(folder=slurm_root)
                 executor.update_parameters(timeout_min=timeout, mem_gb=32,
                                            gpus_per_node=1, slurm_partition="sablab", slurm_wckey="")
                 job = executor.submit(do.proc_func,
-                                      dset,
+                                      subdset,
                                       pps.produce_slices,
                                       True,
                                       False,
@@ -185,7 +185,7 @@ def process_dataset(datasets,
                                       show_hists,
                                       redo_processed)
             else:
-                do.proc_func(dset,
+                do.proc_func(subdset,
                              pps.produce_slices,
                              True,
                              False,
@@ -194,6 +194,44 @@ def process_dataset(datasets,
                              save,
                              show_hists,
                              redo_processed)
+                
+
+def generate_label_info_files(datasets,
+                              subdsets=None,
+                              save=False,
+                              slurm=False, 
+                              visualize=False,
+                              version="4.0",
+                              timeout=120,
+                              volume_wide=True):
+    assert not (len(datasets) > 1 and visualize), "Can't visualize a list of processing."
+    assert not (slurm and visualize), "If you are submitting slurm no vis."
+        
+    if datasets == "all":
+        datasets = os.listdir(paths["DATA"])
+
+    dataset_objects = [utils.build_dataset(ds) for ds in datasets]
+
+    for do in dataset_objects:
+        subdset_names = list(do.dset_info.keys()) if subdsets is None else subdsets
+        for subdset in subdset_names:
+            if slurm:
+                slurm_root = os.path.join(paths["ROOT"], f"bash/submitit/{do.name}/{subdset}")
+                executor = submitit.AutoExecutor(folder=slurm_root)
+                executor.update_parameters(timeout_min=timeout, mem_gb=16,
+                                           gpus_per_node=0, slurm_partition="sablab", slurm_wckey="")
+                job = executor.submit(pps.label_info,
+                                      do,
+                                      subdset,
+                                      version,
+                                      visualize,
+                                      save)
+            else:
+                pps.label_info(do,
+                               subdset,
+                               version,
+                               visualize,
+                               save)
                     
 
 def get_label_dist(datasets,
@@ -209,16 +247,12 @@ def get_label_dist(datasets,
         
     if datasets == "all":
         datasets = os.listdir(paths["DATA"])
-        datasets.remove("RibSeg")
-        datasets.remove("EchoNet")
-        datasets.remove("SegThy")
-        datasets.remove("TotalSeg")
 
     dataset_objects = [utils.build_dataset(ds) for ds in datasets]
 
     for do in dataset_objects:
-        dset_names = list(do.dset_info.keys()) if subdsets is None else subdsets
-        for dset in dset_names:
+        subdset_names = list(do.dset_info.keys()) if subdsets is None else subdsets
+        for subdset in subdset_names:
             if slurm:
                 slurm_root = os.path.join(paths["ROOT"], f"bash/submitit/{do.name}/{dset}")
                 executor = submitit.AutoExecutor(folder=slurm_root)

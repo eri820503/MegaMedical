@@ -29,7 +29,7 @@ def make_processed_dir(dset, subdset, save, dataset_ver, dset_info):
 
 def produce_slices(root_dir,
                    version,
-                   dataset,
+                   subdset,
                    subject_name,
                    loaded_image,
                    loaded_label,
@@ -42,7 +42,7 @@ def produce_slices(root_dir,
     save_name = subject_name.split(".")[0]
     
     #get all of the labels in the volume, once 
-    unique_labels = np.unique(loaded_label)[1:]
+    unique_labels = np.load(os.path.join(root_dir, "label_info", subdset, "all_labels.npy"))
     
     for idx, mode in enumerate(dset_info["modality_names"]):
         #Extract the modality if it exists (mostly used for MSD)
@@ -101,7 +101,7 @@ def produce_slices(root_dir,
                 seg_res[..., lab_idx] = bin_seg_res
 
             if save:
-                proc_dir = os.path.join(root_dir, f"megamedical_v{version}", dataset, mode, subject_name)
+                proc_dir = os.path.join(root_dir, f"megamedical_v{version}", subdset, mode, subject_name)
                 if not os.path.exists(proc_dir):
                     os.makedirs(proc_dir)
                 np.save(os.path.join(proc_dir, f"img_{res}.npy"), image_res)
@@ -210,3 +210,80 @@ def label_dist(dataset,
                 max_dict_dir = os.path.join(save_dir, f"max_lab_dict_{plane}")
                 dump_dictionary(total_midslice_label_dict, mid_dict_dir)
                 dump_dictionary(total_maxslice_label_dict, max_dict_dir)
+                
+                
+def label_info(data_obj,
+               subdset,
+               version,
+               visualize,
+               save):
+
+    def get_label_amounts(proc_dir,
+                          version,
+                          dset_name,
+                          image, 
+                          loaded_image,
+                          loaded_label,
+                          dset_info,
+                          show_hists,
+                          show_imgs,
+                          save):
+        planes = dset_info["planes"]
+        all_labels = np.unique(loaded_label)
+        all_labels = np.delete(all_labels, [0])
+        total_lab_amount_dict = {lab : np.count_nonzero((loaded_label==lab).astype(int)) for lab in all_labels}
+        
+        maxslice_amount_dict = {}
+        midslice_amount_dict = {}
+        lab_shape = loaded_label.shape
+        if len(lab_shape) == 2:
+            midslice_amount_dict[0] = total_lab_amount_dict
+            maxslice_amount_dict[0] = total_lab_amount_dict
+        else:
+            for plane in planes:
+                all_axes = [0,1,2]
+                all_axes.remove(plane)
+                
+                midslice = np.take(loaded_label, lab_shape[plane]//2, plane)
+                mid_unique_labels = np.unique(midslice)
+                midslice_plane_labels = np.delete(mid_unique_labels, [0])
+                
+                midslice_amount_dict[plane] = {lab : np.count_nonzero((midslice==lab).astype(int)) for lab in midslice_plane_labels}
+                maxslice_amount_dict[plane] = {lab : np.amax(np.count_nonzero((loaded_label==lab).astype(int), axis=tuple(all_axes))) for lab in all_labels}
+        
+        return maxslice_amount_dict, midslice_amount_dict, all_labels
+    
+    proc_dir, label_info = data_obj.proc_func(subdset,
+                                     get_label_amounts,
+                                     load_images=False,
+                                     accumulate=True,
+                                     version=version,
+                                     save=save)
+
+    maxslice_label_info = [li[0] for li in label_info]
+    midslice_label_info = [li[1] for li in label_info]
+    total_label_info = [li[2] for li in label_info]
+    unique_labels = list(set([label for subj in total_label_info for label in subj]))
+    
+    save_dir = os.path.join(proc_dir, "label_info", subdset)
+    if save:
+        if not os.path.exists(save_dir):
+            os.makedirs(save_dir)
+        all_label_dir = os.path.join(save_dir, f"all_labels")
+        np.save(all_label_dir, np.array(unique_labels))
+    
+    for plane in data_obj.dset_info[subdset]["planes"]:
+        # +1 accounts for starting from zero error
+        max_label_info_array = np.zeros((len(total_label_info), len(unique_labels) + 1))
+        mid_label_info_array = np.zeros((len(total_label_info), len(unique_labels) + 1))
+        for subj_idx, (max_info, mid_info) in enumerate(zip(maxslice_label_info, midslice_label_info)):
+            for max_label in max_info[plane].keys():
+                max_label_info_array[subj_idx, int(max_label)] = max_info[plane][max_label]
+            for mid_label in mid_info[plane].keys():
+                mid_label_info_array[subj_idx, int(mid_label)] = mid_info[plane][mid_label]
+        if save:
+            mid_dict_dir = os.path.join(save_dir, f"midslice_pop_lab_amount_{plane}")
+            max_dict_dir = os.path.join(save_dir, f"maxslice_pop_lab_amount_{plane}")
+            np.save(mid_dict_dir, mid_label_info_array)
+            np.save(max_dict_dir, max_label_info_array)
+
