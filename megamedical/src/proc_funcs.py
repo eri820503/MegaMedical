@@ -202,7 +202,8 @@ def get_label_dist(datasets,
                     slurm=False, 
                     visualize=False,
                     version="4.0",
-                    timeout=120):
+                    timeout=120,
+                    volume_wide=True):
     assert not (len(datasets) > 1 and visualize), "Can't visualize a list of processing."
     assert not (slurm and visualize), "If you are submitting slurm no vis."
         
@@ -229,11 +230,13 @@ def get_label_dist(datasets,
                                       dset,
                                       version,
                                       visualize,
-                                      save)
+                                      save,
+                                      volume_wide)
             else:
                 pps.label_dist(do.name,
                                 do.proc_func,
                                 dset,
                                 version,
                                 visualize,
-                                save)
+                                save,
+                                volume_wide)

@@ -113,7 +113,8 @@ def label_dist(dataset,
                subdset,
                version,
                visualize,
-               save):
+               save,
+               volume_wide):
 
     def get_unique_labels(proc_dir,
                           version,
@@ -128,14 +129,24 @@ def label_dist(dataset,
         planes = dset_info["planes"]
         all_labels = np.unique(loaded_label)
         all_labels = np.delete(all_labels, [0])
+        
+        maxslice_labels = {}
         midslice_labels = {}
         for plane in planes:
             lab_shape = loaded_label.shape
             if len(lab_shape) == 2:
+                maxslice_labels[plane] = all_labels
                 midslice_labels[plane] = all_labels
             else:
-                midslice_labels[plane] = np.unique(np.take(loaded_label, lab_shape[plane]//2, plane))
-        return all_labels, midslice_labels
+                all_axis = [0, 1, 2]
+                all_axis.remove(plane)
+                slice_idx = np.argmax(np.sum(loaded_label, axis=tuple(all_axis)))
+                max_unique_labels = np.unique(np.take(loaded_label, slice_idx, plane))
+                mid_unique_labels = np.unique(np.take(loaded_label, lab_shape[plane]//2, plane))
+                maxslice_labels[plane] = np.delete(max_unique_labels, [0])
+                midslice_labels[plane] = np.delete(mid_unique_labels, [0])
+                
+        return all_labels, maxslice_labels, midslice_labels, planes
     
     proc_dir, label_info = proc_func(subdset,
                                      get_unique_labels,
@@ -143,22 +154,59 @@ def label_dist(dataset,
                                      accumulate=True,
                                      version=version,
                                      save=save)
+    planes = label_info[0][3]
     num_subjects = len(label_info)
     total_label_info = [li[0] for li in label_info]
-    flat_total_label_info = [label for subj in total_label_info for label in subj]
-    frequency_label_dict = dict(Counter(flat_total_label_info))
-    if save or visualize:
-        sns.set(rc = {'figure.figsize':(30,5)})
-        ax = sns.barplot(x=list(frequency_label_dict.keys()), y=list(frequency_label_dict.values()))
-        ax.bar_label(ax.containers[0])
-        ax.set(title=f"Label Frequency for {dataset}/{subdset} of {num_subjects} many subjects.")
-        plt.show()
-        if save:
-            fig = ax.get_figure()
-            save_dir = os.path.join(proc_dir, "figures")
-            if not os.path.exists(save_dir):
-                os.makedirs(save_dir)
-            fig_dir = os.path.join(save_dir, "lab_info.png")
-            dict_dir = os.path.join(save_dir, "lab_dict")
-            dump_dictionary(frequency_label_dict, dict_dir)
-            fig.savefig(fig_dir)
+    maxslice_label_info = [li[1] for li in label_info]
+    midslice_label_info = [li[2] for li in label_info]
+    
+    if volume_wide:
+        flat_total_label_info = [label for subj in total_label_info for label in subj]
+        frequency_label_dict = dict(Counter(flat_total_label_info))
+        
+        if save or visualize:
+            sns.set(rc = {'figure.figsize':(30,5)})
+            ax = sns.barplot(x=list(frequency_label_dict.keys()), y=list(frequency_label_dict.values()))
+            ax.bar_label(ax.containers[0])
+            ax.set(title=f"Label Frequency for {dataset}/{subdset} of {num_subjects} many subjects.")
+            plt.show()
+            if save:
+                fig = ax.get_figure()
+                save_dir = os.path.join(proc_dir, "figures", dataset)
+                if not os.path.exists(save_dir):
+                    os.makedirs(save_dir)
+                fig_dir = os.path.join(save_dir, "lab_info.png")
+                dict_dir = os.path.join(save_dir, "lab_dict")
+                dump_dictionary(frequency_label_dict, dict_dir)
+                fig.savefig(fig_dir)
+    else:
+        total_midslice_label_dict = {}
+        total_maxslice_label_dict = {}
+        for plane in planes:
+            mid_plane_unique_labels = [mid_info[plane] for mid_info in midslice_label_info]
+            flat_mid_plane_labels = [label for subj in mid_plane_unique_labels for label in subj]
+            total_midslice_label_dict[plane] = dict(Counter(flat_mid_plane_labels))
+            
+            max_plane_unique_labels = [max_info[plane] for max_info in maxslice_label_info]
+            flat_max_plane_labels = [label for subj in max_plane_unique_labels for label in subj]
+            total_maxslice_label_dict[plane] = dict(Counter(flat_max_plane_labels))
+        
+        for plane in planes:
+            if visualize:
+                sns.set(rc = {'figure.figsize':(30,5)})
+                ax1 = sns.barplot(x=list(total_midslice_label_dict[plane].keys()), y=list(total_midslice_label_dict[plane].values()))
+                ax1.set(title=f"Midslice | Plane {plane} | Label Frequency for {dataset}/{subdset} of {num_subjects} many subjects.")
+                ax1.bar_label(ax1.containers[0])
+                plt.show()
+                ax2 = sns.barplot(x=list(total_maxslice_label_dict[plane].keys()), y=list(total_maxslice_label_dict[plane].values()))
+                ax2.set(title=f"Maxslice | Plane {plane} | Label Frequency for {dataset}/{subdset} of {num_subjects} many subjects.")
+                ax2.bar_label(ax2.containers[0])
+                plt.show()
+            if save:
+                save_dir = os.path.join(proc_dir, "figures", dataset)
+                if not os.path.exists(save_dir):
+                    os.makedirs(save_dir)
+                mid_dict_dir = os.path.join(save_dir, f"mid_lab_dict_{plane}")
+                max_dict_dir = os.path.join(save_dir, f"max_lab_dict_{plane}")
+                dump_dictionary(total_midslice_label_dict, mid_dict_dir)
+                dump_dictionary(total_maxslice_label_dict, max_dict_dir)
