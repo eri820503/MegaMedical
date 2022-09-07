@@ -24,18 +24,19 @@ def vis_label_hists(datasets, slice_version):
                     subdset_fig_dir = os.path.join(fig_path, subdset)
                     planes = list(set([pf.split("_")[-1] for pf in os.listdir(subdset_fig_dir)]))
                     for plane in planes:
-                        max_dict_path = os.path.join(subdset_fig_dir, f"max_lab_dict__{plane}")
+                        max_dict_path = os.path.join(subdset_fig_dir, f"max_lab_dict_{plane}")
                         middle_dict_path = os.path.join(subdset_fig_dir, f"mid_lab_dict_{plane}")
                         
                         total_maxslice_label_dict = load_obj(max_dict_path)
                         total_midslice_label_dict = load_obj(middle_dict_path)
                         
-                        ax1 = sns.barplot(x=list(total_midslice_label_dict[plane].keys()), y=list(total_midslice_label_dict[plane].values()))
-                        ax1.set(title=f"Midslice | Plane {plane[0]} | Label Frequency for {dataset}/{subdset}.")
+                        plane_key = int(plane[0])
+                        ax1 = sns.barplot(x=list(total_midslice_label_dict[plane_key].keys()), y=list(total_midslice_label_dict[plane_key].values()))
+                        ax1.set(title=f"Midslice | Plane {plane_key} | Label Frequency for {dataset}/{subdset}.")
                         ax1.bar_label(ax1.containers[0])
                         plt.show()
-                        ax2 = sns.barplot(x=list(total_maxslice_label_dict[plane].keys()), y=list(total_maxslice_label_dict[plane].values()))
-                        ax2.set(title=f"Maxslice | Plane {plane[0]} | Label Frequency for {dataset}/{subdset}.")
+                        ax2 = sns.barplot(x=list(total_maxslice_label_dict[plane_key].keys()), y=list(total_maxslice_label_dict[plane_key].values()))
+                        ax2.set(title=f"Maxslice | Plane {plane_key} | Label Frequency for {dataset}/{subdset}.")
                         ax2.bar_label(ax2.containers[0])
                         plt.show()
             else:
