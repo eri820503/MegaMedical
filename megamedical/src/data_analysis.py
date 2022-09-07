@@ -10,10 +10,7 @@ from megamedical.utils.proc_utils import *
 def vis_label_hists(datasets, slice_version):
     if datasets == "all":
         datasets = os.listdir(paths["DATA"])
-        datasets.remove("RibSeg")
-        datasets.remove("EchoNet")
-        datasets.remove("SegThy")
-        datasets.remove("TotalSeg")
+
     sns.set(rc = {'figure.figsize':(30,5)})
     for dataset in datasets:
         try:
