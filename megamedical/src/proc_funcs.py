@@ -172,10 +172,13 @@ def process_dataset(datasets,
             if slurm:
                 slurm_root = os.path.join(paths["ROOT"], f"bash/submitit/{do.name}/{dset}")
                 executor = submitit.AutoExecutor(folder=slurm_root)
-                executor.update_parameters(timeout_min=timeout, mem_gb=16,
+                executor.update_parameters(timeout_min=timeout, mem_gb=32,
                                            gpus_per_node=1, slurm_partition="sablab", slurm_wckey="")
                 job = executor.submit(do.proc_func,
                                       dset,
+                                      pps.produce_slices,
+                                      True,
+                                      False,
                                       version,
                                       visualize,
                                       save,
@@ -183,12 +186,14 @@ def process_dataset(datasets,
                                       redo_processed)
             else:
                 do.proc_func(dset,
-                            pps.produce_slices,
-                            version,
-                            visualize,
-                            save,
-                            show_hists,
-                            redo_processed)
+                             pps.produce_slices,
+                             True,
+                             False,
+                             version,
+                             visualize,
+                             save,
+                             show_hists,
+                             redo_processed)
                     
 
 def get_label_dist(datasets,

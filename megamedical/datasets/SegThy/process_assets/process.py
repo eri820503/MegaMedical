@@ -8,17 +8,29 @@ from megamedical.src import preprocess_scripts as pps
 from megamedical.utils.registry import paths
 from megamedical.utils import proc_utils as put
 
-class ACDC:
+class SegThy:
 
     def __init__(self):
-        self.name = "ACDC"
+        self.name = "SegThy"
         self.dset_info = {
-            "Challenge2017":{
-                "main":"ACDC",
-                "image_root_dir": f"{paths['DATA']}/ACDC/original_unzipped/Challenge2017/training",
-                "label_root_dir": f"{paths['DATA']}/ACDC/original_unzipped/Challenge2017/training",
+            "MRI_volunteer_dataset":{
+                "main":"SegThy",
+                "image_root_dir": f"{paths['DATA']}/SegThy/original_unzipped/2022/MRI_volunteer_dataset/MRI",
+                "label_root_dir": f"{paths['DATA']}/SegThy/original_unzipped/2022/MRI_volunteer_dataset/MRI_thyroid_label",
                 "modality_names": ["MRI"],
-                "planes": [2],
+                "planes": [0, 1, 2],
+                "labels": [1,2,3],
+                "clip_args": [0.5, 99.5],
+                "norm_scheme":"MR",
+                "do_clip":True,
+                "proc_size":256
+            },
+            "US_volunteer_dataset":{
+                "main":"SegThy",
+                "image_root_dir": f"{paths['DATA']}/SegThy/original_unzipped/2022/US_volunteer_dataset/US",
+                "label_root_dir": f"{paths['DATA']}/SegThy/original_unzipped/2022/US_volunteer_dataset/US_thyroid_label",
+                "modality_names": ["MRI"],
+                "planes": [0, 1, 2],
                 "labels": [1,2,3],
                 "clip_args": [0.5, 99.5],
                 "norm_scheme":"MR",

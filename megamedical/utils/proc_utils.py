@@ -18,9 +18,11 @@ def display_processing_slices(image, seg, plane):
         image_slice = image
         label_slice = seg
     else:      
-        half_dim = image.shape[0]//2
-        image_slice = np.take(image, half_dim, plane)
-        label_slice = np.take(seg, half_dim, plane)
+        all_axis = [0, 1, 2]
+        all_axis.remove(plane)
+        slice_idx = np.argmax(np.sum(seg, axis=tuple(all_axis)))
+        image_slice = np.take(image, slice_idx, plane)
+        label_slice = np.take(seg, slice_idx, plane)
 
     img_obj = axarr[0].imshow(image_slice, interpolation="none", cmap="gray")
     seg_obj = axarr[1].imshow(label_slice, interpolation="none")

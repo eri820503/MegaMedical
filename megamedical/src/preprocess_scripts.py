@@ -50,18 +50,21 @@ def produce_slices(root_dir,
             modality_loaded_image = loaded_image[:,:,:,idx]
         else:
             modality_loaded_image = loaded_image
-       
+        
+        if show_hists:
+            display_histogram(modality_loaded_image.flatten())
+        
         if dset_info["do_clip"]:
             #clip volume between prespecified values
             modality_loaded_image = clip_volume(modality_loaded_image, 
                                                 dset_info["norm_scheme"], 
                                                 dset_info["clip_args"])
         
+        if show_hists:
+            display_histogram(modality_loaded_image.flatten())
+        
         #normalize the volume between [0,1]
         normalized_modality_image = relative_norm(modality_loaded_image)
-        
-        if show_hists:
-            display_histogram(normalized_modality_image.flatten())
         
         #make the volume/label a 3D cube
         square_image = squarify(normalized_modality_image)
@@ -70,13 +73,14 @@ def produce_slices(root_dir,
         #original square image size
         old_size = square_image.shape[0]
         
+        #show midslices
+        if show_imgs:
+            for plane in dset_info["planes"]:
+                display_processing_slices(square_image, square_label, plane)
+        
         for res in resolutions:
             #Resize to several resolutions
             image_res = blur_and_resize(square_image, old_size, new_size=res, order=1)
-
-            if show_imgs and res==128:
-                for plane in dset_info["planes"]:
-                    display_processing_slices(square_image, square_label, plane)
 
             #final segmentations are with labels in the last dimension
             if len(square_image.shape) == 2:
@@ -97,7 +101,6 @@ def produce_slices(root_dir,
                 seg_res[..., lab_idx] = bin_seg_res
 
             if save:
-                
                 proc_dir = os.path.join(root_dir, f"megamedical_v{version}", dataset, mode, subject_name)
                 if not os.path.exists(proc_dir):
                     os.makedirs(proc_dir)
@@ -144,15 +147,18 @@ def label_dist(dataset,
     total_label_info = [li[0] for li in label_info]
     flat_total_label_info = [label for subj in total_label_info for label in subj]
     frequency_label_dict = dict(Counter(flat_total_label_info))
-    ax = sns.barplot(x=list(frequency_label_dict.keys()), y=list(frequency_label_dict.values()))
-    if visualize:
+    if save or visualize:
+        sns.set(rc = {'figure.figsize':(30,5)})
+        ax = sns.barplot(x=list(frequency_label_dict.keys()), y=list(frequency_label_dict.values()))
         ax.bar_label(ax.containers[0])
         ax.set(title=f"Label Frequency for {dataset}/{subdset} of {num_subjects} many subjects.")
         plt.show()
-    if save:
-        fig = ax.get_figure()
-        save_dir = os.path.join(proc_dir, "figures")
-        if not os.path.exists(save_dir):
-            os.makedirs(save_dir)
-        fig_dir = os.path.join(save_dir, "lab_info.png")
-        fig.savefig(fig_dir)
+        if save:
+            fig = ax.get_figure()
+            save_dir = os.path.join(proc_dir, "figures")
+            if not os.path.exists(save_dir):
+                os.makedirs(save_dir)
+            fig_dir = os.path.join(save_dir, "lab_info.png")
+            dict_dir = os.path.join(save_dir, "lab_dict")
+            dump_dictionary(frequency_label_dict, dict_dir)
+            fig.savefig(fig_dir)

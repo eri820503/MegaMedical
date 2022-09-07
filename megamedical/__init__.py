@@ -46,6 +46,14 @@ from .datasets import VerSe
 from .datasets import WBC
 from .datasets import WMH
 from .datasets import WORD
+from .datasets import cDEMRIS
+from .datasets import EPISURG
+from .datasets import HRF
+from .datasets import MouseBrainAtlas
+from .datasets import MS_CMR
+from .datasets import RibSeg
+from .datasets import SegThy
+from .datasets import TotalSeg
 
 from . import src
 from . import utils

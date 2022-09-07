@@ -8,21 +8,21 @@ from megamedical.src import preprocess_scripts as pps
 from megamedical.utils.registry import paths
 from megamedical.utils import proc_utils as put
 
-class RibSeg:
+class MS_CMR:
 
     def __init__(self):
-        self.name = "RibSeg"
+        self.name = "MS_CMR"
         self.dset_info = {
-            "retrieved_2022_09_01":{
-                "main":"RibSeg",
-                "image_root_dir": f"{paths['DATA']}/RibSeg/original_unzipped/retrieved_2022_09_01/nii",
-                "label_root_dir": f"{paths['DATA']}/RibSeg/original_unzipped/retrieved_2022_09_01/nii",
+            "Challenge2017":{
+                "main":"ACDC",
+                "image_root_dir": f"{paths['DATA']}/ACDC/original_unzipped/Challenge2017/training",
+                "label_root_dir": f"{paths['DATA']}/ACDC/original_unzipped/Challenge2017/training",
                 "modality_names": ["MRI"],
-                "planes": [0,1,2],
+                "planes": [2],
                 "labels": [1,2,3],
                 "clip_args": [0.5, 99.5],
-                "norm_scheme": None,
-                "do_clip": False,
+                "norm_scheme":"MR",
+                "do_clip":True,
                 "proc_size":256
             }
         }
@@ -39,15 +39,15 @@ class RibSeg:
                   redo_processed=True):
         assert not(version is None and save), "Must specify version for saving."
         assert dset_name in self.dset_info.keys(), "Sub-dataset must be in info dictionary."
-        image_list = set([f.split("-")[0] for f in os.listdir(self.dset_info[dset_name]["image_root_dir"])])
+        image_list = os.listdir(self.dset_info[dset_name]["image_root_dir"])
         proc_dir = pps.make_processed_dir(self.name, dset_name, save, version, self.dset_info[dset_name])
         accumulator = []
         for image in tqdm_notebook(image_list, desc=f'Processing: {dset_name}'):
             try:
                 proc_dir_template = os.path.join(proc_dir, f"megamedical_v{version}", dset_name, "*", image)
                 if redo_processed or (len(glob.glob(proc_dir_template)) == 0):
-                    im_dir = os.path.join(self.dset_info[dset_name]["image_root_dir"], f"{image}-rib-cl.nii.gz")
-                    label_dir = os.path.join(self.dset_info[dset_name]["label_root_dir"], f"{image}-rib-seg.nii.gz")
+                    im_dir = os.path.join(self.dset_info[dset_name]["image_root_dir"], image, f"{image}_frame01.nii.gz")
+                    label_dir = os.path.join(self.dset_info[dset_name]["label_root_dir"], image, f"{image}_frame01_gt.nii.gz")
 
                     assert os.path.isfile(im_dir), "Valid image dir required!"
                     assert os.path.isfile(label_dir), "Valid label dir required!"

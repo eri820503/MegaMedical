@@ -1,5 +1,6 @@
 import nibabel as nib
 from tqdm.notebook import tqdm_notebook
+import nrrd
 import glob
 import os
 
@@ -8,21 +9,33 @@ from megamedical.src import preprocess_scripts as pps
 from megamedical.utils.registry import paths
 from megamedical.utils import proc_utils as put
 
-class RibSeg:
+class cDEMRIS:
 
     def __init__(self):
-        self.name = "RibSeg"
+        self.name = "cDEMRIS"
         self.dset_info = {
-            "retrieved_2022_09_01":{
-                "main":"RibSeg",
-                "image_root_dir": f"{paths['DATA']}/RibSeg/original_unzipped/retrieved_2022_09_01/nii",
-                "label_root_dir": f"{paths['DATA']}/RibSeg/original_unzipped/retrieved_2022_09_01/nii",
+            "ISBI_2012_pre":{
+                "main":"cDEMRIS",
+                "image_root_dir": f"{paths['DATA']}/cDEMRIS/original_unzipped/ISBI_2012/pre",
+                "label_root_dir": f"{paths['DATA']}/cDEMRIS/original_unzipped/ISBI_2012/pre",
                 "modality_names": ["MRI"],
-                "planes": [0,1,2],
-                "labels": [1,2,3],
+                "planes": [2],
+                "labels": [1],
                 "clip_args": [0.5, 99.5],
-                "norm_scheme": None,
-                "do_clip": False,
+                "norm_scheme":"MR",
+                "do_clip":True,
+                "proc_size":256
+            },
+            "ISBI_2012_post":{
+                "main":"cDEMRIS",
+                "image_root_dir": f"{paths['DATA']}/cDEMRIS/original_unzipped/ISBI_2012/post",
+                "label_root_dir": f"{paths['DATA']}/cDEMRIS/original_unzipped/ISBI_2012/post",
+                "modality_names": ["MRI"],
+                "planes": [2],
+                "labels": [1],
+                "clip_args": [0.5, 99.5],
+                "norm_scheme":"MR",
+                "do_clip":True,
                 "proc_size":256
             }
         }
@@ -39,30 +52,28 @@ class RibSeg:
                   redo_processed=True):
         assert not(version is None and save), "Must specify version for saving."
         assert dset_name in self.dset_info.keys(), "Sub-dataset must be in info dictionary."
-        image_list = set([f.split("-")[0] for f in os.listdir(self.dset_info[dset_name]["image_root_dir"])])
+        image_list = os.listdir(self.dset_info[dset_name]["image_root_dir"])
         proc_dir = pps.make_processed_dir(self.name, dset_name, save, version, self.dset_info[dset_name])
         accumulator = []
         for image in tqdm_notebook(image_list, desc=f'Processing: {dset_name}'):
             try:
                 proc_dir_template = os.path.join(proc_dir, f"megamedical_v{version}", dset_name, "*", image)
                 if redo_processed or (len(glob.glob(proc_dir_template)) == 0):
-                    im_dir = os.path.join(self.dset_info[dset_name]["image_root_dir"], f"{image}-rib-cl.nii.gz")
-                    label_dir = os.path.join(self.dset_info[dset_name]["label_root_dir"], f"{image}-rib-seg.nii.gz")
+                    vers = "a" if dset_name == "ISBI_2012_pre" else "b"
+                    im_dir = os.path.join(self.dset_info[dset_name]["image_root_dir"], image, f"de_{vers}_{image[1:]}.nrrd")
+                    label_dir = os.path.join(self.dset_info[dset_name]["label_root_dir"], image, f"la_seg_{vers}_{image[1:]}.nrrd")
 
                     assert os.path.isfile(im_dir), "Valid image dir required!"
                     assert os.path.isfile(label_dir), "Valid label dir required!"
 
                     if load_images:
-                        loaded_image = put.resample_nib(nib.load(im_dir))
-                        loaded_label = put.resample_mask_to(nib.load(label_dir), loaded_image)
-                        
-                        loaded_image = loaded_image.get_fdata()
-                        loaded_label = loaded_label.get_fdata()
+                        loaded_image, _ = nrrd.read(im_dir)
+                        loaded_label, _ = nrrd.read(label_dir)
                         assert not (loaded_label is None), "Invalid Label"
                         assert not (loaded_image is None), "Invalid Image"
                     else:
                         loaded_image = None
-                        loaded_label = nib.load(label_dir).get_fdata()
+                        loaded_label, _ = nrrd.read(label_dir)
 
                     proc_return = proc_func(proc_dir,
                                               version,

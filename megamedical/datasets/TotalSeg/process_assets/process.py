@@ -1,5 +1,6 @@
 import nibabel as nib
 from tqdm.notebook import tqdm_notebook
+import numpy as np
 import glob
 import os
 
@@ -8,20 +9,20 @@ from megamedical.src import preprocess_scripts as pps
 from megamedical.utils.registry import paths
 from megamedical.utils import proc_utils as put
 
-class ACDC:
+class TotalSeg:
 
     def __init__(self):
-        self.name = "ACDC"
+        self.name = "TotalSeg"
         self.dset_info = {
-            "Challenge2017":{
-                "main":"ACDC",
-                "image_root_dir": f"{paths['DATA']}/ACDC/original_unzipped/Challenge2017/training",
-                "label_root_dir": f"{paths['DATA']}/ACDC/original_unzipped/Challenge2017/training",
-                "modality_names": ["MRI"],
-                "planes": [2],
+            "retreived_09_01_2022":{
+                "main":"TotalSeg",
+                "image_root_dir": f"{paths['DATA']}/TotalSeg/original_unzipped/retreived_09_01_2022/Totalsegmentator_dataset",
+                "label_root_dir": f"{paths['DATA']}/TotalSeg/original_unzipped/retreived_09_01_2022/Totalsegmentator_dataset",
+                "modality_names": ["CT"],
+                "planes": [0, 1, 2],
                 "labels": [1,2,3],
-                "clip_args": [0.5, 99.5],
-                "norm_scheme":"MR",
+                "clip_args": [-500, 1000],
+                "norm_scheme":"CT",
                 "do_clip":True,
                 "proc_size":256
             }
@@ -46,23 +47,27 @@ class ACDC:
             try:
                 proc_dir_template = os.path.join(proc_dir, f"megamedical_v{version}", dset_name, "*", image)
                 if redo_processed or (len(glob.glob(proc_dir_template)) == 0):
-                    im_dir = os.path.join(self.dset_info[dset_name]["image_root_dir"], image, f"{image}_frame01.nii.gz")
-                    label_dir = os.path.join(self.dset_info[dset_name]["label_root_dir"], image, f"{image}_frame01_gt.nii.gz")
+                    im_dir = os.path.join(self.dset_info[dset_name]["image_root_dir"], image, "ct.nii.gz")
+                    segementation_folder = os.path.join(self.dset_info[dset_name]["label_root_dir"], image, "segmentations")
 
                     assert os.path.isfile(im_dir), "Valid image dir required!"
-                    assert os.path.isfile(label_dir), "Valid label dir required!"
 
                     if load_images:
-                        loaded_image = put.resample_nib(nib.load(im_dir))
-                        loaded_label = put.resample_mask_to(nib.load(label_dir), loaded_image)
+                        loaded_image = nib.load(im_dir).get_fdata()
+                        labels = [nib.load(os.path.join(segementation_folder, target)).get_fdata() for target in os.listdir(segementation_folder)]
+                        background = np.zeros(loaded_image.shape)
+                        labels.append(background)
+                        combined_labels = np.stack(labels)
+                        loaded_label = np.argmax(combined_labels, axis=0)
                         
-                        loaded_image = loaded_image.get_fdata()
-                        loaded_label = loaded_label.get_fdata()
                         assert not (loaded_label is None), "Invalid Label"
                         assert not (loaded_image is None), "Invalid Image"
                     else:
                         loaded_image = None
-                        loaded_label = nib.load(label_dir).get_fdata()
+                        labels = [nib.load(os.path.join(segementation_folder, target)).get_fdata() for target in os.listdir(segementation_folder)]
+                        background = np.zeros(loaded_image.shape)
+                        labels.append(background)
+                        loaded_label = np.argmax(np.concatenate(labels))
 
                     proc_return = proc_func(proc_dir,
                                               version,

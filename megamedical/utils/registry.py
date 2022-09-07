@@ -53,4 +53,12 @@ dataset_registry = {
     "WBC": "megamedical.datasets.WBC.process_assets",
     "WMH": "megamedical.datasets.WMH.process_assets",
     "WORD": "megamedical.datasets.WORD.process_assets",
+    "cDEMRIS": "megamedical.datasets.cDEMRIS.process_assets",
+    "EPISURG": "megamedical.datasets.EPISURG.process_assets",
+    "HRF": "megamedical.datasets.HRF.process_assets",
+    "MouseBrainAtlas": "megamedical.datasets.MouseBrainAtlas.process_assets",
+    "MS_CMR": "megamedical.datasets.MS_CMR.process_assets",
+    "RibSeg": "megamedical.datasets.RibSeg.process_assets",
+    "SegThy": "megamedical.datasets.SegThy.process_assets",
+    "TotalSeg": "megamedical.datasets.TotalSeg.process_assets"
 }
