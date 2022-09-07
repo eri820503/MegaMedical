@@ -12,7 +12,7 @@ def make_processed_dir(dset, subdset, save, dataset_ver, dset_info):
     root_dir = os.path.join(paths["DATA"], dset, f"processed")
     
     dirs_to_make = []
-    for prefix in ["megamedical", "maxslice", "midslice"]:
+    for prefix in ["maxslice", "midslice"]:
         dirs_to_make.append(os.path.join(root_dir, f"{prefix}_v{dataset_ver}", subdset))
 
     if save:
@@ -27,7 +27,7 @@ def make_processed_dir(dset, subdset, save, dataset_ver, dset_info):
     return root_dir
 
 
-def save_maxslice(proc_dir, image_res, seg_res, res, planes):
+def save_maxslice(proc_dir, image_res, seg_res, res, planes, maxslices):
     if not os.path.exists(proc_dir):
         os.makedirs(proc_dir)
         
@@ -40,8 +40,9 @@ def save_maxslice(proc_dir, image_res, seg_res, res, planes):
             maxslice_img = image_res
             maxslice_seg = seg_res
         else:
-            maxslice_img = np.take(image_res, image_res.shape[plane]//2, plane)
-            maxslice_seg = np.take(seg_res, seg_res.shape[plane]//2, plane)
+            slices = maxslices[plane]
+            maxslice_img = np.stack([np.take(image_res, int(si), plane) for si in slices], -1)
+            maxslice_seg = np.stack([np.take(seg_res, int(si), plane) for si in slices], -1)
         np.save(maxslice_img_dir, maxslice_img)
         np.save(maxslice_seg_dir, maxslice_seg)
 
@@ -132,24 +133,25 @@ def produce_slices(root_dir,
                 #isolate mask of label
                 label = int(label)
                 bin_mask = np.float32((square_label==label))
-                if len(bin_mask.shape) == 3:
-                    for pl in dset_info["planes"]:
-                        all_axes = [0,1,2]
-                        all_axes.remove(pl)
-                        max_slices[pl][lab_idx] = np.amax(np.count_nonzero(bin_mask, axis=tuple(all_axes)))
-                
-                print(max_slices)
                 
                 #produce resized segmentations
                 bin_seg_res = blur_and_resize(bin_mask, old_size, new_size=res, order=0)
+                
+                # Gather maxslice info
+                if len(bin_seg_res.shape) == 3:
+                    for pl in dset_info["planes"]:
+                        all_axes = [0,1,2]
+                        all_axes.remove(pl)
+                        greatest_index = np.argmax(np.count_nonzero(bin_seg_res, axis=tuple(all_axes)))
+                        max_slices[pl][lab_idx] = greatest_index
 
-                #place resized segs in regular array
+                # Place resized segs in regular array
                 seg_res[..., lab_idx] = bin_seg_res
-
+            
             if save:
                 #Save maxslice files
                 maxslice_proc_dir = os.path.join(root_dir, f"maxslice_v{version}", subdset, mode, subject_name)
-                save_maxslice(maxslice_proc_dir, image_res, seg_res, res, dset_info["planes"])
+                save_maxslice(maxslice_proc_dir, image_res, seg_res, res, dset_info["planes"], max_slices)
                 #Save midslice files
                 midslice_proc_dir = os.path.join(root_dir, f"midslice_v{version}", subdset, mode, subject_name)
                 save_midslice(midslice_proc_dir, image_res, seg_res, res, dset_info["planes"])

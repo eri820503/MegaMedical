@@ -78,6 +78,6 @@ class ACDC:
                         accumulator.append(proc_return)
             except Exception as e:
                 print(e)
-                #raise ValueError
+                raise ValueError
         if accumulate:
             return proc_dir, accumulator
