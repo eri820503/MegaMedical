@@ -27,6 +27,44 @@ def make_processed_dir(dset, subdset, save, dataset_ver, dset_info):
     return root_dir
 
 
+def save_maxslice(proc_dir, image_res, seg_res, res, planes):
+    if not os.path.exists(proc_dir):
+        os.makedirs(proc_dir)
+        
+    for plane in planes:     
+        maxslice_img_dir = os.path.join(proc_dir, f"img_{res}_{plane}.npy")
+        maxslice_seg_dir = os.path.join(proc_dir, f"seg_{res}_{plane}.npy")
+        # Get midslice slices
+        subj_shape = image_res.shape
+        if len(subj_shape) == 2:
+            maxslice_img = image_res
+            maxslice_seg = seg_res
+        else:
+            maxslice_img = np.take(image_res, image_res.shape[plane]//2, plane)
+            maxslice_seg = np.take(seg_res, seg_res.shape[plane]//2, plane)
+        np.save(maxslice_img_dir, maxslice_img)
+        np.save(maxslice_seg_dir, maxslice_seg)
+
+
+def save_midslice(proc_dir, image_res, seg_res, res, planes):
+    if not os.path.exists(proc_dir):
+        os.makedirs(proc_dir)
+    
+    for plane in planes:   
+        midslice_img_dir = os.path.join(proc_dir, f"img_{res}_{plane}.npy")
+        midslice_seg_dir = os.path.join(proc_dir, f"seg_{res}_{plane}.npy")
+        # Get midslice slices
+        subj_shape = image_res.shape
+        if len(subj_shape) == 2:
+            midslice_img = image_res
+            midslice_seg = seg_res
+        else:
+            midslice_img = np.take(image_res, image_res.shape[plane]//2, plane)
+            midslice_seg = np.take(seg_res, seg_res.shape[plane]//2, plane)
+        np.save(midslice_img_dir, midslice_img)
+        np.save(midslice_seg_dir, midslice_seg)
+
+    
 def produce_slices(root_dir,
                    version,
                    subdset,
@@ -41,7 +79,7 @@ def produce_slices(root_dir,
     # Set the name to be saved
     save_name = subject_name.split(".")[0]
     
-    #get all of the labels in the volume, once 
+    # Get all of the labels in the volume population
     unique_labels = np.load(os.path.join(root_dir, "label_info", subdset, "all_labels.npy"))
     
     for idx, mode in enumerate(dset_info["modality_names"]):
@@ -89,11 +127,19 @@ def produce_slices(root_dir,
                 seg_res = np.zeros((res, res, res, len(unique_labels)))
 
             #go through unique labels and add to slices
+            max_slices = {pl:np.zeros((len(unique_labels))) for pl in dset_info["planes"]}
             for lab_idx, label in enumerate(unique_labels):
                 #isolate mask of label
                 label = int(label)
                 bin_mask = np.float32((square_label==label))
-
+                if len(bin_mask.shape) == 3:
+                    for pl in dset_info["planes"]:
+                        all_axes = [0,1,2]
+                        all_axes.remove(pl)
+                        max_slices[pl][lab_idx] = np.amax(np.count_nonzero(bin_mask, axis=tuple(all_axes)))
+                
+                print(max_slices)
+                
                 #produce resized segmentations
                 bin_seg_res = blur_and_resize(bin_mask, old_size, new_size=res, order=0)
 
@@ -101,11 +147,12 @@ def produce_slices(root_dir,
                 seg_res[..., lab_idx] = bin_seg_res
 
             if save:
-                proc_dir = os.path.join(root_dir, f"megamedical_v{version}", subdset, mode, subject_name)
-                if not os.path.exists(proc_dir):
-                    os.makedirs(proc_dir)
-                np.save(os.path.join(proc_dir, f"img_{res}.npy"), image_res)
-                np.save(os.path.join(proc_dir, f"seg_{res}.npy"), seg_res)
+                #Save maxslice files
+                maxslice_proc_dir = os.path.join(root_dir, f"maxslice_v{version}", subdset, mode, subject_name)
+                save_maxslice(maxslice_proc_dir, image_res, seg_res, res, dset_info["planes"])
+                #Save midslice files
+                midslice_proc_dir = os.path.join(root_dir, f"midslice_v{version}", subdset, mode, subject_name)
+                save_midslice(midslice_proc_dir, image_res, seg_res, res, dset_info["planes"])
                 
                 
 def label_dist(dataset,
@@ -215,7 +262,6 @@ def label_dist(dataset,
 def label_info(data_obj,
                subdset,
                version,
-               visualize,
                save):
 
     def get_label_amounts(proc_dir,

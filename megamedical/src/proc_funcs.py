@@ -199,14 +199,10 @@ def process_dataset(datasets,
 def generate_label_info_files(datasets,
                               subdsets=None,
                               save=False,
-                              slurm=False, 
-                              visualize=False,
+                              slurm=False,
                               version="4.0",
                               timeout=120,
                               volume_wide=True):
-    assert not (len(datasets) > 1 and visualize), "Can't visualize a list of processing."
-    assert not (slurm and visualize), "If you are submitting slurm no vis."
-        
     if datasets == "all":
         datasets = os.listdir(paths["DATA"])
 
@@ -224,13 +220,11 @@ def generate_label_info_files(datasets,
                                       do,
                                       subdset,
                                       version,
-                                      visualize,
                                       save)
             else:
                 pps.label_info(do,
                                subdset,
                                version,
-                               visualize,
                                save)
                     
 
