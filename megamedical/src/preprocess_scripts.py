@@ -311,8 +311,10 @@ def label_info(data_obj,
     maxslice_label_info = [li[0] for li in label_info]
     midslice_label_info = [li[1] for li in label_info]
     total_label_info = [li[2] for li in label_info]
+    num_subjects = len(label_info)
     unique_labels = list(set([label for subj in total_label_info for label in subj]))
-    
+    unique_labels.insert(0, num_subjects)
+
     save_dir = os.path.join(proc_dir, "label_info", subdset)
     if save:
         if not os.path.exists(save_dir):
