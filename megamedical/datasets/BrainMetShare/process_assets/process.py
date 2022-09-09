@@ -45,7 +45,7 @@ class BrainMetShare:
         accumulator = []
         for image in tqdm_notebook(image_list, desc=f'Processing: {dset_name}'):
             try:
-                proc_dir_template = os.path.join(proc_dir, f"megamedical_v{version}", dset_name, "*", image)
+                proc_dir_template = os.path.join(proc_dir, f"midslice_v{version}", dset_name, "*", image)
                 if redo_processed or (len(glob.glob(proc_dir_template)) == 0):
                     "T1", "T1-spin-pre", "T1-spin-post", "T2-FLAIR"
                     image_dir = os.path.join(self.dset_info[dset_name]["image_root_dir"], image)

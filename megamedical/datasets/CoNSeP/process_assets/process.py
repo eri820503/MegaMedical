@@ -44,7 +44,7 @@ class CoNSeP:
         image_list = os.listdir(self.dset_info[dset_name]["image_root_dir"])
         for image in tqdm_notebook(image_list, desc=f'Processing: {dset_name}'):
             try:
-                proc_dir_template = os.path.join(proc_dir, f"megamedical_v{version}", dset_name, "*", image)
+                proc_dir_template = os.path.join(proc_dir, f"midslice_v{version}", dset_name, "*", image)
                 if redo_processed or (len(glob.glob(proc_dir_template)) == 0):
                     im_dir = os.path.join(self.dset_info[dset_name]["image_root_dir"], image)
                     lab_dir = os.path.join(self.dset_info[dset_name]["label_root_dir"], f"{image[:-4]}.mat")

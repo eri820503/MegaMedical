@@ -82,7 +82,7 @@ class ROSE:
         accumulator = []
         for image in tqdm_notebook(image_list, desc=f'Processing: {dset_name}'):
             try:
-                proc_dir_template = os.path.join(proc_dir, f"megamedical_v{version}", dset_name, "*", image)
+                proc_dir_template = os.path.join(proc_dir, f"midslice_v{version}", dset_name, "*", image)
                 if redo_processed or (len(glob.glob(proc_dir_template)) == 0):
                     im_dir = os.path.join(self.dset_info[dset_name]["image_root_dir"], image)
                     if dset_name in ["ROSE-1-DVC", "ROSE-1-SVC", "ROSE-2"]:

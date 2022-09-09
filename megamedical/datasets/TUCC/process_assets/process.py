@@ -49,7 +49,7 @@ class TUCC:
         with tqdm(total=1000, desc=f'Processing: {dset_name}', unit='image') as pbar:
             for image in chosen_inds:
                 try:
-                    proc_dir_template = os.path.join(proc_dir, f"megamedical_v{version}", dset_name, "*", f"img{image}")
+                    proc_dir_template = os.path.join(proc_dir, f"midslice_v{version}", dset_name, "*", f"img{image}")
                     if redo_processed or (len(glob.glob(proc_dir_template)) == 0):
 
                         if load_images:

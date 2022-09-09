@@ -50,7 +50,7 @@ class COCA:
         for image in tqdm_notebook(image_list, desc=f'Processing: {dset_name}'):
             try:
                 image = image.split(".")[0]
-                proc_dir_template = os.path.join(proc_dir, f"megamedical_v{version}", dset_name, "*", image)
+                proc_dir_template = os.path.join(proc_dir, f"midslice_v{version}", dset_name, "*", image)
                 if redo_processed or (len(glob.glob(proc_dir_template)) == 0):
                     #flat_img_slices = glob.glob(os.path.join(self.dset_info[dset_name]["image_root_dir"],image,"*/*"))
                     label_dir = os.path.join(self.dset_info[dset_name]["label_root_dir"],f"{image}.xml")

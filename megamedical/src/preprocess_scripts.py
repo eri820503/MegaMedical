@@ -312,8 +312,11 @@ def label_info(data_obj,
     midslice_label_info = [li[1] for li in label_info]
     total_label_info = [li[2] for li in label_info]
     num_subjects = len(label_info)
-    unique_labels = list(set([label for subj in total_label_info for label in subj]))
+    unique_labels = sorted(list(set([label for subj in total_label_info for label in subj])))
     unique_labels.insert(0, num_subjects)
+    
+    # define an inverse map going from labels to indices in the list
+    label_map = {lab: unique_labels.index(lab) for lab in unique_labels}
 
     save_dir = os.path.join(proc_dir, "label_info", subdset)
     if save:
@@ -323,14 +326,14 @@ def label_info(data_obj,
         np.save(all_label_dir, np.array(unique_labels))
     
     for plane in data_obj.dset_info[subdset]["planes"]:
-        # +1 accounts for starting from zero error
-        max_label_info_array = np.zeros((len(total_label_info), len(unique_labels) + 1))
-        mid_label_info_array = np.zeros((len(total_label_info), len(unique_labels) + 1))
+        # +1 from no label being 0, -1 for first position being num subjects
+        max_label_info_array = np.zeros((len(total_label_info), len(unique_labels)))
+        mid_label_info_array = np.zeros((len(total_label_info), len(unique_labels)))
         for subj_idx, (max_info, mid_info) in enumerate(zip(maxslice_label_info, midslice_label_info)):
             for max_label in max_info[plane].keys():
-                max_label_info_array[subj_idx, int(max_label)] = max_info[plane][max_label]
+                max_label_info_array[subj_idx, label_map[int(max_label)]] = max_info[plane][max_label]
             for mid_label in mid_info[plane].keys():
-                mid_label_info_array[subj_idx, int(mid_label)] = mid_info[plane][mid_label]
+                mid_label_info_array[subj_idx, label_map[int(mid_label)]] = mid_info[plane][mid_label]
         if save:
             mid_dict_dir = os.path.join(save_dir, f"midslice_pop_lab_amount_{plane}")
             max_dict_dir = os.path.join(save_dir, f"maxslice_pop_lab_amount_{plane}")

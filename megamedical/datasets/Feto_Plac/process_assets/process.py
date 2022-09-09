@@ -49,7 +49,7 @@ class Feto_Plac:
             for frame in os.listdir(os.path.join(vid_dir, "images")):
                 image = f"{video}_{frame}"
                 try:
-                    proc_dir_template = os.path.join(proc_dir, f"megamedical_v{version}", dset_name, "*", image)
+                    proc_dir_template = os.path.join(proc_dir, f"midslice_v{version}", dset_name, "*", image)
                     if redo_processed or (len(glob.glob(proc_dir_template)) == 0):
                         im_dir = os.path.join(vid_dir, "images", frame)
                         label_dir = os.path.join(vid_dir, "masks_gt", f"{frame[:-4]}_mask.png")

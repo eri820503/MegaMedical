@@ -298,20 +298,18 @@ def get_processing_status(datasets,
                 new_entry["Labels Known"] = True
                 new_entry["Num Subj"] = label_file[0]
                 
-                data_formats = ["midslice", "maxslice"]
-                
-                for df in data_formats:
-                    slice_dir = os.path.join(paths["DATA"], do.name, f"processed/{df}_v{version}", subset, do.dset_info[subset]["modality_names"][0])
-                    if os.path.exists(slice_dir) and label_file[0] != 0:
-                        new_entry[f"% {df} Processed"] = f"{(len(os.listdir(slice_dir))/label_file[0]) * 100}%"
-                    else:
-                        new_entry[f"% {df} Processed"] = "0%"
+                slice_dir = os.path.join(paths["DATA"], do.name, f"processed/midslice_v{version}", subset, do.dset_info[subset]["modality_names"][0])
+                if os.path.exists(slice_dir) and label_file[0] != 0:
+                    num_processed = len(os.listdir(slice_dir))
+                    new_entry[f"Num Proc"] = num_processed
+                    new_entry[f"% Processed"] = f"{np.round((num_processed/label_file[0]) * 100, 1)}%"
+                else:
+                    new_entry[f"% Processed"] = "0.0%"
             else:
                 new_entry["Labels Known"] = False
                 new_entry["Num Subj"] = None
-                new_entry["% midslice Processed"] = "0%"
-                new_entry["% maxslice Processed"] = "0%"
+                new_entry["% Processed"] = "0.0%"
             dp_objects.append(new_entry)
     dataframe = pd.DataFrame(dp_objects)
-    return dataframe.head(len(dataframe))
+    return dataframe
     
