@@ -72,6 +72,7 @@ class PanNuke:
         labels_array = np.load(self.dset_info[dset_name]["label_root_dir"])
         
         image_list = list(range(volumes_array.shape[0]))
+        accumulator = []
         for image in tqdm_notebook(image_list, desc=f'Processing: {dset_name}'):
             try:
                 proc_dir_template = os.path.join(proc_dir, f"midslice_v{version}", dset_name, "*", str(image))

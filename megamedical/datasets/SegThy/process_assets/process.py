@@ -60,7 +60,10 @@ class SegThy:
                 if redo_processed or (len(glob.glob(proc_dir_template)) == 0):
                     im_dir = os.path.join(self.dset_info[dset_name]["image_root_dir"], image, f"{image}_frame01.nii.gz")
                     label_dir = os.path.join(self.dset_info[dset_name]["label_root_dir"], image, f"{image}_frame01_gt.nii.gz")
-
+                    
+                    print(im_dir)
+                    print(label_dir)
+                    
                     assert os.path.isfile(im_dir), "Valid image dir required!"
                     assert os.path.isfile(label_dir), "Valid label dir required!"
 

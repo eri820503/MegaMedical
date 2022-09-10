@@ -21,8 +21,7 @@ class SCD:
                 "label_root_dir":f"{paths['DATA']}/SCD/original_unzipped/LAS/retrieved_2021_11_08",
                 "modality_names":["MRI"],
                 "planes":[2],
-                "labels": [1,2,3],
-                "clip_args":None,
+                "clip_args": [0.5, 99.5],
                 "norm_scheme":"MR",
                 "do_clip":True,
                 "proc_size":256
@@ -33,8 +32,7 @@ class SCD:
                 "label_root_dir":f"{paths['DATA']}/SCD/original_unzipped/LAF_Pre/retrieved_2021_11_08",
                 "modality_names":["MRI"],
                 "planes":[2],
-                "labels": [1,2,3],
-                "clip_args":None,
+                "clip_args": [0.5, 99.5],
                 "norm_scheme":"MR",
                 "do_clip":True,
                 "proc_size":256
@@ -45,8 +43,7 @@ class SCD:
                 "label_root_dir":f"{paths['DATA']}/SCD/original_unzipped/LAF_Post/retrieved_2021_11_08",
                 "modality_names":["MRI"],
                 "planes":[2],
-                "labels": [1,2,3],
-                "clip_args":None,
+                "clip_args": [0.5, 99.5],
                 "norm_scheme":"MR",
                 "do_clip":True,
                 "proc_size":256
@@ -57,8 +54,7 @@ class SCD:
                 "label_root_dir":f"{paths['DATA']}/SCD/original_unzipped/VIS_pig/retrieved_2021_11_08",
                 "modality_names":["MRI"],
                 "planes":[2],
-                "labels": [1,2,3],
-                "clip_args":None,
+                "clip_args": [0.5, 99.5],
                 "norm_scheme":"MR",
                 "do_clip":True,
                 "proc_size":256
@@ -69,8 +65,7 @@ class SCD:
                 "label_root_dir":f"{paths['DATA']}/SCD/original_unzipped/VIS_human/retrieved_2021_11_08",
                 "modality_names":["MRI"],
                 "planes":[2],
-                "labels": [1,2,3],
-                "clip_args":None,
+                "clip_args": [0.5, 99.5],
                 "norm_scheme":"MR",
                 "do_clip":True,
                 "proc_size":256
@@ -103,10 +98,10 @@ class SCD:
                         loaded_label = io.imread(label_dir, plugin='simpleitk')
                     else:
                         if dset_name=="LAF_Pre":
-                            im_dir = os.path.join(self.dset_info["image_root_dir"],image) + f"/de_a_{image[1:]}.nrrd"
+                            im_dir = os.path.join(self.dset_info[dset_name]["image_root_dir"],image) + f"/de_a_{image[1:]}.nrrd"
                             label_dir = os.path.join(self.dset_info[dset_name]["label_root_dir"],image) + f"/la_seg_a_{image[1:]}.nrrd"
                         elif dset_name=="LAF_Post":
-                            im_dir = os.path.join(self.dset_info["image_root_dir"],image) + f"/de_b_{image[1:]}.nrrd"
+                            im_dir = os.path.join(self.dset_info[dset_name]["image_root_dir"],image) + f"/de_b_{image[1:]}.nrrd"
                             label_dir = os.path.join(self.dset_info[dset_name]["label_root_dir"],image) + f"/la_seg_b_{image[1:]}.nrrd"
                         elif dset_name in ["VIS_pig","VIS_human"]:
                             im_dir = os.path.join(self.dset_info[dset_name]["image_root_dir"],image) + "/" + image + "_de.nrrd"

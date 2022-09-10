@@ -37,12 +37,15 @@ def save_maxslice(proc_dir, image_res, seg_res, res, planes, maxslices):
         # Get midslice slices
         subj_shape = image_res.shape
         if len(subj_shape) == 2:
-            maxslice_img = image_res
+            maxslice_img = np.repeat(image_res[..., np.newaxis], seg_res.shape[-1], axis=2)
             maxslice_seg = seg_res
         else:
             slices = maxslices[plane]
-            maxslice_img = np.stack([np.take(image_res, int(si), plane) for si in slices], -1)
-            maxslice_seg = np.stack([np.take(seg_res, int(si), plane) for si in slices], -1)
+            maxslice_img = np.stack([np.take(image_res, int(si), plane) for si in slices], axis=2)
+            maxslice_seg = []
+            for s_idx, si in enumerate(slices):
+                maxslice_seg.append(np.take(seg_res, int(si), plane)[...,s_idx:s_idx+1])
+            maxslice_seg = np.concatenate(maxslice_seg, axis=2)
         np.save(maxslice_img_dir, maxslice_img)
         np.save(maxslice_seg_dir, maxslice_seg)
 
@@ -80,8 +83,10 @@ def produce_slices(root_dir,
     # Set the name to be saved
     save_name = subject_name.split(".")[0]
     
-    # Get all of the labels in the volume population
+    # Get all of the labels in the volume population, note that the first index tracks the number
+    # of subjects.
     unique_labels = np.load(os.path.join(root_dir, "label_info", subdset, "all_labels.npy"))
+    unique_labels = np.delete(unique_labels, 0)
     
     for idx, mode in enumerate(dset_info["modality_names"]):
         #Extract the modality if it exists (mostly used for MSD)
@@ -128,7 +133,8 @@ def produce_slices(root_dir,
                 seg_res = np.zeros((res, res, res, len(unique_labels)))
 
             #go through unique labels and add to slices
-            max_slices = {pl:np.zeros((len(unique_labels))) for pl in dset_info["planes"]}
+            max_slices = {pl : np.zeros((len(unique_labels))) for pl in dset_info["planes"]}
+            
             for lab_idx, label in enumerate(unique_labels):
                 #isolate mask of label
                 label = int(label)
@@ -140,7 +146,7 @@ def produce_slices(root_dir,
                 # Gather maxslice info
                 if len(bin_seg_res.shape) == 3:
                     for pl in dset_info["planes"]:
-                        all_axes = [0,1,2]
+                        all_axes = [0, 1, 2]
                         all_axes.remove(pl)
                         greatest_index = np.argmax(np.count_nonzero(bin_seg_res, axis=tuple(all_axes)))
                         max_slices[pl][lab_idx] = greatest_index
@@ -294,6 +300,7 @@ def label_info(data_obj,
                 
                 midslice = np.take(loaded_label, lab_shape[plane]//2, plane)
                 mid_unique_labels = np.unique(midslice)
+                # Get rid of 0 as a unique label
                 midslice_plane_labels = np.delete(mid_unique_labels, [0])
                 
                 midslice_amount_dict[plane] = {lab : np.count_nonzero((midslice==lab).astype(int)) for lab in midslice_plane_labels}
@@ -313,6 +320,7 @@ def label_info(data_obj,
     total_label_info = [li[2] for li in label_info]
     num_subjects = len(label_info)
     unique_labels = sorted(list(set([label for subj in total_label_info for label in subj])))
+    # Keep track of number of subjects, its useful
     unique_labels.insert(0, num_subjects)
     
     # define an inverse map going from labels to indices in the list

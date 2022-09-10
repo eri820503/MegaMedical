@@ -62,8 +62,8 @@ class OCTA500:
                     im_dir = os.path.join(self.dset_info[dset_name]["image_root_dir"], image)
                     label_dir = os.path.join(self.dset_info[dset_name]["label_root_dir"], image)
 
-                    assert not (loaded_image is None), "Invalid Image"
-                    assert not (loaded_label is None), "Invalid Label"
+                    assert os.path.isfile(im_dir), "Valid image dir required!"
+                    assert os.path.isfile(label_dir), "Valid label dir required!"
 
                     if load_images:
                         loaded_image = io.imread(im_dir)

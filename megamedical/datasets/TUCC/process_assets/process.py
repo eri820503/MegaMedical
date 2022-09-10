@@ -1,5 +1,5 @@
 import h5py
-from tqdm import tqdm
+from tqdm.notebook import tqdm_notebook
 import numpy as np
 import glob
 import os
@@ -32,10 +32,12 @@ class TUCC:
     def proc_func(self,
                   dset_name,
                   proc_func,
+                  load_images=True,
+                  accumulate=False,
                   version=None,
-                  show_hists=False,
                   show_imgs=False,
-                  save_slices=False,
+                  save=False,
+                  show_hists=False,
                   redo_processed=True):
         assert not(version is None and save), "Must specify version for saving."
         assert dset_name in self.dset_info.keys(), "Sub-dataset must be in info dictionary."
@@ -45,37 +47,36 @@ class TUCC:
         chosen_inds = np.sort(np.random.choice(np.arange(len(hf["image"])), 1000))
         images = hf["image"]
         segs = hf["mask"]
+        accumulator = []
+        for image in tqdm_notebook(chosen_inds, desc=f'Processing: {dset_name}'):
+            try:
+                proc_dir_template = os.path.join(proc_dir, f"midslice_v{version}", dset_name, "*", f"img{image}")
+                if redo_processed or (len(glob.glob(proc_dir_template)) == 0):
 
-        with tqdm(total=1000, desc=f'Processing: {dset_name}', unit='image') as pbar:
-            for image in chosen_inds:
-                try:
-                    proc_dir_template = os.path.join(proc_dir, f"midslice_v{version}", dset_name, "*", f"img{image}")
-                    if redo_processed or (len(glob.glob(proc_dir_template)) == 0):
+                    if load_images:
+                        loaded_image = np.array(images[image, ...])
+                        loaded_label = np.array(segs[image, ...])
+                        assert not (loaded_label is None), "Invalid Label"
+                        assert not (loaded_image is None), "Invalid Image"
+                    else:
+                        loaded_image = None
+                        loaded_label = np.array(segs[image, ...])
 
-                        if load_images:
-                            loaded_image = np.array(images[image, ...])
-                            loaded_label = np.array(segs[image, ...])
-                            assert not (loaded_label is None), "Invalid Label"
-                            assert not (loaded_image is None), "Invalid Image"
-                        else:
-                            loaded_image = None
-                            loaded_label = np.array(segs[image, ...])
+                    proc_return = proc_func(proc_dir,
+                                              version,
+                                              dset_name,
+                                              image, 
+                                              loaded_image,
+                                              loaded_label,
+                                              self.dset_info[dset_name],
+                                              show_hists=show_hists,
+                                              show_imgs=show_imgs,
+                                              save=save)
 
-                        proc_return = proc_func(proc_dir,
-                                                  version,
-                                                  dset_name,
-                                                  image, 
-                                                  loaded_image,
-                                                  loaded_label,
-                                                  self.dset_info[dset_name],
-                                                  show_hists=show_hists,
-                                                  show_imgs=show_imgs,
-                                                  save=save)
-
-                        if accumulate:
-                            accumulator.append(proc_return)
-                except Exception as e:
-                    print(e)
-                    #raise ValueError
+                    if accumulate:
+                        accumulator.append(proc_return)
+            except Exception as e:
+                print(e)
+                #raise ValueError
         if accumulate:
             return proc_dir, accumulator

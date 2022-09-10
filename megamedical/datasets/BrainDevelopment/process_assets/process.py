@@ -21,7 +21,6 @@ class BrainDevelopment:
                 "label_root_dir":f"{paths['DATA']}/BrainDevelopment/original_unzipped/HammersAtlasDatabase/Hammers67n20/segs",
                 "modality_names":["T1"],
                 "planes":[0, 1, 2],
-                "labels": [1,2,3],
                 "clip_args": [0.5, 99.5],
                 "norm_scheme":"MR",
                 "do_clip":True,
@@ -33,7 +32,6 @@ class BrainDevelopment:
                 "label_root_dir":f"{paths['DATA']}/BrainDevelopment/original_unzipped/PediatricAtlas/segmentations",
                 "modality_names":["T1"],
                 "planes":[0, 1, 2],
-                "labels": [1,2,3],
                 "clip_args": [0.5, 99.5],
                 "norm_scheme":"MR",
                 "do_clip":True,
@@ -68,8 +66,8 @@ class BrainDevelopment:
                     assert os.path.isfile(label_dir), "Valid label dir required!"
 
                     if load_images:
-                        loaded_image = put.resample_nib(nib.load(im_dir)).get_fdata().squeeze()
-                        loaded_label = put.resample_mask_to(nib.load(label_dir), loaded_image).get_fdata().squeeze()
+                        loaded_image = nib.load(im_dir).get_fdata().squeeze()
+                        loaded_label = nib.load(label_dir).get_fdata().squeeze()
                         assert not (loaded_label is None), "Invalid Label"
                         assert not (loaded_image is None), "Invalid Image"
                     else:
