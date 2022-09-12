@@ -19,7 +19,6 @@ class AMOS:
                 "label_root_dir":"/share/sablab/nfs02/users/gid-dalcaav/data/originals/AMOS/processed/unzipped/subset/labels",
                 "modality_names":["CT"],
                 "planes":[0, 1, 2],
-                "labels": [1,2,3],
                 "clip_args":[-500,1000],
                 "norm_scheme":"CT",
                 "do_clip":True,
@@ -42,7 +41,7 @@ class AMOS:
         proc_dir = pps.make_processed_dir(self.name, dset_name, save, version, self.dset_info[dset_name])
         image_list = os.listdir(self.dset_info[dset_name]["image_root_dir"])
         accumulator = []
-        for sub_num, image in enumerate(tqdm_notebook(image_list, desc=f'Processing: {dset_name}')):
+        for image in tqdm_notebook(image_list, desc=f'Processing: {dset_name}'):
             try:
                 proc_dir_template = os.path.join(proc_dir, f"midslice_v{version}", dset_name, "*", image)
                 if redo_processed or (len(glob.glob(proc_dir_template)) == 0):

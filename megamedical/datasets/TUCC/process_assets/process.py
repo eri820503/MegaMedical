@@ -65,7 +65,7 @@ class TUCC:
                     proc_return = proc_func(proc_dir,
                                               version,
                                               dset_name,
-                                              image, 
+                                              str(image), 
                                               loaded_image,
                                               loaded_label,
                                               self.dset_info[dset_name],

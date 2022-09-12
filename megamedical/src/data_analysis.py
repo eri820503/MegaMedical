@@ -53,6 +53,7 @@ def vis_label_hists(datasets, slice_version):
 def vis_dataset(datasets,
                 num_vis,
                 size=3,
+                minimum_label=0,
                 version="4.0"):
     if datasets == "all":
         datasets = os.listdir(paths["DATA"])
@@ -61,56 +62,75 @@ def vis_dataset(datasets,
     
     for d_idx, dataset in enumerate(datasets):
         try:
-            maxslice_path = os.path.join(paths["DATA"], dataset, f"processed/maxslice_v{version}")
-            midslice_path = os.path.join(paths["DATA"], dataset, f"processed/midslice_v{version}")
-            subdsets = os.listdir(midslice_path)
-            for subdset in subdsets:
-                maxslice_modalities_dir = os.path.join(maxslice_path, subdset)
-                midslice_modalities_dir = os.path.join(midslice_path, subdset)
-                for modality in os.listdir(midslice_modalities_dir):
-                    maxslice_subj_dir = os.path.join(maxslice_modalities_dir, modality)
-                    midslice_subj_dir = os.path.join(midslice_modalities_dir, modality)
-                    
-                    chosen_subs = np.random.choice(os.listdir(midslice_subj_dir), num_vis)
-                    
+            proc_dataset_path = os.path.join(paths["DATA"], dataset, "processed")
+            slice_path = os.path.join(proc_dataset_path, f"midslice_v{version}")
+            for subdset in os.listdir(slice_path):
+                modalities_dir = os.path.join(slice_path, subdset)
+                for modality in os.listdir(modalities_dir):
+                    subj_dir = os.path.join(modalities_dir, modality)
+                    subjects = np.array(os.listdir(subj_dir))
                     for plane in dataset_objects[d_idx].dset_info[subdset]["planes"]:
-                    
-                        midslice_imgs = [np.load(os.path.join(midslice_subj_dir,subj,f"img_128_{plane}.npy")) for subj in chosen_subs]
-                        midslice_seg_volumes = [np.load(os.path.join(midslice_subj_dir,subj,f"seg_128_{plane}.npy")) for subj in chosen_subs]
-                        if midslice_seg_volumes[0].shape[2] != 1:
-                            midslice_segs = []
-                            for msv in midslice_seg_volumes:
-                                background = np.zeros((midslice_imgs[0].shape[0], midslice_imgs[0].shape[1], 1))
-                                midseg_combined = np.argmax(np.concatenate([background, msv], axis=-1), axis=-1)
-                                midslice_segs.append(midseg_combined)
-                        else:
-                            midslice_segs = [msv.squeeze() for msv in midslice_seg_volumes]
-                        midslices = np.concatenate([midslice_imgs, midslice_segs])
+                        midslice_info = np.load(os.path.join(proc_dataset_path, "label_info", subdset, f"midslice_pop_lab_amount_{plane}.npy"))
+                        valid_subs = subjects[(midslice_info.sum(axis=1) > minimum_label)]
                         
-                        print(f"Mid-slice Dataset: {dataset}, Subdset: {subdset}, Modality: {modality}, Plane: {plane}")
-                        usd.utils.display_array(midslices, 
-                                                nrows=2, 
-                                                ncols=num_vis,
-                                                box_size=size,  
-                                                do_colorbars=True, 
-                                                cmap="gray")
-                        plt.show()
-                        
-                        maxslice_img_volumes= [np.load(os.path.join(maxslice_subj_dir,subj,f"img_128_{plane}.npy")) for subj in chosen_subs]
-                        maxslice_seg_volumes = [np.load(os.path.join(maxslice_subj_dir,subj,f"seg_128_{plane}.npy")) for subj in chosen_subs]
-                        
-                        for lab_idx in range(maxslice_img_volumes[0].shape[-1]):
-                            print(f"Max-slice Dataset: {dataset}, Subdset: {subdset}, Modality: {modality}, Plane: {plane}, Label: {lab_idx}")
-                            maxslice_imgs = np.array([miv[..., lab_idx] for miv in maxslice_img_volumes])
-                            maxslice_segs = np.array([msv[..., lab_idx] for msv in maxslice_seg_volumes])
+                        # MIDSLICE VIS
+                        if len(valid_subs) > 0:
+                            print(f"Mid-slice Dataset: {dataset}, Subdset: {subdset}, Modality: {modality}, Plane: {plane}")
+                            
+                            chosen_subs = np.random.choice(valid_subs, num_vis)
 
-                            usd.utils.display_array(np.concatenate([maxslice_imgs, maxslice_segs]),  
+                            img_vols = np.array([np.load(os.path.join(subj_dir, subj, f"img_128_{plane}.npy")) for subj in chosen_subs])
+                            seg_vols = np.array([np.load(os.path.join(subj_dir, subj, f"seg_128_{plane}.npy")) for subj in chosen_subs])
+                            
+                            print(img_vols.shape)
+                            print(seg_vols.shape)
+                            
+                            if img_vols.shape[-1] != 1:
+                                midslice_segs = []
+                                background = np.zeros((img_vols.shape[1], img_vols.shape[2], 1))
+                                for msv in seg_vols:
+                                    combined = np.argmax(np.concatenate([background, msv], axis=-1), axis=-1)
+                                    midslice_segs.append(combined)
+                            else:
+                                midslice_segs = [msv.squeeze() for msv in midslice_seg_volumes]
+                            midslice_segs = np.array(midslice_segs)
+                            
+                            midslices = np.concatenate([img_vols, midslice_segs])
+                            
+                            usd.utils.display_array(midslices, 
                                                     nrows=2, 
                                                     ncols=num_vis,
                                                     box_size=size,  
                                                     do_colorbars=True, 
                                                     cmap="gray")
                             plt.show()
+                        
+                        subj_dir = subj_dir.replace("midslice", "maxslice")
+                        maxslice_info = np.load(os.path.join(proc_dataset_path, "label_info", subdset, f"maxslice_pop_lab_amount_{plane}.npy"))
+                        # Currently have a bad artifact in some files that the first column was given an offset. Need reprocessing
+                        offset = 1 if not maxslice_info[:,0].any() else 0
+                        for lab_idx in range(maxslice_info.shape[1]):
+                            lab_idx = lab_idx - offset
+                            print(f"Max-slice Dataset: {dataset}, Subdset: {subdset}, Modality: {modality}, Plane: {plane}, Label: {lab_idx + offset}")
+                            
+                            valid_subs = subjects[(maxslice_info[:,lab_idx] > minimum_label)]
+                
+                            if len(valid_subs) > 0:
+                                chosen_subs = np.random.choice(valid_subs, num_vis)
+                                
+                                img_vols= [np.load(os.path.join(subj_dir, subj, f"img_128_{plane}.npy")) for subj in chosen_subs]
+                                seg_vols = [np.load(os.path.join(subj_dir, subj, f"seg_128_{plane}.npy")) for subj in chosen_subs]
+
+                                maxslice_imgs = np.array([miv[..., lab_idx] for miv in img_vols])
+                                maxslice_segs = np.array([msv[..., lab_idx] for msv in seg_vols])
+                                
+                                usd.utils.display_array(np.concatenate([maxslice_imgs, maxslice_segs]),  
+                                                        nrows=2, 
+                                                        ncols=num_vis,
+                                                        box_size=size,  
+                                                        do_colorbars=True, 
+                                                        cmap="gray")
+                                plt.show()
         except Exception as e:
             print(e)
             #raise ValueError

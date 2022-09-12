@@ -21,7 +21,6 @@ class WMH:
                 "label_root_dir":f"{paths['DATA']}/WMH/original_unzipped/retrieved_2022_03_10/public",
                 "modality_names":["FLAIR"],
                 "planes":[0, 1, 2],
-                "labels": [1,2,3],
                 "clip_args": [0.5, 99.5],
                 "norm_scheme":"MR",
                 "do_clip":True,
@@ -48,7 +47,7 @@ class WMH:
             try:
                 proc_dir_template = os.path.join(proc_dir, f"midslice_v{version}", dset_name, "*", image)
                 if redo_processed or (len(glob.glob(proc_dir_template)) == 0):
-                    FLAIR_dir = os.path.join(self.dset_info[dset_name]["image_root_dir"], image, "pre/FLAIR.nii.gz")
+                    im_dir = os.path.join(self.dset_info[dset_name]["image_root_dir"], image, "pre/FLAIR.nii.gz")
                     #T1_dir = os.path.join(self.dset_info[dset_name]["image_root_dir"], image, "pre/T1.nii.gz")
                     label_dir = os.path.join(self.dset_info[dset_name]["label_root_dir"], image, "wmh.nii.gz")
 

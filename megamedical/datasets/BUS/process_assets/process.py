@@ -20,7 +20,7 @@ class BUS:
                 "main":"BUS",
                 "image_root_dir":f"{paths['DATA']}/BUS/original_unzipped/retreived_2022_02_27/BUS/original",
                 "label_root_dir":f"{paths['DATA']}/BUS/original_unzipped/retreived_2022_02_27/BUS/GT",
-                "modality_names":["NA"],
+                "modality_names":["Ultrasound"],
                 "planes":[0],
                 "labels": [1,2,3],
                 "clip_args": None,

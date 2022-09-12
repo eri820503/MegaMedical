@@ -91,15 +91,15 @@ class PanNuke:
                     assert not (loaded_label is None), "Invalid Label"
 
                     proc_return = proc_func(proc_dir,
-                                          version,
-                                          dset_name,
-                                          image, 
-                                          loaded_image,
-                                          loaded_label,
-                                          self.dset_info[dset_name],
-                                          show_hists=show_hists,
-                                          show_imgs=show_imgs,
-                                          save=save)
+                                            version,
+                                            dset_name,
+                                            str(image), 
+                                            loaded_image,
+                                            loaded_label,
+                                            self.dset_info[dset_name],
+                                            show_hists=show_hists,
+                                            show_imgs=show_imgs,
+                                            save=save)
 
                     if accumulate:
                         accumulator.append(proc_return)

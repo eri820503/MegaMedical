@@ -331,10 +331,10 @@ def label_info(data_obj,
         if not os.path.exists(save_dir):
             os.makedirs(save_dir)
         all_label_dir = os.path.join(save_dir, f"all_labels")
-        np.save(all_label_dir, np.array(unique_labels))
+        if len(unique_labels) > 0:
+            np.save(all_label_dir, np.array(unique_labels))
     
     for plane in data_obj.dset_info[subdset]["planes"]:
-        # +1 from no label being 0, -1 for first position being num subjects
         max_label_info_array = np.zeros((len(total_label_info), len(unique_labels)))
         mid_label_info_array = np.zeros((len(total_label_info), len(unique_labels)))
         for subj_idx, (max_info, mid_info) in enumerate(zip(maxslice_label_info, midslice_label_info)):
