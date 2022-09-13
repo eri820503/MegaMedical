@@ -285,6 +285,7 @@ def label_info(data_obj,
         planes = dset_info["planes"]
         all_labels = np.unique(loaded_label)
         all_labels = np.delete(all_labels, [0])
+        
         total_lab_amount_dict = {lab : np.count_nonzero((loaded_label==lab).astype(int)) for lab in all_labels}
         
         maxslice_amount_dict = {}
@@ -306,7 +307,7 @@ def label_info(data_obj,
                 midslice_amount_dict[plane] = {lab : np.count_nonzero((midslice==lab).astype(int)) for lab in midslice_plane_labels}
                 maxslice_amount_dict[plane] = {lab : np.amax(np.count_nonzero((loaded_label==lab).astype(int), axis=tuple(all_axes))) for lab in all_labels}
         
-        return maxslice_amount_dict, midslice_amount_dict, all_labels
+        return all_labels, midslice_amount_dict, maxslice_amount_dict
     
     proc_dir, label_info = data_obj.proc_func(subdset,
                                      get_label_amounts,
@@ -314,37 +315,40 @@ def label_info(data_obj,
                                      accumulate=True,
                                      version=version,
                                      save=save)
-
-    maxslice_label_info = [li[0] for li in label_info]
+    
+    total_label_info = [li[0] for li in label_info]
     midslice_label_info = [li[1] for li in label_info]
-    total_label_info = [li[2] for li in label_info]
+    maxslice_label_info = [li[2] for li in label_info]
+    
     num_subjects = len(label_info)
     unique_labels = sorted(list(set([label for subj in total_label_info for label in subj])))
-    # Keep track of number of subjects, its useful
-    unique_labels.insert(0, num_subjects)
     
     # define an inverse map going from labels to indices in the list
     label_map = {lab: unique_labels.index(lab) for lab in unique_labels}
-
+    
+    slice_info_set = {
+        "midslice": midslice_label_info, 
+        "maxslice": maxslice_label_info
+    }
+    
     save_dir = os.path.join(proc_dir, "label_info", subdset)
-    if save:
+    
+    if save and len(unique_labels) > 0:
+        # Keep track of number of subjects, its useful (but also causes problems >:( )
+        unique_labels.insert(0, num_subjects)
         if not os.path.exists(save_dir):
             os.makedirs(save_dir)
         all_label_dir = os.path.join(save_dir, f"all_labels")
-        if len(unique_labels) > 0:
-            np.save(all_label_dir, np.array(unique_labels))
+        np.save(all_label_dir, np.array(unique_labels))
     
-    for plane in data_obj.dset_info[subdset]["planes"]:
-        max_label_info_array = np.zeros((len(total_label_info), len(unique_labels)))
-        mid_label_info_array = np.zeros((len(total_label_info), len(unique_labels)))
-        for subj_idx, (max_info, mid_info) in enumerate(zip(maxslice_label_info, midslice_label_info)):
-            for max_label in max_info[plane].keys():
-                max_label_info_array[subj_idx, label_map[int(max_label)]] = max_info[plane][max_label]
-            for mid_label in mid_info[plane].keys():
-                mid_label_info_array[subj_idx, label_map[int(mid_label)]] = mid_info[plane][mid_label]
-        if save:
-            mid_dict_dir = os.path.join(save_dir, f"midslice_pop_lab_amount_{plane}")
-            max_dict_dir = os.path.join(save_dir, f"maxslice_pop_lab_amount_{plane}")
-            np.save(mid_dict_dir, mid_label_info_array)
-            np.save(max_dict_dir, max_label_info_array)
+    for slice_type in slice_info_set.keys():
+        for plane in data_obj.dset_info[subdset]["planes"]:
+            label_info_array = np.zeros((len(total_label_info), len(unique_labels)))
+            for subj_idx, slice_info in enumerate(slice_info_set[slice_type]):
+                for label in slice_info[plane].keys():
+                    label_info_array[subj_idx, label_map[int(label)]] = slice_info[plane][label]
+            print(label_info_array)
+            if save:
+                dict_dir = os.path.join(save_dir, f"{slice_type}_pop_lab_amount_{plane}")
+                np.save(dict_dir, label_info_array)
 

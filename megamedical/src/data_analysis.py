@@ -74,16 +74,13 @@ def vis_dataset(datasets,
                         valid_subs = subjects[(midslice_info.sum(axis=1) > minimum_label)]
                         
                         # MIDSLICE VIS
-                        if len(valid_subs) > 0:
+                        if len(valid_subs) > num_vis:
                             print(f"Mid-slice Dataset: {dataset}, Subdset: {subdset}, Modality: {modality}, Plane: {plane}")
                             
                             chosen_subs = np.random.choice(valid_subs, num_vis)
 
                             img_vols = np.array([np.load(os.path.join(subj_dir, subj, f"img_128_{plane}.npy")) for subj in chosen_subs])
                             seg_vols = np.array([np.load(os.path.join(subj_dir, subj, f"seg_128_{plane}.npy")) for subj in chosen_subs])
-                            
-                            print(img_vols.shape)
-                            print(seg_vols.shape)
                             
                             if img_vols.shape[-1] != 1:
                                 midslice_segs = []
@@ -111,11 +108,11 @@ def vis_dataset(datasets,
                         offset = 1 if not maxslice_info[:,0].any() else 0
                         for lab_idx in range(maxslice_info.shape[1]):
                             lab_idx = lab_idx - offset
-                            print(f"Max-slice Dataset: {dataset}, Subdset: {subdset}, Modality: {modality}, Plane: {plane}, Label: {lab_idx + offset}")
                             
                             valid_subs = subjects[(maxslice_info[:,lab_idx] > minimum_label)]
                 
-                            if len(valid_subs) > 0:
+                            if len(valid_subs) > num_vis:
+                                print(f"Max-slice Dataset: {dataset}, Subdset: {subdset}, Modality: {modality}, Plane: {plane}, Label: {lab_idx + offset}")
                                 chosen_subs = np.random.choice(valid_subs, num_vis)
                                 
                                 img_vols= [np.load(os.path.join(subj_dir, subj, f"img_128_{plane}.npy")) for subj in chosen_subs]
