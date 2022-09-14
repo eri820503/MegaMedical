@@ -19,7 +19,7 @@ class TUCC:
                 "main": "TUCC",
                 "image_root_dir":f"{paths['DATA']}/TUCC/original_unzipped/retreived_2022_03_04",
                 "label_root_dir":f"{paths['DATA']}/TUCC/original_unzipped/retreived_2022_03_04",
-                "modality_names":["NA"],
+                "modality_names":["Ultrasound"],
                 "planes":[0],
                 "labels": [1,2,3],
                 "clip_args":None,

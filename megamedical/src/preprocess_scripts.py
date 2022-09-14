@@ -347,7 +347,6 @@ def label_info(data_obj,
             for subj_idx, slice_info in enumerate(slice_info_set[slice_type]):
                 for label in slice_info[plane].keys():
                     label_info_array[subj_idx, label_map[int(label)]] = slice_info[plane][label]
-            print(label_info_array)
             if save:
                 dict_dir = os.path.join(save_dir, f"{slice_type}_pop_lab_amount_{plane}")
                 np.save(dict_dir, label_info_array)
