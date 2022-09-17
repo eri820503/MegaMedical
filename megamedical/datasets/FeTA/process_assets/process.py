@@ -20,7 +20,6 @@ class FeTA:
                 "label_root_dir":f"{paths['DATA']}/FeTA/original_unzipped/retrieved_2022_02_16/affine_subjs",
                 "modality_names":["MRI"],
                 "planes":[0, 1, 2],
-                "labels": [1,2,3],
                 "clip_args": [0.5, 99.5],
                 "norm_scheme":"MR",
                 "do_clip":True,
@@ -41,7 +40,7 @@ class FeTA:
                   redo_processed=True):
         assert not(version is None and save), "Must specify version for saving."
         assert dset_name in self.dset_info.keys(), "Sub-dataset must be in info dictionary."
-        proc_dir = pps.make_processed_dir(self.name, dset_name, save, version, self.dset_info[dset_name])
+        proc_dir = os.path.join(paths['DATA'], self.name, "processed")
         image_list = os.listdir(self.dset_info[dset_name]["image_root_dir"])
         accumulator = []
         for image in tqdm_notebook(image_list, desc=f'Processing: {dset_name}'):

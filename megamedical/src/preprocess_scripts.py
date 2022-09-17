@@ -8,32 +8,18 @@ from collections import Counter
 from megamedical.utils.registry import paths
 from megamedical.utils.proc_utils import *
 
-def make_processed_dir(dset, subdset, save, dataset_ver, dset_info):
-    root_dir = os.path.join(paths["DATA"], dset, f"processed")
-    
-    dirs_to_make = []
-    for prefix in ["maxslice", "midslice"]:
-        dirs_to_make.append(os.path.join(root_dir, f"{prefix}_v{dataset_ver}", subdset))
 
-    if save:
-        for dtm in dirs_to_make:
-            if not os.path.exists(dtm):
-                os.makedirs(dtm)
-        for mode in dset_info["modality_names"]:
-            for subset in dirs_to_make:
-                mode_dir = os.path.join(subset, mode)
-                if not os.path.exists(mode_dir):
-                    os.makedirs(mode_dir)
-    return root_dir
-
-
-def save_maxslice(proc_dir, image_res, seg_res, res, planes, maxslices):
-    if not os.path.exists(proc_dir):
-        os.makedirs(proc_dir)
+def save_maxslice(proc_dir, image_res, seg_res, subdset, mode, subject_name, planes, maxslices):
         
     for plane in planes:     
-        maxslice_img_dir = os.path.join(proc_dir, f"img_{res}_{plane}.npy")
-        maxslice_seg_dir = os.path.join(proc_dir, f"seg_{res}_{plane}.npy")
+        max_subject_dir = os.path.join(proc_dir, subdset, mode, str(plane), subject_name) 
+        
+        if not os.path.exists(max_subject_dir):
+            os.makedirs(max_subject_dir)
+        
+        maxslice_img_dir = os.path.join(max_subject_dir, f"img.npy")
+        maxslice_seg_dir = os.path.join(max_subject_dir, f"seg.npy")
+ 
         # Get midslice slices
         subj_shape = image_res.shape
         if len(subj_shape) == 2:
@@ -46,17 +32,23 @@ def save_maxslice(proc_dir, image_res, seg_res, res, planes, maxslices):
             for s_idx, si in enumerate(slices):
                 maxslice_seg.append(np.take(seg_res, int(si), plane)[...,s_idx:s_idx+1])
             maxslice_seg = np.concatenate(maxslice_seg, axis=2)
+        
         np.save(maxslice_img_dir, maxslice_img)
         np.save(maxslice_seg_dir, maxslice_seg)
 
 
-def save_midslice(proc_dir, image_res, seg_res, res, planes):
-    if not os.path.exists(proc_dir):
-        os.makedirs(proc_dir)
+def save_midslice(proc_dir, image_res, seg_res, subdset, mode, subject_name, planes):
     
     for plane in planes:   
-        midslice_img_dir = os.path.join(proc_dir, f"img_{res}_{plane}.npy")
-        midslice_seg_dir = os.path.join(proc_dir, f"seg_{res}_{plane}.npy")
+        
+        mid_subject_dir = os.path.join(proc_dir, subdset, mode, str(plane), subject_name) 
+        
+        if not os.path.exists(mid_subject_dir):
+            os.makedirs(mid_subject_dir)
+            
+        midslice_img_dir = os.path.join(mid_subject_dir, f"img.npy")
+        midslice_seg_dir = os.path.join(mid_subject_dir, f"seg.npy")
+        
         # Get midslice slices
         subj_shape = image_res.shape
         if len(subj_shape) == 2:
@@ -65,6 +57,7 @@ def save_midslice(proc_dir, image_res, seg_res, res, planes):
         else:
             midslice_img = np.take(image_res, image_res.shape[plane]//2, plane)
             midslice_seg = np.take(seg_res, seg_res.shape[plane]//2, plane)
+        
         np.save(midslice_img_dir, midslice_img)
         np.save(midslice_seg_dir, midslice_seg)
 
@@ -76,7 +69,7 @@ def produce_slices(root_dir,
                    loaded_image,
                    loaded_label,
                    dset_info,
-                   resolutions=[256,128],
+                   resolutions,
                    save=False,
                    show_hists=False,
                    show_imgs=False):
@@ -155,12 +148,12 @@ def produce_slices(root_dir,
                 seg_res[..., lab_idx] = bin_seg_res
             
             if save:
-                #Save maxslice files
-                maxslice_proc_dir = os.path.join(root_dir, f"maxslice_v{version}", subdset, mode, subject_name)
-                save_maxslice(maxslice_proc_dir, image_res, seg_res, res, dset_info["planes"], max_slices)
-                #Save midslice files
-                midslice_proc_dir = os.path.join(root_dir, f"midslice_v{version}", subdset, mode, subject_name)
-                save_midslice(midslice_proc_dir, image_res, seg_res, res, dset_info["planes"])
+                #Save file directories
+                max_save_dir = os.path.join(root_dir, f"res{res}", f"maxslice_v{version}")
+                mid_save_dir = os.path.join(root_dir, f"res{res}", f"midslice_v{version}")
+                #Save each type of file
+                save_maxslice(max_save_dir, image_res, seg_res, subdset, mode, subject_name, dset_info["planes"], max_slices)
+                save_midslice(mid_save_dir, image_res, seg_res, subdset, mode, subject_name, dset_info["planes"])
                 
                 
 def label_dist(dataset,

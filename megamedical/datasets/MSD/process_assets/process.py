@@ -20,7 +20,6 @@ class MSD:
                 "label_root_dir":f"{paths['DATA']}/MSD/original_unzipped/BrainTumour/retrieved_2018_07_03/segs",
                 "modality_names":["FLAIR", "T1w", "T1gd","T2w"],
                 "planes":[0, 1, 2],
-                "labels": [1,2,3],
                 "clip_args": [0.5, 99.5],
                 "norm_scheme":"MR",
                 "do_clip":True,
@@ -32,7 +31,6 @@ class MSD:
                 "label_root_dir":f"{paths['DATA']}/MSD/original_unzipped/Heart/retrieved_2021_04_25/segs",
                 "modality_names":["Mono"],
                 "planes":[0, 1, 2],
-                "labels": [1,2,3],
                 "clip_args": [0.5, 99.5],
                 "norm_scheme":"MR",
                 "do_clip":True,
@@ -44,7 +42,6 @@ class MSD:
                 "label_root_dir":f"{paths['DATA']}/MSD/original_unzipped/Liver/retrieved_2018_05_26/segs",
                 "modality_names":["PVP-CT"],
                 "planes":[0, 1, 2],
-                "labels": [1,2,3],
                 "clip_args":[-250,250],
                 "norm_scheme":"CT",
                 "do_clip":True,
@@ -56,7 +53,6 @@ class MSD:
                 "label_root_dir":f"{paths['DATA']}/MSD/original_unzipped/Hippocampus/retrieved_2021_04_22/segs",
                 "modality_names":["Mono"],
                 "planes":[0, 1, 2],
-                "labels": [1,2,3],
                 "clip_args": [0.5, 99.5],
                 "norm_scheme":"MR",
                 "do_clip":True,
@@ -68,7 +64,6 @@ class MSD:
                 "label_root_dir":f"{paths['DATA']}/MSD/original_unzipped/Prostate/retrieved_2018_05_31/segs",
                 "modality_names":["T2","ADC"],
                 "planes":[2],
-                "labels": [1,2,3],
                 "clip_args": [0.5, 99.5],
                 "norm_scheme":"MR",
                 "do_clip":True,
@@ -80,7 +75,6 @@ class MSD:
                 "label_root_dir":f"{paths['DATA']}/MSD/original_unzipped/Lung/retrieved_2018_05_31/segs",
                 "modality_names":["CT"],
                 "planes":[0, 1, 2],
-                "labels": [1,2,3],
                 "clip_args":[-500,1000],
                 "norm_scheme":"CT",
                 "do_clip":True,
@@ -92,7 +86,6 @@ class MSD:
                 "label_root_dir":f"{paths['DATA']}/MSD/original_unzipped/Pancreas/retrieved_2021_04_22/segs",
                 "modality_names":["PVP-CT"],
                 "planes":[0, 1, 2],
-                "labels": [1,2,3],
                 "clip_args":[-500,1000],
                 "norm_scheme":"CT",
                 "do_clip":True,
@@ -104,7 +97,6 @@ class MSD:
                 "label_root_dir":f"{paths['DATA']}/MSD/original_unzipped/HepaticVessel/retrieved_2021_04_22/segs",
                 "modality_names":["CT"],
                 "planes":[0, 1, 2],
-                "labels": [1,2,3],
                 "clip_args":[-500,1000],
                 "norm_scheme":"CT",
                 "do_clip":True,
@@ -116,7 +108,6 @@ class MSD:
                 "label_root_dir":f"{paths['DATA']}/MSD/original_unzipped/Spleen/retrieved_2021_04_22/segs",
                 "modality_names":["CT"],
                 "planes":[0, 1, 2],
-                "labels": [1,2,3],
                 "clip_args":[-500,1000],
                 "norm_scheme":"CT",
                 "do_clip":True,
@@ -128,7 +119,6 @@ class MSD:
                 "label_root_dir":f"{paths['DATA']}/MSD/original_unzipped/Colon/retrieved_2021_04_22/segs",
                 "modality_names":["CT"],
                 "planes":[0, 1, 2],
-                "labels": [1,2,3],
                 "clip_args":[-500,1000],
                 "norm_scheme":"CT",
                 "do_clip":True,
@@ -149,7 +139,7 @@ class MSD:
                   redo_processed=True):
         assert not(version is None and save), "Must specify version for saving."
         assert dset_name in self.dset_info.keys(), "Sub-dataset must be in info dictionary."
-        proc_dir = pps.make_processed_dir(self.name, dset_name, save, version, self.dset_info[dset_name])
+        proc_dir = os.path.join(paths['DATA'], self.name, "processed")
         image_list = os.listdir(self.dset_info[dset_name]["image_root_dir"])
         accumulator = []
         for image in tqdm_notebook(image_list, desc=f'Processing: {dset_name}'):

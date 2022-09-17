@@ -21,7 +21,6 @@ class SMIR:
                 "label_root_dir":f"{paths['DATA']}/SMIR/original_unzipped/retreived_2022_03_08/Training",
                 "modality_names":["FLAIR", "T1"],
                 "planes":[2],
-                "labels": [1,2,3],
                 "clip_args":None,
                 "norm_scheme":"MR",
                 "do_clip":True,
@@ -42,7 +41,7 @@ class SMIR:
                   redo_processed=True):
         assert not(version is None and save), "Must specify version for saving."
         assert dset_name in self.dset_info.keys(), "Sub-dataset must be in info dictionary."
-        proc_dir = pps.make_processed_dir(self.name, dset_name, save, version, self.dset_info[dset_name])
+        proc_dir = os.path.join(paths['DATA'], self.name, "processed")
         image_list = os.listdir(self.dset_info[dset_name]["image_root_dir"])
         accumulator = []
         for image in tqdm_notebook(image_list, desc=f'Processing: {dset_name}'):

@@ -23,7 +23,6 @@ class COCA:
                 "image_root_dir":f"{paths['DATA']}/COCA/original_unzipped/retrieved_2022_03_24/Gated_release_final/patient",
                 "label_root_dir":f"{paths['DATA']}/COCA/original_unzipped/retrieved_2022_03_24/Gated_release_final/calcium_xml",
                 "modality_names":["MRI"],
-                "labels": [1,2,3],
                 "planes":[2],
                 "clip_args":None,
                 "norm_scheme":"MR",
@@ -45,7 +44,7 @@ class COCA:
                   redo_processed=True):
         assert not(version is None and save), "Must specify version for saving."
         assert dset_name in self.dset_info.keys(), "Sub-dataset must be in info dictionary."
-        proc_dir = pps.make_processed_dir(self.name, dset_name, save, version, self.dset_info[dset_name])
+        proc_dir = os.path.join(paths['DATA'], self.name, "processed")
         image_list = os.listdir(self.dset_info[dset_name]["label_root_dir"])
         accumulator = []
         for image in tqdm_notebook(image_list, desc=f'Processing: {dset_name}'):

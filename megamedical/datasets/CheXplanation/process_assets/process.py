@@ -45,7 +45,7 @@ class CheXplanation:
                   redo_processed=True):
         assert not(version is None and save), "Must specify version for saving."
         assert dset_name in self.dset_info.keys(), "Sub-dataset must be in info dictionary."
-        proc_dir = pps.make_processed_dir(self.name, dset_name, save, version, self.dset_info[dset_name])
+        proc_dir = os.path.join(paths['DATA'], self.name, "processed")
         image_list = os.listdir(self.dset_info[dset_name]["image_root_dir"])
         accumulator = []
         label_dir = os.path.join(self.dset_info[dset_name]["label_root_dir"], "gt_segmentation_val.json")

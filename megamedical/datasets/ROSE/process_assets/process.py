@@ -21,7 +21,6 @@ class ROSE:
                 "label_root_dir":f"{paths['DATA']}/ROSE/original_unzipped/ROSE-1-DVC/gt",
                 "modality_names":["Retinal"],
                 "planes":[0],
-                "labels": [1,2,3],
                 "clip_args":None,
                 "norm_scheme":None,
                 "do_clip":False,
@@ -33,7 +32,6 @@ class ROSE:
                 "label_root_dir":f"{paths['DATA']}/ROSE/original_unzipped/ROSE-1-SVC/gt",
                 "modality_names":["Retinal"],
                 "planes":[0],
-                "labels": [1,2,3],
                 "clip_args":None,
                 "norm_scheme":None,
                 "do_clip":False,
@@ -45,7 +43,6 @@ class ROSE:
                 "label_root_dir":f"{paths['DATA']}/ROSE/original_unzipped/ROSE-1-SVC_DVC/gt",
                 "modality_names":["Retinal"],
                 "planes":[0],
-                "labels": [1,2,3],
                 "clip_args":None,
                 "norm_scheme":None,
                 "do_clip":False,
@@ -57,7 +54,6 @@ class ROSE:
                 "label_root_dir":f"{paths['DATA']}/ROSE/original_unzipped/ROSE-2/gt",
                 "modality_names":["Retinal"],
                 "planes":[0],
-                "labels": [1,2,3],
                 "clip_args":None,
                 "norm_scheme":None,
                 "do_clip":False,
@@ -78,7 +74,7 @@ class ROSE:
                   redo_processed=True):
         assert not(version is None and save), "Must specify version for saving."
         assert dset_name in self.dset_info.keys(), "Sub-dataset must be in info dictionary."
-        proc_dir = pps.make_processed_dir(self.name, dset_name, save, version, self.dset_info[dset_name])
+        proc_dir = os.path.join(paths['DATA'], self.name, "processed")
         image_list = os.listdir(self.dset_info[dset_name]["image_root_dir"])
         accumulator = []
         for image in tqdm_notebook(image_list, desc=f'Processing: {dset_name}'):

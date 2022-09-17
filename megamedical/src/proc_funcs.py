@@ -37,8 +37,7 @@ def process_dataset(datasets,
             if slurm:
                 slurm_root = os.path.join(paths["ROOT"], f"bash/submitit/{do.name}/{subdset}")
                 executor = submitit.AutoExecutor(folder=slurm_root)
-                executor.update_parameters(timeout_min=timeout, mem_gb=mem_gb,
-                                           gpus_per_node=1, slurm_partition="sablab", slurm_wckey="")
+                executor.update_parameters(timeout_min=timeout, mem_gb=mem_gb, slurm_partition="sablab", slurm_wckey="")
                 job = executor.submit(do.proc_func,
                                       subdset,
                                       pps.produce_slices,
@@ -85,8 +84,7 @@ def get_label_dist(datasets,
             if slurm:
                 slurm_root = os.path.join(paths["ROOT"], f"bash/submitit/{do.name}/{dset}")
                 executor = submitit.AutoExecutor(folder=slurm_root)
-                executor.update_parameters(timeout_min=timeout, mem_gb=16,
-                                           gpus_per_node=0, slurm_partition="sablab", slurm_wckey="")
+                executor.update_parameters(timeout_min=timeout, mem_gb=16, slurm_partition="sablab", slurm_wckey="")
                 job = executor.submit(pps.label_dist,
                                       do.name,
                                       do.proc_func,
@@ -124,8 +122,7 @@ def generate_label_info_files(datasets,
             if slurm:
                 slurm_root = os.path.join(paths["ROOT"], f"bash/submitit/{do.name}/{subdset}")
                 executor = submitit.AutoExecutor(folder=slurm_root)
-                executor.update_parameters(timeout_min=timeout, mem_gb=mem_gb,
-                                           gpus_per_node=0, slurm_partition="sablab", slurm_wckey="")
+                executor.update_parameters(timeout_min=timeout, mem_gb=mem_gb, slurm_partition="sablab", slurm_wckey="")
                 job = executor.submit(pps.label_info,
                                       do,
                                       subdset,
