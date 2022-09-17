@@ -20,7 +20,8 @@ def process_dataset(datasets,
                     redo_processed=True,
                     show_hists=False,
                     version="4.0",
-                    timeout=540):
+                    timeout=540,
+                    mem_gb=32):
     assert not (len(datasets) > 1 and visualize), "Can't visualize a list of processing."
     assert not (slurm and visualize), "If you are submitting slurm no vis."
     
@@ -35,7 +36,7 @@ def process_dataset(datasets,
             if slurm:
                 slurm_root = os.path.join(paths["ROOT"], f"bash/submitit/{do.name}/{subdset}")
                 executor = submitit.AutoExecutor(folder=slurm_root)
-                executor.update_parameters(timeout_min=timeout, mem_gb=32,
+                executor.update_parameters(timeout_min=timeout, mem_gb=mem_gb,
                                            gpus_per_node=1, slurm_partition="sablab", slurm_wckey="")
                 job = executor.submit(do.proc_func,
                                       subdset,
@@ -107,6 +108,7 @@ def generate_label_info_files(datasets,
                               slurm=False,
                               version="4.0",
                               timeout=180,
+                              mem_gb=16,
                               volume_wide=True):
     if datasets == "all":
         datasets = os.listdir(paths["DATA"])
@@ -119,7 +121,7 @@ def generate_label_info_files(datasets,
             if slurm:
                 slurm_root = os.path.join(paths["ROOT"], f"bash/submitit/{do.name}/{subdset}")
                 executor = submitit.AutoExecutor(folder=slurm_root)
-                executor.update_parameters(timeout_min=timeout, mem_gb=16,
+                executor.update_parameters(timeout_min=timeout, mem_gb=mem_gb,
                                            gpus_per_node=0, slurm_partition="sablab", slurm_wckey="")
                 job = executor.submit(pps.label_info,
                                       do,

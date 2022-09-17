@@ -47,6 +47,7 @@ dataset_registry = {
     "SegTHOR": "megamedical.datasets.SegTHOR.process_assets",
     "SpineWeb": "megamedical.datasets.SpineWeb.process_assets",
     "Synapse_Abdomen": "megamedical.datasets.Synapse_Abdomen.process_assets",
+    "TCIA": "megamedical.datasets.TCIA.process_assets",
     "T1mix": "megamedical.datasets.T1mix.process_assets",
     "TUCC": "megamedical.datasets.TUCC.process_assets",
     "VerSe": "megamedical.datasets.VerSe.process_assets",

@@ -40,6 +40,7 @@ from .datasets import STARE
 from .datasets import SegTHOR
 from .datasets import SpineWeb
 from .datasets import Synapse_Abdomen
+from .datasets import TCIA
 from .datasets import T1mix
 from .datasets import TUCC
 from .datasets import VerSe

@@ -8,50 +8,18 @@ from megamedical.src import preprocess_scripts as pps
 from megamedical.utils.registry import paths
 from megamedical.utils import proc_utils as put
 
-class MouseBrainAtlas:
+class TCIA:
 
     def __init__(self):
-        self.name = "MouseBrainAtlas"
+        self.name = "TCIA"
         self.dset_info = {
-            "FVB_NCrl":{
-                "main":"MouseBrainAtlas",
-                "image_root_dir": f"{paths['DATA']}/MouseBrainAtlas/original_unzipped/retrieved_09_05_2022/mouse-brain-atlas-master",
-                "label_root_dir": f"{paths['DATA']}/MouseBrainAtlas/original_unzipped/retrieved_09_05_2022/mouse-brain-atlas-master",
-                "modality_names": ["MRI"],
-                "planes": [2],
-                "clip_args": [0.5, 99.5],
-                "norm_scheme":"MR",
-                "do_clip":True,
-                "proc_size":256
-            },
-            "NeAt":{
-                "main":"MouseBrainAtlas",
-                "image_root_dir": f"{paths['DATA']}/MouseBrainAtlas/original_unzipped/retrieved_09_05_2022/mouse-brain-atlas-master",
-                "label_root_dir": f"{paths['DATA']}/MouseBrainAtlas/original_unzipped/retrieved_09_05_2022/mouse-brain-atlas-master",
-                "modality_names": ["MRI"],
-                "planes": [2],
-                "clip_args": [0.5, 99.5],
-                "norm_scheme":"MR",
-                "do_clip":True,
-                "proc_size":256
-            },
-            "Tc1_Cerebellum":{
-                "main":"MouseBrainAtlas",
-                "image_root_dir": f"{paths['DATA']}/MouseBrainAtlas/original_unzipped/retrieved_09_05_2022/mouse-brain-atlas-master",
-                "label_root_dir": f"{paths['DATA']}/MouseBrainAtlas/original_unzipped/retrieved_09_05_2022/mouse-brain-atlas-master",
-                "modality_names": ["MRI"],
-                "planes": [2],
-                "clip_args": [0.5, 99.5],
-                "norm_scheme":"MR",
-                "do_clip":True,
-                "proc_size":256
-            },
-            "rTg4510":{
-                "main":"MouseBrainAtlas",
-                "image_root_dir": f"{paths['DATA']}/MouseBrainAtlas/original_unzipped/retrieved_09_05_2022/mouse-brain-atlas-master",
-                "label_root_dir": f"{paths['DATA']}/MouseBrainAtlas/original_unzipped/retrieved_09_05_2022/mouse-brain-atlas-master",
-                "modality_names": ["MRI"],
-                "planes": [2],
+            "Challenge2017":{
+                "main":"ACDC",
+                "image_root_dir": f"{paths['DATA']}/HRF/original_unzipped/retrieved_2022_05_04/images",
+                "label_root_dir": f"{paths['DATA']}/HRF/original_unzipped/retrieved_2022_05_04/mask",
+                "modality_names": ["dr","g","h"],
+                "planes": [0],
+                "labels": [1,2,3],
                 "clip_args": [0.5, 99.5],
                 "norm_scheme":"MR",
                 "do_clip":True,
@@ -78,8 +46,8 @@ class MouseBrainAtlas:
             try:
                 proc_dir_template = os.path.join(proc_dir, f"midslice_v{version}", dset_name, "*", image)
                 if redo_processed or (len(glob.glob(proc_dir_template)) == 0):
-                    im_dir = os.path.join(self.dset_info[dset_name]["image_root_dir"], image, f"{image}_frame01.nii.gz")
-                    label_dir = os.path.join(self.dset_info[dset_name]["label_root_dir"], image, f"{image}_frame01_gt.nii.gz")
+                    im_dir = os.path.join(self.dset_info[dset_name]["image_root_dir"], image)
+                    label_dir = os.path.join(self.dset_info[dset_name]["label_root_dir"], image.replace("jpg"))
 
                     assert os.path.isfile(im_dir), "Valid image dir required!"
                     assert os.path.isfile(label_dir), "Valid label dir required!"
