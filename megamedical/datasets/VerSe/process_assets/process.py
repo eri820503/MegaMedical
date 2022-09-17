@@ -20,7 +20,6 @@ class VerSe:
                 "label_root_dir":f"{paths['DATA']}/VerSe/original_unzipped/VerSe19/dataset-verse19training/derivatives",
                 "modality_names":["CT"],
                 "planes": [0],
-                "labels": [1,2,3],
                 "clip_args":[-500,1000],
                 "norm_scheme":"CT",
                 "do_clip":True,
@@ -32,7 +31,6 @@ class VerSe:
                 "label_root_dir":f"{paths['DATA']}/VerSe/original_unzipped/VerSe20/dataset-01training/derivatives",
                 "modality_names":["CT"],
                 "planes": [0, 1],
-                "labels": [1,2,3],
                 "clip_args":[-500,1000],
                 "norm_scheme":"CT",
                 "do_clip":True,
@@ -49,6 +47,7 @@ class VerSe:
                   show_imgs=False,
                   save=False,
                   show_hists=False,
+                  resolutions=None,
                   redo_processed=True):
         assert not(version is None and save), "Must specify version for saving."
         assert dset_name in self.dset_info.keys(), "Sub-dataset must be in info dictionary."
@@ -88,6 +87,7 @@ class VerSe:
                                               self.dset_info[dset_name],
                                               show_hists=show_hists,
                                               show_imgs=show_imgs,
+                                              resolutions=resolutions,
                                               save=save)
 
                     if accumulate:

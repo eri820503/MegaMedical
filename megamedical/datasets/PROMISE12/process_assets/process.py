@@ -20,7 +20,6 @@ class PROMISE12:
                 "label_root_dir":f"{paths['DATA']}/PROMISE12/original_unzipped/retrieved_2021_10_12/segs",
                 "modality_names":["MRI"],
                 "planes":[0, 1, 2],
-                "labels": [1,2,3],
                 "clip_args": [0.5, 99.5],
                 "norm_scheme":"MR",
                 "do_clip":True,
@@ -37,6 +36,7 @@ class PROMISE12:
                   show_imgs=False,
                   save=False,
                   show_hists=False,
+                  resolutions=None,
                   redo_processed=True):
         assert not(version is None and save), "Must specify version for saving."
         assert dset_name in self.dset_info.keys(), "Sub-dataset must be in info dictionary."
@@ -74,6 +74,7 @@ class PROMISE12:
                                           self.dset_info[dset_name],
                                           show_hists=show_hists,
                                           show_imgs=show_imgs,
+                                          resolutions=resolutions,
                                           save=save)
 
                     if accumulate:

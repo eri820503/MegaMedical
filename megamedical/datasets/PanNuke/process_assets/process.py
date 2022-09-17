@@ -22,7 +22,6 @@ class PanNuke:
                 "label_root_dir":f"{paths['DATA']}/PanNuke/original_unzipped/retreived_2022_03_04/Fold1/masks/fold1/masks.npy",
                 "modality_names":["NA"],
                 "planes":[0],
-                "labels": [1,2,3],
                 "clip_args":None,
                 "norm_scheme":None,
                 "do_clip":False,
@@ -34,7 +33,6 @@ class PanNuke:
                 "label_root_dir":f"{paths['DATA']}/PanNuke/original_unzipped/retreived_2022_03_04/Fold2/masks/fold2/masks.npy",
                 "modality_names":["NA"],
                 "planes":[0],
-                "labels": [1,2,3],
                 "clip_args":None,
                 "norm_scheme":None,
                 "do_clip":False,
@@ -46,7 +44,6 @@ class PanNuke:
                 "label_root_dir":f"{paths['DATA']}/PanNuke/original_unzipped/retreived_2022_03_04/Fold3/masks/fold3/masks.npy",
                 "modality_names":["NA"],
                 "planes":[0],
-                "labels": [1,2,3],
                 "clip_args":None,
                 "norm_scheme":None,
                 "do_clip":False,
@@ -63,6 +60,7 @@ class PanNuke:
                   show_imgs=False,
                   save=False,
                   show_hists=False,
+                  resolutions=None,
                   redo_processed=True):
         assert not(version is None and save), "Must specify version for saving."
         assert dset_name in self.dset_info.keys(), "Sub-dataset must be in info dictionary."
@@ -99,6 +97,7 @@ class PanNuke:
                                             self.dset_info[dset_name],
                                             show_hists=show_hists,
                                             show_imgs=show_imgs,
+                                            resolutions=resolutions,
                                             save=save)
 
                     if accumulate:

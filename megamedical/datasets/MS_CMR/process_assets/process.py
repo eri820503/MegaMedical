@@ -36,6 +36,7 @@ class MS_CMR:
                   show_imgs=False,
                   save=False,
                   show_hists=False,
+                  resolutions=None,
                   redo_processed=True):
         assert not(version is None and save), "Must specify version for saving."
         assert dset_name in self.dset_info.keys(), "Sub-dataset must be in info dictionary."
@@ -73,6 +74,7 @@ class MS_CMR:
                                               self.dset_info[dset_name],
                                               show_hists=show_hists,
                                               show_imgs=show_imgs,
+                                              resolutions=resolutions,
                                               save=save)
 
                     if accumulate:

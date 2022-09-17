@@ -18,6 +18,7 @@ def process_dataset(datasets,
                     slurm=False, 
                     visualize=False,
                     redo_processed=True,
+                    resolutions=[64, 128, 256],
                     show_hists=False,
                     version="4.0",
                     timeout=540,
@@ -47,6 +48,7 @@ def process_dataset(datasets,
                                       visualize,
                                       save,
                                       show_hists,
+                                      resolutions,
                                       redo_processed)
             else:
                 do.proc_func(subdset,
@@ -57,6 +59,7 @@ def process_dataset(datasets,
                              visualize,
                              save,
                              show_hists,
+                             resolutions,
                              redo_processed)
                 
 
