@@ -21,6 +21,7 @@ class WMH:
                 "label_root_dir":f"{paths['DATA']}/WMH/original_unzipped/retrieved_2022_03_10/public",
                 "modality_names":["FLAIR"],
                 "clip_args": [0.5, 99.5],
+                "planes": [0, 1, 2],
                 "norm_scheme":"MR",
                 "do_clip":True,
                 "proc_size":256

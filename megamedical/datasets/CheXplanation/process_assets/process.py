@@ -22,7 +22,7 @@ class CheXplanation:
                 "main":"Chexplanation",
                 "image_root_dir":f"{paths['DATA']}/CheXplanation/original_unzipped/v1.0/CheXplanation/CheXpert-v1.0/valid",
                 "label_root_dir":f"{paths['DATA']}/CheXplanation/original_unzipped/v1.0/CheXplanation",
-                "modality_names":["NA"],
+                "modality_names":["XRay"],
                 "planes":[0],
                 "labels": [1,2,3],
                 "clip_args": None,

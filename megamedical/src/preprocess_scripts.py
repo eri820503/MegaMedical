@@ -113,7 +113,7 @@ def produce_slices(root_dir,
         for res in resolutions:
             # Get all of the labels in the volume population, note that the first index tracks the number
             # of subjects.
-            unique_labels = np.load(os.path.join(root_dir, f"res{res}", dset_info["main"], "label_info", "all_labels.npy"))
+            unique_labels = np.load(os.path.join(root_dir, f"res{res}", dset_info["main"], "label_info", subdset, "all_labels.npy"))
             unique_labels = np.delete(unique_labels, 0)
             
             #Resize to several resolutions
@@ -159,8 +159,8 @@ def produce_slices(root_dir,
 def label_info(data_obj,
                subdset,
                version,
-               save,
-               resolutions):
+               resolutions,
+               save):
     
     proc_dir, label_info = data_obj.proc_func(subdset,
                                              get_label_amounts,
