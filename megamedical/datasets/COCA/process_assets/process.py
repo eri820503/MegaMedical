@@ -18,10 +18,10 @@ class COCA:
     def __init__(self):
         self.name = "COCA"
         self.dset_info = {
-            "Challenge2017":{
-                "main":"ACDC",
-                "image_root_dir":f"{paths['DATA']}/COCA/original_unzipped/retrieved_2022_03_24/Gated_release_final/patient",
-                "label_root_dir":f"{paths['DATA']}/COCA/original_unzipped/retrieved_2022_03_24/Gated_release_final/calcium_xml",
+            "-":{
+                "main":"COCA",
+                "image_root_dir": None,
+                "label_root_dir": None,
                 "modality_names":["MRI"],
                 "planes":[2],
                 "clip_args":None,
@@ -44,7 +44,7 @@ class COCA:
                   redo_processed=True):
         assert not(version is None and save), "Must specify version for saving."
         assert dset_name in self.dset_info.keys(), "Sub-dataset must be in info dictionary."
-        proc_dir = os.path.join(paths['DATA'], self.name, "processed")
+        proc_dir = os.path.join(paths['ROOT'], "processed")
         image_list = os.listdir(self.dset_info[dset_name]["label_root_dir"])
         accumulator = []
         for image in tqdm_notebook(image_list, desc=f'Processing: {dset_name}'):

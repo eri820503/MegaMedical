@@ -13,8 +13,8 @@ class HRF:
     def __init__(self):
         self.name = "HRF"
         self.dset_info = {
-            "Challenge2017":{
-                "main":"ACDC",
+            "retrieved_2022_05_04":{
+                "main":"HRF",
                 "image_root_dir": f"{paths['DATA']}/HRF/original_unzipped/retrieved_2022_05_04/images",
                 "label_root_dir": f"{paths['DATA']}/HRF/original_unzipped/retrieved_2022_05_04/mask",
                 "modality_names": ["dr","g","h"],
@@ -40,7 +40,7 @@ class HRF:
         assert not(version is None and save), "Must specify version for saving."
         assert dset_name in self.dset_info.keys(), "Sub-dataset must be in info dictionary."
         image_list = os.listdir(self.dset_info[dset_name]["image_root_dir"])
-        proc_dir = os.path.join(paths['DATA'], self.name, "processed")
+        proc_dir = os.path.join(paths['ROOT'], "processed")
         accumulator = []
         for image in tqdm_notebook(image_list, desc=f'Processing: {dset_name}'):
             try:

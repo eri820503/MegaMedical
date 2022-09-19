@@ -41,7 +41,7 @@ class TUCC:
                   redo_processed=True):
         assert not(version is None and save), "Must specify version for saving."
         assert dset_name in self.dset_info.keys(), "Sub-dataset must be in info dictionary."
-        proc_dir = os.path.join(paths['DATA'], self.name, "processed")
+        proc_dir = os.path.join(paths['ROOT'], "processed")
         hf = h5py.File(os.path.join(self.dset_info[dset_name]["image_root_dir"],'dataset.hdf5'), 'r')
   
         chosen_inds = np.sort(np.random.choice(np.arange(len(hf["image"])), 1000))

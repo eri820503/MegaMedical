@@ -40,7 +40,7 @@ class RibSeg:
         assert not(version is None and save), "Must specify version for saving."
         assert dset_name in self.dset_info.keys(), "Sub-dataset must be in info dictionary."
         image_list = set([f.split("-")[0] for f in os.listdir(self.dset_info[dset_name]["image_root_dir"])])
-        proc_dir = os.path.join(paths['DATA'], self.name, "processed")
+        proc_dir = os.path.join(paths['ROOT'], "processed")
         accumulator = []
         for image in tqdm_notebook(image_list, desc=f'Processing: {dset_name}'):
             try:

@@ -13,8 +13,8 @@ class EPISURG:
     def __init__(self):
         self.name = "EPISURG"
         self.dset_info = {
-            "Challenge2017":{
-                "main":"ACDC",
+            "retrieved_09_06_2022":{
+                "main":"EPISURG",
                 "image_root_dir": f"{paths['DATA']}/EPISURG/original_unzipped/retrieved_09_06_2022/EPISURG/subjects",
                 "label_root_dir": f"{paths['DATA']}/EPISURG/original_unzipped/retrieved_09_06_2022/EPISURG/subjects",
                 "modality_names": ["MRI"],
@@ -40,7 +40,7 @@ class EPISURG:
         assert not(version is None and save), "Must specify version for saving."
         assert dset_name in self.dset_info.keys(), "Sub-dataset must be in info dictionary."
         image_list = os.listdir(self.dset_info[dset_name]["image_root_dir"])
-        proc_dir = os.path.join(paths['DATA'], self.name, "processed")
+        proc_dir = os.path.join(paths['ROOT'], "processed")
         accumulator = []
         for image in tqdm_notebook(image_list, desc=f'Processing: {dset_name}'):
             try:
