@@ -7,6 +7,114 @@ import matplotlib.pyplot as plt
 from scipy import ndimage
 import scipy
 
+
+def get_label_amounts(proc_dir,
+                      version,
+                      dset_name,
+                      image, 
+                      loaded_image,
+                      loaded_label,
+                      dset_info,
+                      show_hists,
+                      show_imgs,
+                      resolutions,
+                      save):
+    square_label = squarify(loaded_label)
+    
+    res_dict = {}
+    for res in resolutions:
+        old_size = square_label.shape[0]
+        ratio = res/old_size
+        if len(loaded_label.shape) == 2:
+            zoom_tup = (ratio, ratio)
+        else:
+            zoom_tup = (ratio, ratio, ratio)
+        resized_image = ndimage.zoom(square_label, zoom=zoom_tup, order=0)
+        
+        all_labels = np.unique(resized_image)
+        all_labels = np.delete(all_labels, [0])
+        
+        res_dict[res] = {}
+        maxslice_amount_dict = {}
+        midslice_amount_dict = {}
+        
+        lab_shape = resized_image.shape
+        if len(lab_shape) == 2:
+            midslice_amount_dict[0] = {lab : np.count_nonzero((resized_image==lab).astype(int)) for lab in all_labels}
+            maxslice_amount_dict[0] = {lab : np.count_nonzero((resized_image==lab).astype(int)) for lab in all_labels}
+        else:
+            for plane in dset_info["planes"]:
+                all_axes = [0,1,2]
+                all_axes.remove(plane)
+
+                midslice = np.take(resized_image, lab_shape[plane]//2, plane)
+                mid_unique_labels = np.unique(midslice)
+                # Get rid of 0 as a unique label
+                midslice_plane_labels = np.delete(mid_unique_labels, [0])
+
+                midslice_amount_dict[plane] = {lab : np.count_nonzero((midslice==lab).astype(int)) for lab in midslice_plane_labels}
+                maxslice_amount_dict[plane] = {lab : np.amax(np.count_nonzero((resized_image==lab).astype(int), axis=tuple(all_axes))) for lab in all_labels}
+        
+        res_dict[res]["all_labels"] = all_labels
+        res_dict[res]["midslice"] = midslice_amount_dict
+        res_dict[res]["maxslice"] = maxslice_amount_dict
+
+    return res_dict
+
+
+def save_maxslice(proc_dir, image_res, seg_res, subdset, mode, subject_name, planes, maxslices):
+        
+    for plane in planes:     
+        max_subject_dir = os.path.join(proc_dir, subdset, mode, str(plane), subject_name) 
+        
+        if not os.path.exists(max_subject_dir):
+            os.makedirs(max_subject_dir)
+        
+        maxslice_img_dir = os.path.join(max_subject_dir, f"img.npy")
+        maxslice_seg_dir = os.path.join(max_subject_dir, f"seg.npy")
+ 
+        # Get midslice slices
+        subj_shape = image_res.shape
+        if len(subj_shape) == 2:
+            maxslice_img = np.repeat(image_res[..., np.newaxis], seg_res.shape[-1], axis=2)
+            maxslice_seg = seg_res
+        else:
+            slices = maxslices[plane]
+            maxslice_img = np.stack([np.take(image_res, int(si), plane) for si in slices], axis=2)
+            maxslice_seg = []
+            for s_idx, si in enumerate(slices):
+                maxslice_seg.append(np.take(seg_res, int(si), plane)[...,s_idx:s_idx+1])
+            maxslice_seg = np.concatenate(maxslice_seg, axis=2)
+        
+        np.save(maxslice_img_dir, maxslice_img)
+        np.save(maxslice_seg_dir, maxslice_seg)
+
+
+def save_midslice(proc_dir, image_res, seg_res, subdset, mode, subject_name, planes):
+    
+    for plane in planes:   
+        
+        mid_subject_dir = os.path.join(proc_dir, subdset, mode, str(plane), subject_name) 
+        
+        if not os.path.exists(mid_subject_dir):
+            os.makedirs(mid_subject_dir)
+            
+        midslice_img_dir = os.path.join(mid_subject_dir, f"img.npy")
+        midslice_seg_dir = os.path.join(mid_subject_dir, f"seg.npy")
+        
+        # Get midslice slices
+        subj_shape = image_res.shape
+        if len(subj_shape) == 2:
+            midslice_img = image_res
+            midslice_seg = seg_res
+        else:
+            midslice_img = np.take(image_res, image_res.shape[plane]//2, plane)
+            midslice_seg = np.take(seg_res, seg_res.shape[plane]//2, plane)
+        
+        np.save(midslice_img_dir, midslice_img)
+        np.save(midslice_seg_dir, midslice_seg)
+
+
 def relative_norm(image):
     return (image - np.amin(image))/(np.amax(image) - np.amin(image))
 

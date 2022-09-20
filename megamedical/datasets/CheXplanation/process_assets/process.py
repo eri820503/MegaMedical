@@ -24,7 +24,6 @@ class CheXplanation:
                 "label_root_dir":f"{paths['DATA']}/CheXplanation/original_unzipped/v1.0/CheXplanation",
                 "modality_names":["XRay"],
                 "planes":[0],
-                "labels": [1,2,3],
                 "clip_args": None,
                 "norm_scheme": None,
                 "do_clip": False,
