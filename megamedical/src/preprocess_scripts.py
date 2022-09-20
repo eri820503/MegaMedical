@@ -16,7 +16,7 @@ def produce_slices(root_dir,
                    loaded_image,
                    loaded_label,
                    dset_info,
-                   resolutions,
+                   res,
                    save=False,
                    show_hists=False,
                    show_imgs=False):
@@ -56,51 +56,50 @@ def produce_slices(root_dir,
         if show_imgs:
             for plane in dset_info["planes"]:
                 display_processing_slices(square_image, square_label, plane)
-        
-        for res in resolutions:
-            # Get all of the labels in the volume population, note that the first index tracks the number
-            # of subjects.
-            unique_labels = np.load(os.path.join(root_dir, f"res{res}", dset_info["main"], "label_info", subdset, "all_labels.npy"))
-            unique_labels = np.delete(unique_labels, 0)
-            
-            #Resize to several resolutions
-            image_res = blur_and_resize(square_image, old_size, new_size=res, order=1)
 
-            #final segmentations are with labels in the last dimension
-            if len(square_image.shape) == 2:
-                seg_res = np.zeros((res, res, len(unique_labels)))
-            else:     
-                seg_res = np.zeros((res, res, res, len(unique_labels)))
+        # Get all of the labels in the volume population, note that the first index tracks the number
+        # of subjects.
+        unique_labels = np.load(os.path.join(root_dir, f"res{res}", dset_info["main"], "label_info", subdset, "all_labels.npy"))
+        unique_labels = np.delete(unique_labels, 0)
 
-            #go through unique labels and add to slices
-            max_slices = {pl : np.zeros((len(unique_labels))) for pl in dset_info["planes"]}
-            
-            for lab_idx, label in enumerate(unique_labels):
-                #isolate mask of label
-                label = int(label)
-                bin_mask = np.float32((square_label==label))
-                
-                #produce resized segmentations
-                bin_seg_res = blur_and_resize(bin_mask, old_size, new_size=res, order=0)
-                
-                # Gather maxslice info
-                if len(bin_seg_res.shape) == 3:
-                    for pl in dset_info["planes"]:
-                        all_axes = [0, 1, 2]
-                        all_axes.remove(pl)
-                        greatest_index = np.argmax(np.count_nonzero(bin_seg_res, axis=tuple(all_axes)))
-                        max_slices[pl][lab_idx] = greatest_index
+        #Resize to several resolutions
+        image_res = blur_and_resize(square_image, old_size, new_size=res, order=1)
 
-                # Place resized segs in regular array
-                seg_res[..., lab_idx] = bin_seg_res
-            
-            if save:
-                #Save file directories
-                max_save_dir = os.path.join(root_dir, f"res{res}", dset_info["main"], f"maxslice_v{version}")
-                mid_save_dir = os.path.join(root_dir, f"res{res}", dset_info["main"], f"midslice_v{version}")
-                #Save each type of file
-                save_maxslice(max_save_dir, image_res, seg_res, subdset, mode, subject_name, dset_info["planes"], max_slices)
-                save_midslice(mid_save_dir, image_res, seg_res, subdset, mode, subject_name, dset_info["planes"])
+        #final segmentations are with labels in the last dimension
+        if len(square_image.shape) == 2:
+            seg_res = np.zeros((res, res, len(unique_labels)))
+        else:     
+            seg_res = np.zeros((res, res, res, len(unique_labels)))
+
+        #go through unique labels and add to slices
+        max_slices = {pl : np.zeros((len(unique_labels))) for pl in dset_info["planes"]}
+
+        for lab_idx, label in enumerate(unique_labels):
+            #isolate mask of label
+            label = int(label)
+            bin_mask = np.float32((square_label==label))
+
+            #produce resized segmentations
+            bin_seg_res = blur_and_resize(bin_mask, old_size, new_size=res, order=0)
+
+            # Gather maxslice info
+            if len(bin_seg_res.shape) == 3:
+                for pl in dset_info["planes"]:
+                    all_axes = [0, 1, 2]
+                    all_axes.remove(pl)
+                    greatest_index = np.argmax(np.count_nonzero(bin_seg_res, axis=tuple(all_axes)))
+                    max_slices[pl][lab_idx] = greatest_index
+
+            # Place resized segs in regular array
+            seg_res[..., lab_idx] = bin_seg_res
+
+        if save:
+            #Save file directories
+            max_save_dir = os.path.join(root_dir, f"res{res}", dset_info["main"], f"maxslice_v{version}")
+            mid_save_dir = os.path.join(root_dir, f"res{res}", dset_info["main"], f"midslice_v{version}")
+            #Save each type of file
+            save_maxslice(max_save_dir, image_res, seg_res, subdset, mode, subject_name, dset_info["planes"], max_slices)
+            save_midslice(mid_save_dir, image_res, seg_res, subdset, mode, subject_name, dset_info["planes"])
                 
                 
 # Produce the "all label" matrices for each resolution

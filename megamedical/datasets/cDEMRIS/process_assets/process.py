@@ -20,7 +20,6 @@ class cDEMRIS:
                 "label_root_dir": f"{paths['DATA']}/cDEMRIS/original_unzipped/ISBI_2012/pre",
                 "modality_names": ["MRI"],
                 "planes": [2],
-                "labels": [1],
                 "clip_args": [0.5, 99.5],
                 "norm_scheme":"MR",
                 "do_clip":True,
@@ -32,7 +31,6 @@ class cDEMRIS:
                 "label_root_dir": f"{paths['DATA']}/cDEMRIS/original_unzipped/ISBI_2012/post",
                 "modality_names": ["MRI"],
                 "planes": [2],
-                "labels": [1],
                 "clip_args": [0.5, 99.5],
                 "norm_scheme":"MR",
                 "do_clip":True,
@@ -55,43 +53,47 @@ class cDEMRIS:
         assert dset_name in self.dset_info.keys(), "Sub-dataset must be in info dictionary."
         image_list = os.listdir(self.dset_info[dset_name]["image_root_dir"])
         proc_dir = os.path.join(paths['ROOT'], "processed")
-        accumulator = []
-        for image in tqdm_notebook(image_list, desc=f'Processing: {dset_name}'):
-            try:
-                proc_dir_template = os.path.join(proc_dir, f"midslice_v{version}", dset_name, "*", image)
-                if redo_processed or (len(glob.glob(proc_dir_template)) == 0):
-                    vers = "a" if dset_name == "ISBI_2012_pre" else "b"
-                    im_dir = os.path.join(self.dset_info[dset_name]["image_root_dir"], image, f"de_{vers}_{image[1:]}.nrrd")
-                    label_dir = os.path.join(self.dset_info[dset_name]["label_root_dir"], image, f"la_seg_{vers}_{image[1:]}.nrrd")
+        res_dict = {}
+        for resolution in resolutions:
+            accumulator = []
+            for image in tqdm_notebook(image_list, desc=f'Processing: {dset_name}'):
+                try:
+                    # template follows processed/resolution/dset/midslice/subset/modality/plane/subject
+                    proc_dir_template = os.path.join(proc_dir, f"res{resolution}", self.name, f"midslice_v{version}", dset_name, "*/*", image)
+                    if redo_processed or (len(glob.glob(proc_dir_template)) == 0):
+                        vers = "a" if dset_name == "ISBI_2012_pre" else "b"
+                        im_dir = os.path.join(self.dset_info[dset_name]["image_root_dir"], image, f"de_{vers}_{image[1:]}.nrrd")
+                        label_dir = os.path.join(self.dset_info[dset_name]["label_root_dir"], image, f"la_seg_{vers}_{image[1:]}.nrrd")
 
-                    assert os.path.isfile(im_dir), "Valid image dir required!"
-                    assert os.path.isfile(label_dir), "Valid label dir required!"
+                        assert os.path.isfile(im_dir), "Valid image dir required!"
+                        assert os.path.isfile(label_dir), "Valid label dir required!"
 
-                    if load_images:
-                        loaded_image, _ = nrrd.read(im_dir)
-                        loaded_label, _ = nrrd.read(label_dir)
-                        assert not (loaded_label is None), "Invalid Label"
-                        assert not (loaded_image is None), "Invalid Image"
-                    else:
-                        loaded_image = None
-                        loaded_label, _ = nrrd.read(label_dir)
+                        if load_images:
+                            loaded_image, _ = nrrd.read(im_dir)
+                            loaded_label, _ = nrrd.read(label_dir)
+                            assert not (loaded_label is None), "Invalid Label"
+                            assert not (loaded_image is None), "Invalid Image"
+                        else:
+                            loaded_image = None
+                            loaded_label, _ = nrrd.read(label_dir)
 
-                    proc_return = proc_func(proc_dir,
-                                              version,
-                                              dset_name,
-                                              image, 
-                                              loaded_image,
-                                              loaded_label,
-                                              self.dset_info[dset_name],
-                                              show_hists=show_hists,
-                                              show_imgs=show_imgs,
-                                              resolutions=resolutions,
-                                              save=save)
+                        proc_return = proc_func(proc_dir,
+                                                  version,
+                                                  dset_name,
+                                                  image, 
+                                                  loaded_image,
+                                                  loaded_label,
+                                                  self.dset_info[dset_name],
+                                                  show_hists=show_hists,
+                                                  show_imgs=show_imgs,
+                                                  res=resolution,
+                                                  save=save)
 
-                    if accumulate:
-                        accumulator.append(proc_return)
-            except Exception as e:
-                print(e)
-                #raise ValueError
+                        if accumulate:
+                            accumulator.append(proc_return)
+                except Exception as e:
+                    print(e)
+                    #raise ValueError
+            res_dict[resolution] = accumulator
         if accumulate:
-            return proc_dir, accumulator
+            return proc_dir, res_dict

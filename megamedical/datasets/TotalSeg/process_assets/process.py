@@ -42,49 +42,53 @@ class TotalSeg:
         assert dset_name in self.dset_info.keys(), "Sub-dataset must be in info dictionary."
         image_list = os.listdir(self.dset_info[dset_name]["image_root_dir"])
         proc_dir = os.path.join(paths['ROOT'], "processed")
-        accumulator = []
-        for image in tqdm_notebook(image_list, desc=f'Processing: {dset_name}'):
-            try:
-                proc_dir_template = os.path.join(proc_dir, f"midslice_v{version}", dset_name, "*", image)
-                if redo_processed or (len(glob.glob(proc_dir_template)) == 0):
-                    im_dir = os.path.join(self.dset_info[dset_name]["image_root_dir"], image, "ct.nii.gz")
-                    segementation_folder = os.path.join(self.dset_info[dset_name]["label_root_dir"], image, "segmentations")
+        res_dict = {}
+        for resolution in resolutions:
+            accumulator = []
+            for image in tqdm_notebook(image_list, desc=f'Processing: {dset_name}'):
+                try:
+                    # template follows processed/resolution/dset/midslice/subset/modality/plane/subject
+                    proc_dir_template = os.path.join(proc_dir, f"res{resolution}", self.name, f"midslice_v{version}", dset_name, "*/*", image)
+                    if redo_processed or (len(glob.glob(proc_dir_template)) == 0):
+                        im_dir = os.path.join(self.dset_info[dset_name]["image_root_dir"], image, "ct.nii.gz")
+                        segementation_folder = os.path.join(self.dset_info[dset_name]["label_root_dir"], image, "segmentations")
 
-                    assert os.path.isfile(im_dir), "Valid image dir required!"
+                        assert os.path.isfile(im_dir), "Valid image dir required!"
 
-                    if load_images:
-                        loaded_image = nib.load(im_dir).get_fdata()
-                        labels = [nib.load(os.path.join(segementation_folder, target)).get_fdata() for target in os.listdir(segementation_folder)]
-                        background = np.zeros(loaded_image.shape)
-                        labels.append(background)
-                        combined_labels = np.stack(labels)
-                        loaded_label = np.argmax(combined_labels, axis=0)
-                        
-                        assert not (loaded_label is None), "Invalid Label"
-                        assert not (loaded_image is None), "Invalid Image"
-                    else:
-                        loaded_image = None
-                        labels = [nib.load(os.path.join(segementation_folder, target)).get_fdata() for target in os.listdir(segementation_folder)]
-                        background = np.zeros(loaded_image.shape)
-                        labels.append(background)
-                        loaded_label = np.argmax(np.concatenate(labels))
+                        if load_images:
+                            loaded_image = nib.load(im_dir).get_fdata()
+                            labels = [nib.load(os.path.join(segementation_folder, target)).get_fdata() for target in os.listdir(segementation_folder)]
+                            background = np.zeros(loaded_image.shape)
+                            labels.append(background)
+                            combined_labels = np.stack(labels)
+                            loaded_label = np.argmax(combined_labels, axis=0)
 
-                    proc_return = proc_func(proc_dir,
-                                              version,
-                                              dset_name,
-                                              image, 
-                                              loaded_image,
-                                              loaded_label,
-                                              self.dset_info[dset_name],
-                                              show_hists=show_hists,
-                                              show_imgs=show_imgs,
-                                              resolutions=resolutions,
-                                              save=save)
+                            assert not (loaded_label is None), "Invalid Label"
+                            assert not (loaded_image is None), "Invalid Image"
+                        else:
+                            loaded_image = None
+                            labels = [nib.load(os.path.join(segementation_folder, target)).get_fdata() for target in os.listdir(segementation_folder)]
+                            background = np.zeros(loaded_image.shape)
+                            labels.append(background)
+                            loaded_label = np.argmax(np.concatenate(labels))
 
-                    if accumulate:
-                        accumulator.append(proc_return)
-            except Exception as e:
-                print(e)
-                #raise ValueError
+                        proc_return = proc_func(proc_dir,
+                                                  version,
+                                                  dset_name,
+                                                  image, 
+                                                  loaded_image,
+                                                  loaded_label,
+                                                  self.dset_info[dset_name],
+                                                  show_hists=show_hists,
+                                                  show_imgs=show_imgs,
+                                                  res=resolution,
+                                                  save=save)
+
+                        if accumulate:
+                            accumulator.append(proc_return)
+                except Exception as e:
+                    print(e)
+                    #raise ValueError
+            res_dict[resolution] = accumulator
         if accumulate:
-            return proc_dir, accumulator
+            return proc_dir, res_dict

@@ -85,50 +85,54 @@ class SCD:
                   redo_processed=True):
         assert not(version is None and save), "Must specify version for saving."
         assert dset_name in self.dset_info.keys(), "Sub-dataset must be in info dictionary."
-        proc_dir = os.path.join(paths['ROOT'], "processed")
         image_list = os.listdir(self.dset_info[dset_name]["image_root_dir"])
-        accumulator = []
-        for image in tqdm_notebook(image_list, desc=f'Processing: {dset_name}'):
-            try:
-                proc_dir_template = os.path.join(proc_dir, f"midslice_v{version}", dset_name, "*", image)
-                if redo_processed or (len(glob.glob(proc_dir_template)) == 0):
-                    if dset_name=="LAS":
-                        im_dir = os.path.join(self.dset_info[dset_name]["image_root_dir"],image) + "/image.mhd"
-                        label_dir = os.path.join(self.dset_info[dset_name]["label_root_dir"],image) + "/gt_binary.mhd"
-                        loaded_image = io.imread(im_dir, plugin='simpleitk')
-                        loaded_label = io.imread(label_dir, plugin='simpleitk')
-                    else:
-                        if dset_name=="LAF_Pre":
-                            im_dir = os.path.join(self.dset_info[dset_name]["image_root_dir"],image) + f"/de_a_{image[1:]}.nrrd"
-                            label_dir = os.path.join(self.dset_info[dset_name]["label_root_dir"],image) + f"/la_seg_a_{image[1:]}.nrrd"
-                        elif dset_name=="LAF_Post":
-                            im_dir = os.path.join(self.dset_info[dset_name]["image_root_dir"],image) + f"/de_b_{image[1:]}.nrrd"
-                            label_dir = os.path.join(self.dset_info[dset_name]["label_root_dir"],image) + f"/la_seg_b_{image[1:]}.nrrd"
-                        elif dset_name in ["VIS_pig","VIS_human"]:
-                            im_dir = os.path.join(self.dset_info[dset_name]["image_root_dir"],image) + "/" + image + "_de.nrrd"
-                            label_dir = os.path.join(self.dset_info[dset_name]["label_root_dir"],image) + "/" + image + "_myo.nrrd"
-                        loaded_image, _ = nrrd.read(im_dir)
-                        loaded_label, _ = nrrd.read(label_dir)
+        proc_dir = os.path.join(paths['ROOT'], "processed")
+        res_dict = {}
+        for resolution in resolutions:
+            accumulator = []
+            for image in tqdm_notebook(image_list, desc=f'Processing: {dset_name}'):
+                try:
+                    # template follows processed/resolution/dset/midslice/subset/modality/plane/subject
+                    proc_dir_template = os.path.join(proc_dir, f"res{resolution}", self.name, f"midslice_v{version}", dset_name, "*/*", image)
+                    if redo_processed or (len(glob.glob(proc_dir_template)) == 0):
+                        if dset_name=="LAS":
+                            im_dir = os.path.join(self.dset_info[dset_name]["image_root_dir"],image) + "/image.mhd"
+                            label_dir = os.path.join(self.dset_info[dset_name]["label_root_dir"],image) + "/gt_binary.mhd"
+                            loaded_image = io.imread(im_dir, plugin='simpleitk')
+                            loaded_label = io.imread(label_dir, plugin='simpleitk')
+                        else:
+                            if dset_name=="LAF_Pre":
+                                im_dir = os.path.join(self.dset_info[dset_name]["image_root_dir"],image) + f"/de_a_{image[1:]}.nrrd"
+                                label_dir = os.path.join(self.dset_info[dset_name]["label_root_dir"],image) + f"/la_seg_a_{image[1:]}.nrrd"
+                            elif dset_name=="LAF_Post":
+                                im_dir = os.path.join(self.dset_info[dset_name]["image_root_dir"],image) + f"/de_b_{image[1:]}.nrrd"
+                                label_dir = os.path.join(self.dset_info[dset_name]["label_root_dir"],image) + f"/la_seg_b_{image[1:]}.nrrd"
+                            elif dset_name in ["VIS_pig","VIS_human"]:
+                                im_dir = os.path.join(self.dset_info[dset_name]["image_root_dir"],image) + "/" + image + "_de.nrrd"
+                                label_dir = os.path.join(self.dset_info[dset_name]["label_root_dir"],image) + "/" + image + "_myo.nrrd"
+                            loaded_image, _ = nrrd.read(im_dir)
+                            loaded_label, _ = nrrd.read(label_dir)
 
-                    assert not (loaded_image is None), "Invalid Image"
-                    assert not (loaded_label is None), "Invalid Label"
+                        assert not (loaded_image is None), "Invalid Image"
+                        assert not (loaded_label is None), "Invalid Label"
 
-                    proc_return = proc_func(proc_dir,
-                                          version,
-                                          dset_name,
-                                          image, 
-                                          loaded_image,
-                                          loaded_label,
-                                          self.dset_info[dset_name],
-                                          show_hists=show_hists,
-                                          show_imgs=show_imgs,
-                                          resolutions=resolutions,
-                                          save=save)
+                        proc_return = proc_func(proc_dir,
+                                              version,
+                                              dset_name,
+                                              image, 
+                                              loaded_image,
+                                              loaded_label,
+                                              self.dset_info[dset_name],
+                                              show_hists=show_hists,
+                                              show_imgs=show_imgs,
+                                              res=resolution,
+                                              save=save)
 
-                    if accumulate:
-                        accumulator.append(proc_return)
-            except Exception as e:
-                print(e)
-                #raise ValueError
+                        if accumulate:
+                            accumulator.append(proc_return)
+                except Exception as e:
+                    print(e)
+                    #raise ValueError
+            res_dict[resolution] = accumulator
         if accumulate:
-            return proc_dir, accumulator
+            return proc_dir, res_dict

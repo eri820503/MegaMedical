@@ -41,47 +41,51 @@ class LGGFlair:
                   redo_processed=True):
         assert not(version is None and save), "Must specify version for saving."
         assert dset_name in self.dset_info.keys(), "Sub-dataset must be in info dictionary."
-        proc_dir = os.path.join(paths['ROOT'], "processed")
         image_list = os.listdir(self.dset_info[dset_name]["image_root_dir"])
-        accumulator = []
-        for image in tqdm_notebook(image_list, desc=f'Processing: {dset_name}'):
-            try:
-                proc_dir_template = os.path.join(proc_dir, f"midslice_v{version}", dset_name, "*", image)
-                if redo_processed or (len(glob.glob(proc_dir_template)) == 0):
-                    file_dir = os.path.join(self.dset_info[dset_name]["image_root_dir"], image)
-                    image_file_list = []
-                    label_file_list = []
+        proc_dir = os.path.join(paths['ROOT'], "processed")
+        res_dict = {}
+        for resolution in resolutions:
+            accumulator = []
+            for image in tqdm_notebook(image_list, desc=f'Processing: {dset_name}'):
+                try:
+                    # template follows processed/resolution/dset/midslice/subset/modality/plane/subject
+                    proc_dir_template = os.path.join(proc_dir, f"res{resolution}", self.name, f"midslice_v{version}", dset_name, "*/*", image)
+                    if redo_processed or (len(glob.glob(proc_dir_template)) == 0):
+                        file_dir = os.path.join(self.dset_info[dset_name]["image_root_dir"], image)
+                        image_file_list = []
+                        label_file_list = []
 
-                    num_slices = int(len(os.listdir(file_dir))/2)
-                    for i in range(1, num_slices + 1):
-                        image_file_list.append(os.path.join(file_dir,f"{image}_{str(i)}.tif"))
-                        label_file_list.append(os.path.join(file_dir,f"{image}_{str(i)}_mask.tif"))
+                        num_slices = int(len(os.listdir(file_dir))/2)
+                        for i in range(1, num_slices + 1):
+                            image_file_list.append(os.path.join(file_dir,f"{image}_{str(i)}.tif"))
+                            label_file_list.append(os.path.join(file_dir,f"{image}_{str(i)}_mask.tif"))
 
-                    if load_images:
-                        loaded_image = np.concatenate([cv2.cvtColor(cv2.imread(f), cv2.COLOR_BGR2GRAY)[...,np.newaxis] for f in image_file_list], axis=2)
-                        loaded_label = np.concatenate([cv2.cvtColor(cv2.imread(f), cv2.COLOR_BGR2GRAY)[...,np.newaxis] for f in label_file_list], axis=2)
-                        assert not (loaded_label is None), "Invalid Label"
-                        assert not (loaded_image is None), "Invalid Image"
-                    else:
-                        loaded_image = None
-                        loaded_label = np.concatenate([cv2.cvtColor(cv2.imread(f), cv2.COLOR_BGR2GRAY)[...,np.newaxis] for f in label_file_list], axis=2)
+                        if load_images:
+                            loaded_image = np.concatenate([cv2.cvtColor(cv2.imread(f), cv2.COLOR_BGR2GRAY)[...,np.newaxis] for f in image_file_list], axis=2)
+                            loaded_label = np.concatenate([cv2.cvtColor(cv2.imread(f), cv2.COLOR_BGR2GRAY)[...,np.newaxis] for f in label_file_list], axis=2)
+                            assert not (loaded_label is None), "Invalid Label"
+                            assert not (loaded_image is None), "Invalid Image"
+                        else:
+                            loaded_image = None
+                            loaded_label = np.concatenate([cv2.cvtColor(cv2.imread(f), cv2.COLOR_BGR2GRAY)[...,np.newaxis] for f in label_file_list], axis=2)
 
-                    proc_return = proc_func(proc_dir,
-                                          version,
-                                          dset_name,
-                                          image, 
-                                          loaded_image,
-                                          loaded_label,
-                                          self.dset_info[dset_name],
-                                          show_hists=show_hists,
-                                          show_imgs=show_imgs,
-                                          resolutions=resolutions,
-                                          save=save)
+                        proc_return = proc_func(proc_dir,
+                                              version,
+                                              dset_name,
+                                              image, 
+                                              loaded_image,
+                                              loaded_label,
+                                              self.dset_info[dset_name],
+                                              show_hists=show_hists,
+                                              show_imgs=show_imgs,
+                                              res=resolution,
+                                              save=save)
 
-                    if accumulate:
-                        accumulator.append(proc_return)
-            except Exception as e:
-                print(e)
-                #raise ValueError
+                        if accumulate:
+                            accumulator.append(proc_return)
+                except Exception as e:
+                    print(e)
+                    #raise ValueError
+            res_dict[resolution] = accumulator
         if accumulate:
-            return proc_dir, accumulator
+            return proc_dir, res_dict

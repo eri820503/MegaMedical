@@ -17,47 +17,48 @@ def get_label_amounts(proc_dir,
                       dset_info,
                       show_hists,
                       show_imgs,
-                      resolutions,
+                      res,
                       save):
     square_label = squarify(loaded_label)
     
     res_dict = {}
-    for res in resolutions:
-        old_size = square_label.shape[0]
-        ratio = res/old_size
-        if len(loaded_label.shape) == 2:
-            zoom_tup = (ratio, ratio)
-        else:
-            zoom_tup = (ratio, ratio, ratio)
-        resized_image = ndimage.zoom(square_label, zoom=zoom_tup, order=0)
-        
-        all_labels = np.unique(resized_image)
-        all_labels = np.delete(all_labels, [0])
-        
-        res_dict[res] = {}
-        maxslice_amount_dict = {}
-        midslice_amount_dict = {}
-        
-        lab_shape = resized_image.shape
-        if len(lab_shape) == 2:
-            midslice_amount_dict[0] = {lab : np.count_nonzero((resized_image==lab).astype(int)) for lab in all_labels}
-            maxslice_amount_dict[0] = {lab : np.count_nonzero((resized_image==lab).astype(int)) for lab in all_labels}
-        else:
-            for plane in dset_info["planes"]:
-                all_axes = [0,1,2]
-                all_axes.remove(plane)
+    maxslice_amount_dict = {}
+    midslice_amount_dict = {}
+    
+    # Handle resizing
+    old_size = square_label.shape[0]
+    ratio = res/old_size
+    if len(loaded_label.shape) == 2:
+        zoom_tup = (ratio, ratio)
+    else:
+        zoom_tup = (ratio, ratio, ratio)
+    resized_image = ndimage.zoom(square_label, zoom=zoom_tup, order=0)
+    
+    # Get all labels at this resolution
+    all_labels = np.unique(resized_image)
+    all_labels = np.delete(all_labels, [0])
 
-                midslice = np.take(resized_image, lab_shape[plane]//2, plane)
-                mid_unique_labels = np.unique(midslice)
-                # Get rid of 0 as a unique label
-                midslice_plane_labels = np.delete(mid_unique_labels, [0])
+    # Gather label info for max/mid slices
+    lab_shape = resized_image.shape
+    if len(lab_shape) == 2:
+        midslice_amount_dict[0] = {lab : np.count_nonzero((resized_image==lab).astype(int)) for lab in all_labels}
+        maxslice_amount_dict[0] = {lab : np.count_nonzero((resized_image==lab).astype(int)) for lab in all_labels}
+    else:
+        for plane in dset_info["planes"]:
+            all_axes = [0,1,2]
+            all_axes.remove(plane)
 
-                midslice_amount_dict[plane] = {lab : np.count_nonzero((midslice==lab).astype(int)) for lab in midslice_plane_labels}
-                maxslice_amount_dict[plane] = {lab : np.amax(np.count_nonzero((resized_image==lab).astype(int), axis=tuple(all_axes))) for lab in all_labels}
-        
-        res_dict[res]["all_labels"] = all_labels
-        res_dict[res]["midslice"] = midslice_amount_dict
-        res_dict[res]["maxslice"] = maxslice_amount_dict
+            midslice = np.take(resized_image, lab_shape[plane]//2, plane)
+            mid_unique_labels = np.unique(midslice)
+            # Get rid of 0 as a unique label
+            midslice_plane_labels = np.delete(mid_unique_labels, [0])
+
+            midslice_amount_dict[plane] = {lab : np.count_nonzero((midslice==lab).astype(int)) for lab in midslice_plane_labels}
+            maxslice_amount_dict[plane] = {lab : np.amax(np.count_nonzero((resized_image==lab).astype(int), axis=tuple(all_axes))) for lab in all_labels}
+
+    res_dict["all_labels"] = all_labels
+    res_dict["midslice"] = midslice_amount_dict
+    res_dict["maxslice"] = maxslice_amount_dict
 
     return res_dict
 

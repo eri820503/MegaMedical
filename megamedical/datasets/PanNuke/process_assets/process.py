@@ -64,46 +64,47 @@ class PanNuke:
                   redo_processed=True):
         assert not(version is None and save), "Must specify version for saving."
         assert dset_name in self.dset_info.keys(), "Sub-dataset must be in info dictionary."
-        proc_dir = os.path.join(paths['ROOT'], "processed")
-        
         volumes_array = np.load(self.dset_info[dset_name]["image_root_dir"])
         labels_array = np.load(self.dset_info[dset_name]["label_root_dir"])
-        
         image_list = list(range(volumes_array.shape[0]))
-        accumulator = []
-        for image in tqdm_notebook(image_list, desc=f'Processing: {dset_name}'):
-            try:
-                proc_dir_template = os.path.join(proc_dir, f"midslice_v{version}", dset_name, "*", str(image))
-                if redo_processed or (len(glob.glob(proc_dir_template)) == 0):
+        proc_dir = os.path.join(paths['ROOT'], "processed")
+        res_dict = {}
+        for resolution in resolutions:
+            accumulator = []
+            for image in tqdm_notebook(image_list, desc=f'Processing: {dset_name}'):
+                try:
+                    # template follows processed/resolution/dset/midslice/subset/modality/plane/subject
+                    proc_dir_template = os.path.join(proc_dir, f"res{resolution}", self.name, f"midslice_v{version}", dset_name, "*/*", image)
+                    if redo_processed or (len(glob.glob(proc_dir_template)) == 0):
+                        # "clever" hack to get Image.fromarray to work
+                        loaded_image = volumes_array[image,...]
+                        loaded_image = 0.2989*loaded_image[...,0] + 0.5870*loaded_image[...,1] + 0.1140*loaded_image[...,2] 
 
-                    # "clever" hack to get Image.fromarray to work
-                    loaded_image = volumes_array[image,...]
-                    loaded_image = 0.2989*loaded_image[...,0] + 0.5870*loaded_image[...,1] + 0.1140*loaded_image[...,2] 
+                        loaded_label = np.transpose(labels_array[image,...], (2, 0, 1))
+                        background_label = np.zeros((1, loaded_label.shape[1], loaded_label.shape[2]))
+                        loaded_label = np.concatenate([background_label, loaded_label], axis=0)
+                        loaded_label = np.argmax(loaded_label, axis=0)
 
-                    loaded_label = np.transpose(labels_array[image,...], (2, 0, 1))
-                    background_label = np.zeros((1, loaded_label.shape[1], loaded_label.shape[2]))
-                    loaded_label = np.concatenate([background_label, loaded_label], axis=0)
-                    loaded_label = np.argmax(loaded_label, axis=0)
+                        assert not (loaded_image is None), "Invalid Image"
+                        assert not (loaded_label is None), "Invalid Label"
 
-                    assert not (loaded_image is None), "Invalid Image"
-                    assert not (loaded_label is None), "Invalid Label"
+                        proc_return = proc_func(proc_dir,
+                                                version,
+                                                dset_name,
+                                                str(image), 
+                                                loaded_image,
+                                                loaded_label,
+                                                self.dset_info[dset_name],
+                                                show_hists=show_hists,
+                                                show_imgs=show_imgs,
+                                                res=resolution,
+                                                save=save)
 
-                    proc_return = proc_func(proc_dir,
-                                            version,
-                                            dset_name,
-                                            str(image), 
-                                            loaded_image,
-                                            loaded_label,
-                                            self.dset_info[dset_name],
-                                            show_hists=show_hists,
-                                            show_imgs=show_imgs,
-                                            resolutions=resolutions,
-                                            save=save)
-
-                    if accumulate:
-                        accumulator.append(proc_return)
-            except Exception as e:
-                print(e)
-                #raise ValueError
+                        if accumulate:
+                            accumulator.append(proc_return)
+                except Exception as e:
+                    print(e)
+                    #raise ValueError
+            res_dict[resolution] = accumulator
         if accumulate:
-            return proc_dir, accumulator
+            return proc_dir, res_dict
