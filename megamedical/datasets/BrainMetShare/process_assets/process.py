@@ -48,8 +48,10 @@ class BrainMetShare:
             for image in tqdm_notebook(image_list, desc=f'Processing: {dset_name}'):
                 try:
                     # template follows processed/resolution/dset/midslice/subset/modality/plane/subject
-                    proc_dir_template = os.path.join(proc_dir, f"res{resolution}", self.name, f"midslice_v{version}", dset_name, "*/*", image)
-                    if redo_processed or (len(glob.glob(proc_dir_template)) == 0):
+                    template_root = os.path.join(proc_dir, f"res{resolution}", self.name)
+                    mid_proc_dir_template = os.path.join(template_root, f"midslice_v{version}", dset_name, "*/*", image)
+                    max_proc_dir_template = os.path.join(template_root, f"maxslice_v{version}", dset_name, "*/*", image)
+                    if redo_processed or (len(glob.glob(mid_proc_dir_template)) == 0) or (len(glob.glob(max_proc_dir_template)) == 0):
                         "T1", "T1-spin-pre", "T1-spin-post", "T2-FLAIR"
                         image_dir = os.path.join(self.dset_info[dset_name]["image_root_dir"], image)
                         label_dirs = [os.path.join(image_dir, "seg", slice) for slice in os.listdir(os.path.join(image_dir, "seg"))]

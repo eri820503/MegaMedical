@@ -74,8 +74,10 @@ class PanNuke:
             for image in tqdm_notebook(image_list, desc=f'Processing: {dset_name}'):
                 try:
                     # template follows processed/resolution/dset/midslice/subset/modality/plane/subject
-                    proc_dir_template = os.path.join(proc_dir, f"res{resolution}", self.name, f"midslice_v{version}", dset_name, "*/*", image)
-                    if redo_processed or (len(glob.glob(proc_dir_template)) == 0):
+                    template_root = os.path.join(proc_dir, f"res{resolution}", self.name)
+                    mid_proc_dir_template = os.path.join(template_root, f"midslice_v{version}", dset_name, "*/*", image)
+                    max_proc_dir_template = os.path.join(template_root, f"maxslice_v{version}", dset_name, "*/*", image)
+                    if redo_processed or (len(glob.glob(mid_proc_dir_template)) == 0) or (len(glob.glob(max_proc_dir_template)) == 0):
                         # "clever" hack to get Image.fromarray to work
                         loaded_image = volumes_array[image,...]
                         loaded_image = 0.2989*loaded_image[...,0] + 0.5870*loaded_image[...,1] + 0.1140*loaded_image[...,2] 

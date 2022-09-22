@@ -49,8 +49,10 @@ class ISLES:
             for image in tqdm_notebook(image_list, desc=f'Processing: {dset_name}'):
                 try:
                     # template follows processed/resolution/dset/midslice/subset/modality/plane/subject
-                    proc_dir_template = os.path.join(proc_dir, f"res{resolution}", self.name, f"midslice_v{version}", dset_name, "*/*", image)
-                    if redo_processed or (len(glob.glob(proc_dir_template)) == 0):
+                    template_root = os.path.join(proc_dir, f"res{resolution}", self.name)
+                    mid_proc_dir_template = os.path.join(template_root, f"midslice_v{version}", dset_name, "*/*", image)
+                    max_proc_dir_template = os.path.join(template_root, f"maxslice_v{version}", dset_name, "*/*", image)
+                    if redo_processed or (len(glob.glob(mid_proc_dir_template)) == 0) or (len(glob.glob(max_proc_dir_template)) == 0):
                         subj_folder = os.path.join(self.dset_info[dset_name]["image_root_dir"], image)
 
                         ADC_im_dir = glob.glob(os.path.join(subj_folder, "VSD.Brain.XX.O.MR_ADC*/VSD.Brain.XX.O.MR_ADC*.nii"))[0]

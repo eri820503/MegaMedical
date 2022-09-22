@@ -58,9 +58,11 @@ class VerSe:
             accumulator = []
             for image in tqdm_notebook(image_list, desc=f'Processing: {dset_name}'):
                 try:
-                    # template follows processed/resolution/dset/midslice/subset/modality/plane/subject
-                    proc_dir_template = os.path.join(proc_dir, f"res{resolution}", self.name, f"midslice_v{version}", dset_name, "*/*", image)
-                    if redo_processed or (len(glob.glob(proc_dir_template)) == 0):
+                   # template follows processed/resolution/dset/midslice/subset/modality/plane/subject
+                    template_root = os.path.join(proc_dir, f"res{resolution}", self.name)
+                    mid_proc_dir_template = os.path.join(template_root, f"midslice_v{version}", dset_name, "*/*", image)
+                    max_proc_dir_template = os.path.join(template_root, f"maxslice_v{version}", dset_name, "*/*", image)
+                    if redo_processed or (len(glob.glob(mid_proc_dir_template)) == 0) or (len(glob.glob(max_proc_dir_template)) == 0):
                         if dset_name == "VerSe19":
                             im_dir = os.path.join(self.dset_info[dset_name]["image_root_dir"], image, f"{image}_ct.nii.gz")
                             label_dir = os.path.join(self.dset_info[dset_name]["label_root_dir"], image, f"{image}_seg-vert_msk.nii.gz")

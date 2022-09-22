@@ -52,8 +52,10 @@ class Feto_Plac:
                     image = f"{video}_{frame}"
                     try:
                         # template follows processed/resolution/dset/midslice/subset/modality/plane/subject
-                        proc_dir_template = os.path.join(proc_dir, f"res{resolution}", self.name, f"midslice_v{version}", dset_name, "*/*", image)
-                        if redo_processed or (len(glob.glob(proc_dir_template)) == 0):
+                        template_root = os.path.join(proc_dir, f"res{resolution}", self.name)
+                        mid_proc_dir_template = os.path.join(template_root, f"midslice_v{version}", dset_name, "*/*", image)
+                        max_proc_dir_template = os.path.join(template_root, f"maxslice_v{version}", dset_name, "*/*", image)
+                        if redo_processed or (len(glob.glob(mid_proc_dir_template)) == 0) or (len(glob.glob(max_proc_dir_template)) == 0):
                             im_dir = os.path.join(vid_dir, "images", frame)
                             label_dir = os.path.join(vid_dir, "masks_gt", f"{frame[:-4]}_mask.png")
 

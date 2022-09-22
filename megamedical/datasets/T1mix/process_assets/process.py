@@ -42,15 +42,17 @@ class T1mix:
         assert not(version is None and save), "Must specify version for saving."
         assert dset_name in self.dset_info.keys(), "Sub-dataset must be in info dictionary."
         image_list = os.listdir(self.dset_info[dset_name]["image_root_dir"])
-        proc_dir = os.path.join(paths['ROOT'], "processed"")
+        proc_dir = os.path.join(paths['ROOT'], "processed")
         res_dict = {}
         for resolution in resolutions:
             accumulator = []
             for image in tqdm_notebook(image_list, desc=f'Processing: {dset_name}'):
                 try:
                     # template follows processed/resolution/dset/midslice/subset/modality/plane/subject
-                    proc_dir_template = os.path.join(proc_dir, f"res{resolution}", self.name, f"midslice_v{version}", dset_name, "*/*", image)
-                    if not("OASIS" in image) and redo_processed or (len(glob.glob(proc_dir_template)) == 0):
+                    template_root = os.path.join(proc_dir, f"res{resolution}", self.name)
+                    mid_proc_dir_template = os.path.join(template_root, f"midslice_v{version}", dset_name, "*/*", image)
+                    max_proc_dir_template = os.path.join(template_root, f"maxslice_v{version}", dset_name, "*/*", image)
+                    if not("OASIS" in image) and (redo_processed or (len(glob.glob(mid_proc_dir_template)) == 0) or (len(glob.glob(max_proc_dir_template)) == 0)):
                         im_dir = os.path.join(self.dset_info[dset_name]["image_root_dir"], image)
                         label_dir = os.path.join(self.dset_info[dset_name]["label_root_dir"], image.replace("norm", "aseg"))
 

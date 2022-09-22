@@ -19,7 +19,7 @@ class CheXplanation:
         self.name = "CheXplanation"
         self.dset_info = {
             "retreived_2022_03_04":{
-                "main":"Chexplanation",
+                "main":"CheXplanation",
                 "image_root_dir":f"{paths['DATA']}/CheXplanation/original_unzipped/v1.0/CheXplanation/CheXpert-v1.0/valid",
                 "label_root_dir":f"{paths['DATA']}/CheXplanation/original_unzipped/v1.0/CheXplanation",
                 "modality_names":["XRay"],
@@ -56,8 +56,10 @@ class CheXplanation:
             for image in tqdm_notebook(image_list, desc=f'Processing: {dset_name}'):
                 try:
                     # template follows processed/resolution/dset/midslice/subset/modality/plane/subject
-                    proc_dir_template = os.path.join(proc_dir, f"res{resolution}", self.name, f"midslice_v{version}", dset_name, "*/*", image)
-                    if redo_processed or (len(glob.glob(proc_dir_template)) == 0):
+                    template_root = os.path.join(proc_dir, f"res{resolution}", self.name)
+                    mid_proc_dir_template = os.path.join(template_root, f"midslice_v{version}", dset_name, "*/*", image)
+                    max_proc_dir_template = os.path.join(template_root, f"maxslice_v{version}", dset_name, "*/*", image)
+                    if redo_processed or (len(glob.glob(mid_proc_dir_template)) == 0) or (len(glob.glob(max_proc_dir_template)) == 0):
                         im_dir = os.path.join(self.dset_info[dset_name]["image_root_dir"], image, "study1/view1_frontal.jpg")
                         assert os.path.isfile(im_dir), "Valid image dir required!"
 

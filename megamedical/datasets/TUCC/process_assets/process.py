@@ -52,8 +52,10 @@ class TUCC:
             for image in tqdm_notebook(chosen_inds, desc=f'Processing: {dset_name}'):
                 try:
                     # template follows processed/resolution/dset/midslice/subset/modality/plane/subject
-                    proc_dir_template = os.path.join(proc_dir, f"res{resolution}", self.name, f"midslice_v{version}", dset_name, "*/*", image)
-                    if redo_processed or (len(glob.glob(proc_dir_template)) == 0):
+                    template_root = os.path.join(proc_dir, f"res{resolution}", self.name)
+                    mid_proc_dir_template = os.path.join(template_root, f"midslice_v{version}", dset_name, "*/*", str(image))
+                    max_proc_dir_template = os.path.join(template_root, f"maxslice_v{version}", dset_name, "*/*", str(image))
+                    if redo_processed or (len(glob.glob(mid_proc_dir_template)) == 0) or (len(glob.glob(max_proc_dir_template)) == 0):
                         if load_images:
                             loaded_image = np.array(images[image, ...])
                             loaded_label = np.array(segs[image, ...])
@@ -79,7 +81,7 @@ class TUCC:
                             accumulator.append(proc_return)
                 except Exception as e:
                     print(e)
-                    #raise ValueError
+                    raise ValueError
             res_dict[resolution] = accumulator
         if accumulate:
             return proc_dir, res_dict

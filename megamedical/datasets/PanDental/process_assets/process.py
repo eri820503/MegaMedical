@@ -64,8 +64,10 @@ class PanDental:
                 if dset_name == "v1" or image not in skip_list:
                     try:
                         # template follows processed/resolution/dset/midslice/subset/modality/plane/subject
-                        proc_dir_template = os.path.join(proc_dir, f"res{resolution}", self.name, f"midslice_v{version}", dset_name, "*/*", image)
-                        if redo_processed or (len(glob.glob(proc_dir_template)) == 0):
+                        template_root = os.path.join(proc_dir, f"res{resolution}", self.name)
+                        mid_proc_dir_template = os.path.join(template_root, f"midslice_v{version}", dset_name, "*/*", image)
+                        max_proc_dir_template = os.path.join(template_root, f"maxslice_v{version}", dset_name, "*/*", image)
+                        if redo_processed or (len(glob.glob(mid_proc_dir_template)) == 0) or (len(glob.glob(max_proc_dir_template)) == 0):
                             im_dir = os.path.join(self.dset_info[dset_name]["image_root_dir"], image)
                             label_dir = os.path.join(self.dset_info[dset_name]["label_root_dir"], image)
 

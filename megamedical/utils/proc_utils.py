@@ -4,6 +4,7 @@ import nibabel.processing as nip
 import numpy as np
 import math
 import matplotlib.pyplot as plt
+import os
 from scipy import ndimage
 import scipy
 
