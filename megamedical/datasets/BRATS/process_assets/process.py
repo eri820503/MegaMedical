@@ -85,19 +85,13 @@ class BRATS:
                                 t2_im_dir = os.path.join(subj_folder, f"{image}_t2.nii.gz")
                                 label_dir = os.path.join(self.dset_info[dset_name]["label_root_dir"], image, f"{image}_seg.nii.gz")
 
-                                flair_image = put.resample_nib(nib.load(flair_im_dir))
-                                t1_image = put.resample_nib(nib.load(t1_im_dir))
-                                t1c_image = put.resample_nib(nib.load(t1c_im_dir))
-                                t2_image = put.resample_nib(nib.load(t2_im_dir))
-                                loaded_label = put.resample_mask_to(nib.load(label_dir), flair_image)
-
-                                flair_image = flair_image.get_fdata()
-                                t1_image = t1_image.get_fdata()
-                                t1c_image = t1c_image.get_fdata()
-                                t2_image = t2_image.get_fdata()
+                                flair_image = nib.load(flair_im_dir).get_fdata()
+                                t1_image = nib.load(t1_im_dir).get_fdata()
+                                t1c_image = nib.load(t1c_im_dir).get_fdata()
+                                t2_image = nib.load(t2_im_dir).get_fdata()
 
                                 loaded_image = np.stack([flair_image, t1_image, t1c_image, t2_image], axis=-1)
-                                loaded_label = loaded_label.get_fdata()
+                                loaded_label = nib.load(label_dir).get_fdata()
                                 assert not (loaded_label is None), "Invalid Label"
                                 assert not (loaded_image is None), "Invalid Image"
                             else:
@@ -143,7 +137,7 @@ class BRATS:
                             accumulator.append(proc_return)
                 except Exception as e:
                     print(e)
-                    raise ValueError
+                    #raise ValueError
             res_dict[resolution] = accumulator
         if accumulate:
             return proc_dir, res_dict
