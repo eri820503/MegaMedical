@@ -9,6 +9,17 @@ from scipy import ndimage
 import scipy
 
 
+def get_list_of_subjects(root,
+                         res,
+                         data_type,
+                         dset,
+                         subdset):
+    # Get the number of subjects by the first modality and first plane
+    subdset_dir = os.path.join(root, f"res{res}", dset, data_type, subdset)
+    modality_dir = os.path.join(subdset_dir, os.listdir(subdset_dir)[0])
+    plane_dir = os.path.join(modality_dir, os.listdir(modality_dir)[0])
+    return os.listdir(plane_dir)
+
 def get_label_amounts(proc_dir,
                       version,
                       dset_name,

@@ -1,6 +1,7 @@
 paths = {
     "ROOT": "/home/vib9/src/MegaMedical",
-    "DATA": "/home/vib9/src/MegaMedical/megamedical/datasets"
+    "DATA": "/home/vib9/src/MegaMedical/megamedical/datasets",
+    "PROC": "/home/vib9/src/MegaMedical/processed"
 }
 
 dataset_registry = {

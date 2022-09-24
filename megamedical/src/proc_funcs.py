@@ -137,4 +137,56 @@ def get_processing_status(datasets,
                 dp_objects.append(new_entry)
     dataframe = pd.DataFrame(dp_objects)
     return dataframe
+
+
+def make_splits(datasets,
+                subdsets=None,
+                resolutions=[64, 128, 256],
+                amount_training=0.7,
+                version="4.0"):
     
+    split_files_dir = os.path.join(paths["PROC"], "split_files")
+    if not os.path.exists(split_files_dir):
+        os.makedirs(split_files_dir)
+    
+    for res in resolutions:
+        if datasets == "all":
+            datasets = os.listdir(os.path.join(paths["PROC"], f"res{res}"))
+        dataset_objects = [utils.build_dataset(ds) for ds in datasets]
+        for do in dataset_objects:
+            for dset_type in ["maxslice_v4.0", "maxslice_v4.0"]:
+                subdset_names = list(do.dset_info.keys()) if subdsets is None else subdsets
+                for subdset in subdset_names:
+                    try:
+                        subjects = np.array(utils.proc_utils.get_list_of_subjects(paths["PROC"], res, dset_type, do.name, subdset))
+
+                        total_amount = len(subjects)
+                        indices = np.arange(total_amount)
+                        np.random.shuffle(indices)
+
+                        train_amount = int(total_amount*amount_training)
+                        val_test_amount = total_amount - train_amount
+                        val_amount = int(val_test_amount*0.5)
+                        test_amount = val_test_amount - val_amount
+
+                        train_indices = indices[:train_amount]
+                        val_indices = indices[train_amount:train_amount+val_amount]
+                        test_indices = indices[-test_amount:]
+                        
+                        names_dict = {
+                            "train": subjects[train_indices],
+                            "val": subjects[val_indices], 
+                            "test": subjects[test_indices]
+                        }
+                        
+                        for split in ["train", "val", "test"]:
+                            split_file = open(os.path.join(split_files_dir, f"res{res}_{do.name}_{dset_type}_{subdset}_{split}.txt"), "w")
+                            for file_name in names_dict[split]:
+                                split_file.write(file_name + "\n")
+                            split_file.close()
+                        
+                        print(f"DONE SPLITTING {do.name}!")
+                    except Exception as e:
+                        print("Error:", e)
+                        
+
