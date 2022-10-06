@@ -20,10 +20,8 @@ class EOphtha:
                 "label_root_dir":f"{paths['DATA']}/EOphtha/original_unzipped/retreived_2022_03_11/e_optha_EX/Annotation_EX",
                 "modality_names":["Retinal"],
                 "planes":[0],
-                "clip_args":None,
-                "norm_scheme":None,
-                "do_clip":False,
-                "proc_size":256
+                "clip_args": None,
+                "norm_scheme": None
             },
              "e_optha_MA":{
                 "main": "EOphtha",
@@ -31,10 +29,8 @@ class EOphtha:
                 "label_root_dir":f"{paths['DATA']}/EOphtha/original_unzipped/retreived_2022_03_11/e_optha_MA/Annotation_MA",
                 "modality_names":["Retinal"],
                 "planes":[0],
-                "clip_args":None,
-                "norm_scheme":None,
-                "do_clip":False,
-                "proc_size":256
+                "clip_args": None,
+                "norm_scheme": None
             }
         }
 

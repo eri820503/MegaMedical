@@ -22,9 +22,7 @@ class WMH:
                 "modality_names":["FLAIR"],
                 "clip_args": [0.5, 99.5],
                 "planes": [0, 1, 2],
-                "norm_scheme":"MR",
-                "do_clip":True,
-                "proc_size":256
+                "norm_scheme":"MR"
             }
         }
 

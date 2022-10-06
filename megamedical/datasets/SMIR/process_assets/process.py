@@ -22,9 +22,7 @@ class SMIR:
                 "modality_names":["FLAIR", "T1"],
                 "planes":[2],
                 "clip_args":None,
-                "norm_scheme":"MR",
-                "do_clip":True,
-                "proc_size":256
+                "norm_scheme":"MR"
             }
         }
 

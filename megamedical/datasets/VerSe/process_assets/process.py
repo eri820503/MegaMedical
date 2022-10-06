@@ -21,9 +21,7 @@ class VerSe:
                 "modality_names":["CT"],
                 "planes": [0],
                 "clip_args":[-500,1000],
-                "norm_scheme":"CT",
-                "do_clip":True,
-                "proc_size":256
+                "norm_scheme":"CT"
             },
             "VerSe20":{
                 "main": "VerSe",
@@ -32,9 +30,7 @@ class VerSe:
                 "modality_names":["CT"],
                 "planes": [0, 1],
                 "clip_args":[-500,1000],
-                "norm_scheme":"CT",
-                "do_clip":True,
-                "proc_size":256
+                "norm_scheme":"CT"
             }
         }
 

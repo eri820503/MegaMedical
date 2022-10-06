@@ -22,9 +22,7 @@ class ROSE:
                 "modality_names":["Retinal"],
                 "planes":[0],
                 "clip_args":None,
-                "norm_scheme":None,
-                "do_clip":False,
-                "proc_size":256
+                "norm_scheme":None
             },
             "ROSE-1-SVC":{
                 "main": "ROSE",
@@ -33,9 +31,7 @@ class ROSE:
                 "modality_names":["Retinal"],
                 "planes":[0],
                 "clip_args":None,
-                "norm_scheme":None,
-                "do_clip":False,
-                "proc_size":256
+                "norm_scheme":None
             },
             "ROSE-1-SVC_DVC":{
                 "main": "ROSE",
@@ -44,9 +40,7 @@ class ROSE:
                 "modality_names":["Retinal"],
                 "planes":[0],
                 "clip_args":None,
-                "norm_scheme":None,
-                "do_clip":False,
-                "proc_size":256
+                "norm_scheme":None
             },
             "ROSE-2":{
                 "main": "ROSE",
@@ -55,9 +49,7 @@ class ROSE:
                 "modality_names":["Retinal"],
                 "planes":[0],
                 "clip_args":None,
-                "norm_scheme":None,
-                "do_clip":False,
-                "proc_size":256
+                "norm_scheme":None
             }
         }
 

@@ -170,13 +170,14 @@ def clip_volume(image, norm_scheme, clip_args):
     if norm_scheme=="CT":
         lower = clip_args[0]
         upper = clip_args[1]
+        clipped_image = np.clip(image, a_min=lower, a_max=upper)
     elif norm_scheme=="MR":
         # 0.5 - 99.5
         lower = np.percentile(image[image>0], q=clip_args[0])
         upper = np.percentile(image[image>0], q=clip_args[1])
+        clipped_image = np.clip(image, a_min=lower, a_max=upper)
     else:
-        raise ValueError("Normalization Scheme Not Implemented")
-    clipped_image = np.clip(image, a_min=lower, a_max=upper)
+        clipped_image = image
     return clipped_image
 
 

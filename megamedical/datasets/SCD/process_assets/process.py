@@ -22,9 +22,7 @@ class SCD:
                 "modality_names":["MRI"],
                 "planes":[2],
                 "clip_args": [0.5, 99.5],
-                "norm_scheme":"MR",
-                "do_clip":True,
-                "proc_size":256
+                "norm_scheme":"MR"
             },
             "LAF_Pre":{
                 "main":"SCD",
@@ -33,9 +31,7 @@ class SCD:
                 "modality_names":["MRI"],
                 "planes":[2],
                 "clip_args": [0.5, 99.5],
-                "norm_scheme":"MR",
-                "do_clip":True,
-                "proc_size":256
+                "norm_scheme":"MR"
             },
             "LAF_Post":{
                 "main":"SCD",
@@ -44,9 +40,7 @@ class SCD:
                 "modality_names":["MRI"],
                 "planes":[2],
                 "clip_args": [0.5, 99.5],
-                "norm_scheme":"MR",
-                "do_clip":True,
-                "proc_size":256
+                "norm_scheme":"MR"
             },
             "VIS_pig":{
                 "main":"SCD",
@@ -55,9 +49,7 @@ class SCD:
                 "modality_names":["MRI"],
                 "planes":[2],
                 "clip_args": [0.5, 99.5],
-                "norm_scheme":"MR",
-                "do_clip":True,
-                "proc_size":256
+                "norm_scheme":"MR"
             },
             "VIS_human":{
                 "main":"SCD",
@@ -66,9 +58,7 @@ class SCD:
                 "modality_names":["MRI"],
                 "planes":[2],
                 "clip_args": [0.5, 99.5],
-                "norm_scheme":"MR",
-                "do_clip":True,
-                "proc_size":256
+                "norm_scheme":"MR"
             }
         }
 

@@ -22,9 +22,7 @@ class ISLES:
                 "modality_names":["ADC","MIT","TTP","Tmax","rCBF","rCBV"],
                 "planes":[0, 1, 2],
                 "clip_args": [0.5, 99.5],
-                "norm_scheme":"MR",
-                "do_clip":True,
-                "proc_size":256
+                "norm_scheme":"MR"
             }
         }
 

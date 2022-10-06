@@ -102,7 +102,7 @@ def get_processing_status(datasets,
     
     if datasets == "all":
         datasets = os.listdir(paths["DATA"])
-        
+    
     dataset_objects = [utils.build_dataset(ds) for ds in datasets]
     
     dp_objects = []
@@ -180,7 +180,7 @@ def make_splits(datasets,
                         }
                         
                         for split in ["train", "val", "test"]:
-                            split_file = open(os.path.join(split_files_dir, f"res{res}_{do.name}_{dset_type}_{subdset}_{split}.txt"), "w")
+                            split_file = open(os.path.join(split_files_dir, f"res{res}__{do.name}__{dset_type}__{subdset}__{split}.txt"), "w")
                             for file_name in names_dict[split]:
                                 split_file.write(file_name + "\n")
                             split_file.close()

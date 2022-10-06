@@ -22,9 +22,7 @@ class BrainMetShare:
                 "modality_names":["T1", "T1-spin-pre", "T1-spin-post", "T2-FLAIR"],
                 "planes":[0],
                 "clip_args":None,
-                "norm_scheme":"MR",
-                "do_clip":False,
-                "proc_size":256
+                "norm_scheme":"MR"
             }
         }
 

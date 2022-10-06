@@ -21,9 +21,7 @@ class Synapse_Abdomen:
                 "modality_names":["CT"],
                 "planes":[0, 1, 2],
                 "clip_args":[-500,1000],
-                "norm_scheme":"CT",
-                "do_clip":True,
-                "proc_size":256
+                "norm_scheme":"CT"
             }
         }
 

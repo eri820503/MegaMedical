@@ -19,10 +19,8 @@ class RibSeg:
                 "label_root_dir": f"{paths['DATA']}/RibSeg/original_unzipped/retrieved_2022_09_01/nii",
                 "modality_names": ["MRI"],
                 "planes": [0,1,2],
-                "clip_args": [0.5, 99.5],
-                "norm_scheme": None,
-                "do_clip": False,
-                "proc_size":256
+                "clip_args": None
+                "norm_scheme": None
             }
         }
 

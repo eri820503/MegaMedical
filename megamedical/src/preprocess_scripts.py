@@ -33,11 +33,10 @@ def produce_slices(root_dir,
         if show_hists:
             display_histogram(modality_loaded_image.flatten())
         
-        if dset_info["do_clip"]:
-            #clip volume between prespecified values
-            modality_loaded_image = clip_volume(modality_loaded_image, 
-                                                dset_info["norm_scheme"], 
-                                                dset_info["clip_args"])
+        #clip volume between prespecified values
+        modality_loaded_image = clip_volume(modality_loaded_image, 
+                                            dset_info["norm_scheme"], 
+                                            dset_info["clip_args"])
         
         if show_hists:
             display_histogram(modality_loaded_image.flatten())
@@ -50,7 +49,8 @@ def produce_slices(root_dir,
         square_label = squarify(loaded_label)
         
         #original square image size
-        old_size = square_image.shape[0]
+        old_image_size = square_image.shape[0]
+        old_seg_size = square_label.shape[0]
         
         #show midslices
         if show_imgs:
@@ -63,7 +63,7 @@ def produce_slices(root_dir,
         unique_labels = np.delete(unique_labels, 0)
 
         #Resize to several resolutions
-        image_res = blur_and_resize(square_image, old_size, new_size=res, order=1)
+        image_res = blur_and_resize(square_image, old_image_size, new_size=res, order=1)
 
         #final segmentations are with labels in the last dimension
         if len(square_image.shape) == 2:
@@ -80,7 +80,7 @@ def produce_slices(root_dir,
             bin_mask = np.float32((square_label==label))
 
             #produce resized segmentations
-            bin_seg_res = blur_and_resize(bin_mask, old_size, new_size=res, order=0)
+            bin_seg_res = blur_and_resize(bin_mask, old_seg_size, new_size=res, order=0)
 
             # Gather maxslice info
             if len(bin_seg_res.shape) == 3:
@@ -110,27 +110,29 @@ def label_info(data_obj,
                resolutions,
                save):
     
-    # Label info is a dictionary that is structed like the following
-    # label_info
+    # total_label_info is a dictionary that is structed like the following
+    # total_label_info
     # - resolution (64, 128, 256, etc.)
     #     - all labels (after resize)
     #     - label amounts midslice (per plane)
     #         - plane 0,1,2...
     #     - label amounts maxslice (per plane)
     #         - plane 0,1,2...
-    proc_dir, label_info = data_obj.proc_func(subdset,
-                                             get_label_amounts,
-                                             load_images=False,
-                                             accumulate=True,
-                                             version=version,
-                                             resolutions=resolutions,
-                                             save=save)
-    
-    num_subjects = len(label_info)
+    proc_dir, total_label_info = data_obj.proc_func(subdset,
+                                                 get_label_amounts,
+                                                 load_images=False,
+                                                 accumulate=True,
+                                                 version=version,
+                                                 resolutions=resolutions,
+                                                 save=save)
+    print(total_label_info.keys())
     for res in resolutions:
-        total_label_info = [li[res]["all_labels"] for li in label_info]
-        midslice_label_info = [li[res]["midslice"] for li in label_info]
-        maxslice_label_info = [li[res]["maxslice"] for li in label_info]
+        res_label_info = total_label_info[res]
+        num_subjects = len(res_label_info)
+        print(type(res_label_info))
+        total_label_info = [li["all_labels"] for li in res_label_info]
+        midslice_label_info = [li["midslice"] for li in res_label_info]
+        maxslice_label_info = [li["maxslice"] for li in res_label_info]
 
         unique_labels = sorted(list(set([label for subj in total_label_info for label in subj])))
 

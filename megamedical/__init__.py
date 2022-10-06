@@ -1,60 +1,61 @@
-from .datasets import TeethSeg
-from .datasets import ACDC
-from .datasets import AMOS
-from .datasets import BBBC
-from .datasets import BRATS
-from .datasets import BUS
-from .datasets import BrainDevelopment
-from .datasets import BrainMetShare
-from .datasets import CHAOS
-from .datasets import COCA
-from .datasets import CheXplanation
-from .datasets import CoNSeP
-from .datasets import DDR
-from .datasets import DRIVE
-from .datasets import EOphtha
-from .datasets import EchoNet
-from .datasets import FLARE
-from .datasets import FeTA
-from .datasets import Feto_Plac
-from .datasets import I2CVB
-from .datasets import IDRID
-from .datasets import ISBI
-from .datasets import ISBI_EM
-from .datasets import ISLES
-from .datasets import KiTS
-from .datasets import LGGFlair
-from .datasets import LITS
-from .datasets import LUNA
-from .datasets import MNMS
-from .datasets import MSD
-from .datasets import OASIS
-from .datasets import OCTA500
-from .datasets import PROMISE12
-from .datasets import PanDental
-from .datasets import PanNuke
-from .datasets import ROSE
-from .datasets import SCD
-from .datasets import SMIR
-from .datasets import STARE
-from .datasets import SegTHOR
-from .datasets import SpineWeb
-from .datasets import Synapse_Abdomen
-from .datasets import TCIA
-from .datasets import T1mix
-from .datasets import TUCC
-from .datasets import VerSe
-from .datasets import WBC
-from .datasets import WMH
-from .datasets import WORD
-from .datasets import cDEMRIS
-from .datasets import EPISURG
-from .datasets import HRF
-from .datasets import MouseBrainAtlas
-from .datasets import MS_CMR
-from .datasets import RibSeg
-from .datasets import SegThy
-from .datasets import TotalSeg
+from .datasets import *
+# from .datasets import TeethSeg
+# from .datasets import ACDC
+# from .datasets import AMOS
+# from .datasets import BBBC
+# from .datasets import BRATS
+# from .datasets import BUS
+# from .datasets import BrainDevelopment
+# from .datasets import BrainMetShare
+# from .datasets import CHAOS
+# from .datasets import COCA
+# from .datasets import CheXplanation
+# from .datasets import CoNSeP
+# from .datasets import DDR
+# from .datasets import DRIVE
+# from .datasets import EOphtha
+# from .datasets import EchoNet
+# from .datasets import FLARE
+# from .datasets import FeTA
+# from .datasets import Feto_Plac
+# from .datasets import I2CVB
+# from .datasets import IDRID
+# from .datasets import ISBI
+# from .datasets import ISBI_EM
+# from .datasets import ISLES
+# from .datasets import KiTS
+# from .datasets import LGGFlair
+# from .datasets import LITS
+# from .datasets import LUNA
+# from .datasets import MNMS
+# from .datasets import MSD
+# from .datasets import OASIS
+# from .datasets import OCTA500
+# from .datasets import PROMISE12
+# from .datasets import PanDental
+# from .datasets import PanNuke
+# from .datasets import ROSE
+# from .datasets import SCD
+# from .datasets import SMIR
+# from .datasets import STARE
+# from .datasets import SegTHOR
+# from .datasets import SpineWeb
+# from .datasets import Synapse_Abdomen
+# from .datasets import TCIA
+# from .datasets import T1mix
+# from .datasets import TUCC
+# from .datasets import VerSe
+# from .datasets import WBC
+# from .datasets import WMH
+# from .datasets import WORD
+# from .datasets import cDEMRIS
+# from .datasets import EPISURG
+# from .datasets import HRF
+# from .datasets import MouseBrainAtlas
+# from .datasets import MS_CMR
+# from .datasets import RibSeg
+# from .datasets import SegThy
+# from .datasets import TotalSeg
 
 from . import src
 from . import utils

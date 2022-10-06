@@ -21,9 +21,7 @@ class MSD:
                 "modality_names":["FLAIR", "T1w", "T1gd","T2w"],
                 "planes":[0, 1, 2],
                 "clip_args": [0.5, 99.5],
-                "norm_scheme":"MR",
-                "do_clip":True,
-                "proc_size":256
+                "norm_scheme":"MR"
             },
             "Heart":{
                 "main":"MSD",
@@ -32,9 +30,7 @@ class MSD:
                 "modality_names":["Mono"],
                 "planes":[0, 1, 2],
                 "clip_args": [0.5, 99.5],
-                "norm_scheme":"MR",
-                "do_clip":True,
-                "proc_size":256
+                "norm_scheme":"MR"
             },
             "Liver":{
                 "main":"MSD",
@@ -43,9 +39,7 @@ class MSD:
                 "modality_names":["PVP-CT"],
                 "planes":[0, 1, 2],
                 "clip_args":[-250,250],
-                "norm_scheme":"CT",
-                "do_clip":True,
-                "proc_size":256
+                "norm_scheme":"CT"
             },
             "Hippocampus":{
                 "main":"MSD",
@@ -54,9 +48,7 @@ class MSD:
                 "modality_names":["Mono"],
                 "planes":[0, 1, 2],
                 "clip_args": [0.5, 99.5],
-                "norm_scheme":"MR",
-                "do_clip":True,
-                "proc_size":256
+                "norm_scheme":"MR"
             },
             "Prostate":{
                 "main":"MSD",
@@ -65,9 +57,7 @@ class MSD:
                 "modality_names":["T2","ADC"],
                 "planes":[2],
                 "clip_args": [0.5, 99.5],
-                "norm_scheme":"MR",
-                "do_clip":True,
-                "proc_size":256
+                "norm_scheme":"MR"
             },
             "Lung":{
                 "main":"MSD",
@@ -76,9 +66,7 @@ class MSD:
                 "modality_names":["CT"],
                 "planes":[0, 1, 2],
                 "clip_args":[-500,1000],
-                "norm_scheme":"CT",
-                "do_clip":True,
-                "proc_size":256
+                "norm_scheme":"CT"
             },
             "Pancreas":{
                 "main":"MSD",
@@ -87,9 +75,7 @@ class MSD:
                 "modality_names":["PVP-CT"],
                 "planes":[0, 1, 2],
                 "clip_args":[-500,1000],
-                "norm_scheme":"CT",
-                "do_clip":True,
-                "proc_size":256
+                "norm_scheme":"CT"
             },
             "HepaticVessel":{
                 "main":"MSD",
@@ -98,9 +84,7 @@ class MSD:
                 "modality_names":["CT"],
                 "planes":[0, 1, 2],
                 "clip_args":[-500,1000],
-                "norm_scheme":"CT",
-                "do_clip":True,
-                "proc_size":256
+                "norm_scheme":"CT"
             },
             "Spleen":{
                 "main":"MSD",
@@ -109,9 +93,7 @@ class MSD:
                 "modality_names":["CT"],
                 "planes":[0, 1, 2],
                 "clip_args":[-500,1000],
-                "norm_scheme":"CT",
-                "do_clip":True,
-                "proc_size":256
+                "norm_scheme":"CT"
             },
             "Colon":{
                 "main":"MSD",
@@ -120,9 +102,7 @@ class MSD:
                 "modality_names":["CT"],
                 "planes":[0, 1, 2],
                 "clip_args":[-500,1000],
-                "norm_scheme":"CT",
-                "do_clip":True,
-                "proc_size":256
+                "norm_scheme":"CT"
             },
         }
 

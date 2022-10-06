@@ -20,9 +20,7 @@ class MouseBrainAtlas:
                 "modality_names": ["MRI"],
                 "planes": [2],
                 "clip_args": [0.5, 99.5],
-                "norm_scheme":"MR",
-                "do_clip":True,
-                "proc_size":256
+                "norm_scheme":"MR"
             },
             "NeAt":{
                 "main":"MouseBrainAtlas",
@@ -31,9 +29,7 @@ class MouseBrainAtlas:
                 "modality_names": ["MRI"],
                 "planes": [2],
                 "clip_args": [0.5, 99.5],
-                "norm_scheme":"MR",
-                "do_clip":True,
-                "proc_size":256
+                "norm_scheme":"MR"
             },
             "Tc1_Cerebellum":{
                 "main":"MouseBrainAtlas",
@@ -42,9 +38,7 @@ class MouseBrainAtlas:
                 "modality_names": ["MRI"],
                 "planes": [2],
                 "clip_args": [0.5, 99.5],
-                "norm_scheme":"MR",
-                "do_clip":True,
-                "proc_size":256
+                "norm_scheme":"MR"
             },
             "rTg4510":{
                 "main":"MouseBrainAtlas",
@@ -53,9 +47,7 @@ class MouseBrainAtlas:
                 "modality_names": ["MRI"],
                 "planes": [2],
                 "clip_args": [0.5, 99.5],
-                "norm_scheme":"MR",
-                "do_clip":True,
-                "proc_size":256
+                "norm_scheme":"MR"
             }
         }
 

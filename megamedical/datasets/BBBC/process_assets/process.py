@@ -22,9 +22,7 @@ class BBBC:
                 "modality_names":["NA"],
                 "planes":[0],
                 "clip_args":None,
-                "norm_scheme":None,
-                "do_clip":False,
-                "proc_size":256
+                "norm_scheme":None
             }
         }
 

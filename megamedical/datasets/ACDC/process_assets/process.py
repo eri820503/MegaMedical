@@ -19,9 +19,7 @@ class ACDC:
                 "modality_names": ["MRI"],
                 "planes": [2],
                 "clip_args": [0.5, 99.5],
-                "norm_scheme":"MR",
-                "do_clip":True,
-                "proc_size":256
+                "norm_scheme":"MR"
             }
         }
 

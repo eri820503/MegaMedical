@@ -23,9 +23,7 @@ class PanNuke:
                 "modality_names":["NA"],
                 "planes":[0],
                 "clip_args":None,
-                "norm_scheme":None,
-                "do_clip":False,
-                "proc_size":256
+                "norm_scheme":None
             },
             "Fold2":{
                 "main":"PanNuke",
@@ -34,9 +32,7 @@ class PanNuke:
                 "modality_names":["NA"],
                 "planes":[0],
                 "clip_args":None,
-                "norm_scheme":None,
-                "do_clip":False,
-                "proc_size":256
+                "norm_scheme":None
             },
             "Fold3":{
                 "main":"PanNuke",
@@ -45,9 +41,7 @@ class PanNuke:
                 "modality_names":["NA"],
                 "planes":[0],
                 "clip_args":None,
-                "norm_scheme":None,
-                "do_clip":False,
-                "proc_size":256
+                "norm_scheme":None
             }
         }
 

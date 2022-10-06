@@ -23,9 +23,7 @@ class BRATS:
                 "modality_names":["FLAIR","T1","T1c","T2"],
                 "planes":[0, 1, 2],
                 "clip_args": [0.5, 99.5],
-                "norm_scheme":"MR",
-                "do_clip":True,
-                "proc_size":256
+                "norm_scheme":"MR"
             },
             "2016_HGG":{
                 "main":"BRATS",
@@ -34,9 +32,7 @@ class BRATS:
                 "modality_names":["FLAIR","T1","T1c","T2"],
                 "planes":[0, 1, 2],
                 "clip_args": [0.5, 99.5],
-                "norm_scheme":"MR",
-                "do_clip":True,
-                "proc_size":256
+                "norm_scheme":"MR"
             },
             "2021":{
                 "main":"BRATS",
@@ -45,9 +41,7 @@ class BRATS:
                 "modality_names":["FLAIR","T1","T1c","T2"],
                 "planes":[0, 1, 2],
                 "clip_args": [0.5, 99.5],
-                "norm_scheme":"MR",
-                "do_clip":True,
-                "proc_size":256
+                "norm_scheme":"MR"
             }
         }
 

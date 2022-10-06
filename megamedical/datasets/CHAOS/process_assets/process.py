@@ -24,9 +24,7 @@ class CHAOS:
                 "planes":[0],
                 "labels": [1,2,3],
                 "clip_args": [600,1500],
-                "norm_scheme": "CT",
-                "do_clip": True,
-                "proc_size":256
+                "norm_scheme": "CT"
             },
             "MR":{
                 "main":"CHAOS",
@@ -36,9 +34,7 @@ class CHAOS:
                 "planes":[0],
                 "labels": [1,2,3],
                 "clip_args": [0.5, 99.5],
-                "norm_scheme": "MR",
-                "do_clip": True,
-                "proc_size":256
+                "norm_scheme": "MR"
             }
         }
 
