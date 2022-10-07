@@ -118,18 +118,16 @@ def label_info(data_obj,
     #         - plane 0,1,2...
     #     - label amounts maxslice (per plane)
     #         - plane 0,1,2...
-    proc_dir, total_label_info = data_obj.proc_func(subdset,
-                                                 get_label_amounts,
-                                                 load_images=False,
-                                                 accumulate=True,
-                                                 version=version,
-                                                 resolutions=resolutions,
-                                                 save=save)
-    print(total_label_info.keys())
+    proc_dir, resolution_label_dict = data_obj.proc_func(subdset,
+                                                         get_label_amounts,
+                                                         load_images=False,
+                                                         accumulate=True,
+                                                         version=version,
+                                                         resolutions=resolutions,
+                                                         save=save)
     for res in resolutions:
-        res_label_info = total_label_info[res]
+        res_label_info = resolution_label_dict[res]
         num_subjects = len(res_label_info)
-        print(type(res_label_info))
         total_label_info = [li["all_labels"] for li in res_label_info]
         midslice_label_info = [li["midslice"] for li in res_label_info]
         maxslice_label_info = [li["maxslice"] for li in res_label_info]
