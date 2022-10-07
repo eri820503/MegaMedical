@@ -131,7 +131,7 @@ def label_info(data_obj,
         total_label_info = [li["all_labels"] for li in res_label_info]
         midslice_label_info = [li["midslice"] for li in res_label_info]
         maxslice_label_info = [li["maxslice"] for li in res_label_info]
-
+        
         unique_labels = sorted(list(set([label for subj in total_label_info for label in subj])))
 
         # define an inverse map going from labels to indices in the list
@@ -143,7 +143,7 @@ def label_info(data_obj,
         }
 
         save_dir = os.path.join(proc_dir, f"res{res}", data_obj.name, "label_info", subdset)
-
+        
         if save and len(unique_labels) > 0:
             # Keep track of number of subjects, its useful (but also causes problems >:( )
             unique_labels.insert(0, num_subjects)

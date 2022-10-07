@@ -47,8 +47,7 @@ def get_label_amounts(proc_dir,
     resized_image = ndimage.zoom(square_label, zoom=zoom_tup, order=0)
     
     # Get all labels at this resolution
-    all_labels = np.unique(resized_image)
-    all_labels = np.delete(all_labels, [0])
+    all_labels = np.delete(np.unique(resized_image), [0])
 
     # Gather label info for max/mid slices
     lab_shape = resized_image.shape
@@ -67,7 +66,7 @@ def get_label_amounts(proc_dir,
 
             midslice_amount_dict[plane] = {lab : np.count_nonzero((midslice==lab).astype(int)) for lab in midslice_plane_labels}
             maxslice_amount_dict[plane] = {lab : np.amax(np.count_nonzero((resized_image==lab).astype(int), axis=tuple(all_axes))) for lab in all_labels}
-
+    
     res_dict["all_labels"] = all_labels
     res_dict["midslice"] = midslice_amount_dict
     res_dict["maxslice"] = maxslice_amount_dict

@@ -1,9 +1,9 @@
-import nibabel as nib
 from tqdm.notebook import tqdm_notebook
 import glob
 import os
+import skimage.io as io
+import matplotlib.pyplot as plt
 
-#New line!
 from megamedical.src import preprocess_scripts as pps
 from megamedical.utils.registry import paths
 from megamedical.utils import proc_utils as put
@@ -13,14 +13,41 @@ class CAMUS:
     def __init__(self):
         self.name = "CAMUS"
         self.dset_info = {
-            "retrieved_2022_05_04":{
-                "main":"HRF",
-                "image_root_dir": f"{paths['DATA']}/HRF/original_unzipped/retrieved_2022_05_04/images",
-                "label_root_dir": f"{paths['DATA']}/HRF/original_unzipped/retrieved_2022_05_04/mask",
-                "modality_names": ["dr","g","h"],
+            "4CH_ED":{
+                "main":"CAMUS",
+                "image_root_dir": f"{paths['DATA']}/CAMUS/original_unzipped/retrieved_09_29_2022/subjects",
+                "label_root_dir": f"{paths['DATA']}/CAMUS/original_unzipped/retrieved_09_29_2022/subjects",
+                "modality_names": ["Ultrasound"],
                 "planes": [0],
-                "clip_args": [0.5, 99.5],
-                "norm_scheme":"MR"
+                "clip_args":None,
+                "norm_scheme":None
+            },
+            "4CH_ES":{
+                "main":"CAMUS",
+                "image_root_dir": f"{paths['DATA']}/CAMUS/original_unzipped/retrieved_09_29_2022/subjects",
+                "label_root_dir": f"{paths['DATA']}/CAMUS/original_unzipped/retrieved_09_29_2022/subjects",
+                "modality_names": ["Ultrasound"],
+                "planes": [0],
+                "clip_args":None,
+                "norm_scheme":None
+            },
+            "2CH_ED":{
+                "main":"CAMUS",
+                "image_root_dir": f"{paths['DATA']}/CAMUS/original_unzipped/retrieved_09_29_2022/subjects",
+                "label_root_dir": f"{paths['DATA']}/CAMUS/original_unzipped/retrieved_09_29_2022/subjects",
+                "modality_names": ["Ultrasound"],
+                "planes": [0],
+                "clip_args":None,
+                "norm_scheme":None
+            },
+            "2CH_ES":{
+                "main":"CAMUS",
+                "image_root_dir": f"{paths['DATA']}/CAMUS/original_unzipped/retrieved_09_29_2022/subjects",
+                "label_root_dir": f"{paths['DATA']}/CAMUS/original_unzipped/retrieved_09_29_2022/subjects",
+                "modality_names": ["Ultrasound"],
+                "planes": [0],
+                "clip_args":None,
+                "norm_scheme":None
             }
         }
 
@@ -49,23 +76,23 @@ class CAMUS:
                     mid_proc_dir_template = os.path.join(template_root, f"midslice_v{version}", dset_name, "*/*", image)
                     max_proc_dir_template = os.path.join(template_root, f"maxslice_v{version}", dset_name, "*/*", image)
                     if redo_processed or (len(glob.glob(mid_proc_dir_template)) == 0) or (len(glob.glob(max_proc_dir_template)) == 0):
-                        im_dir = os.path.join(self.dset_info[dset_name]["image_root_dir"], image)
-                        label_dir = os.path.join(self.dset_info[dset_name]["label_root_dir"], image.replace("jpg"))
-
+                        # Get rid of "train-" in front
+                        patient_name = image[6:]
+                        im_dir = os.path.join(self.dset_info[dset_name]["image_root_dir"], image, f"{patient_name}_{dset_name}.mhd")
+                        label_dir = os.path.join(self.dset_info[dset_name]["label_root_dir"], image, f"{patient_name}_{dset_name}_gt.mhd")
+                        
                         assert os.path.isfile(im_dir), "Valid image dir required!"
                         assert os.path.isfile(label_dir), "Valid label dir required!"
 
                         if load_images:
-                            loaded_image = put.resample_nib(nib.load(im_dir))
-                            loaded_label = put.resample_mask_to(nib.load(label_dir), loaded_image)
-
-                            loaded_image = loaded_image.get_fdata()
-                            loaded_label = loaded_label.get_fdata()
+                            loaded_image = io.imread(im_dir, plugin = 'simpleitk').squeeze()
+                            loaded_label = io.imread(label_dir, plugin = 'simpleitk').squeeze()
+                                              
                             assert not (loaded_label is None), "Invalid Label"
                             assert not (loaded_image is None), "Invalid Image"
                         else:
                             loaded_image = None
-                            loaded_label = nib.load(label_dir).get_fdata()
+                            loaded_label = io.imread(label_dir, plugin = 'simpleitk').squeeze()
 
                         proc_return = proc_func(proc_dir,
                                                   version,
