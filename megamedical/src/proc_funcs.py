@@ -10,7 +10,42 @@ pd.set_option('display.max_rows',100)
 from megamedical.src import preprocess_scripts as pps
 from megamedical.utils.registry import paths
 import megamedical.utils as utils
-              
+
+
+def batch_process(proc_func,
+                  subdset_names,
+                  load_images,
+                  accumulate,
+                  version,
+                  visualize,
+                  save,
+                  show_hists,
+                  resolutions,
+                  redo_processed):
+    for subdset in subdset_names:
+        proc_func(subdset,
+                  pps.produce_slices,
+                  load_images,
+                  accumulate,
+                  version,
+                  visualize,
+                  save,
+                  show_hists,
+                  resolutions,
+                  redo_processed)
+
+def batch_pop_stats(do,
+                     subdset_names,
+                     version,
+                     resolutions,
+                     save):
+    for subdset in subdset_names:
+        pps.gather_population_statistics(do,
+                                         subdset,
+                                         version,
+                                         resolutions,
+                                         save)
+        
         
 def process_dataset(datasets,
                     subdsets=None,
@@ -22,80 +57,193 @@ def process_dataset(datasets,
                     show_hists=False,
                     version="4.0",
                     timeout=540,
-                    mem_gb=32):
+                    mem_gb=32, 
+                    combine_jobs=False):
+    assert not (combine_jobs and not slurm), "Combining jobs only useful for slurm."
     assert not (len(datasets) > 1 and visualize), "Can't visualize a list of processing."
     assert not (slurm and visualize), "If you are submitting slurm no vis."
+    
+    load_images = True
+    accumulate = False
     
     if datasets == "all":
         datasets = os.listdir(paths["DATA"])
     
     dataset_objects = [utils.build_dataset(ds) for ds in datasets]
+    
+    if combine_jobs:
+        for do in dataset_objects:
+            subdset_names = list(do.dset_info.keys()) if subdsets is None else subdsets
 
-    for do in dataset_objects:
-        subdset_names = list(do.dset_info.keys()) if subdsets is None else subdsets
-        for subdset in subdset_names:
-            if slurm:
-                slurm_root = os.path.join(paths["ROOT"], f"bash/submitit/{do.name}/{subdset}")
-                executor = submitit.AutoExecutor(folder=slurm_root)
-                executor.update_parameters(timeout_min=timeout, mem_gb=mem_gb, slurm_partition="sablab", slurm_wckey="")
-                job = executor.submit(do.proc_func,
-                                      subdset,
-                                      pps.produce_slices,
-                                      True,
-                                      False,
-                                      version,
-                                      visualize,
-                                      save,
-                                      show_hists,
-                                      resolutions,
-                                      redo_processed)
-            else:
-                do.proc_func(subdset,
-                             pps.produce_slices,
-                             True,
-                             False,
-                             version,
-                             visualize,
-                             save,
-                             show_hists,
-                             resolutions,
-                             redo_processed)
+            slurm_root = os.path.join(paths["ROOT"], f"bash/submitit/{do.name}")
+            executor = submitit.AutoExecutor(folder=slurm_root)
+            executor.update_parameters(timeout_min=timeout, mem_gb=mem_gb, slurm_partition="sablab", slurm_wckey="")
+            job = executor.submit(batch_process,
+                                  do.proc_func,
+                                  subdset_names,
+                                  load_images,
+                                  accumulate,
+                                  version,
+                                  visualize,
+                                  save,
+                                  show_hists,
+                                  resolutions,
+                                  redo_processed)
+    else:
+        for do in dataset_objects:
+            subdset_names = list(do.dset_info.keys()) if subdsets is None else subdsets
+            for subdset in subdset_names:
+                if slurm:
+                    slurm_root = os.path.join(paths["ROOT"], f"bash/submitit/{do.name}/{subdset}")
+                    executor = submitit.AutoExecutor(folder=slurm_root)
+                    executor.update_parameters(timeout_min=timeout, mem_gb=mem_gb, slurm_partition="sablab", slurm_wckey="")
+                    job = executor.submit(do.proc_func,
+                                          subdset,
+                                          pps.produce_slices,
+                                          load_images,
+                                          accumulate,
+                                          version,
+                                          visualize,
+                                          save,
+                                          show_hists,
+                                          resolutions,
+                                          redo_processed)
+                else:
+                    try:
+                        do.proc_func(subdset,
+                                     pps.produce_slices,
+                                     load_images,
+                                     accumulate,
+                                     version,
+                                     visualize,
+                                     save,
+                                     show_hists,
+                                     resolutions,
+                                     redo_processed)
+                    except Exception as e:
+                        print(e)
+                        continue
                 
 
-def generate_label_info_files(datasets,
+def generate_population_statistics(datasets,
+                                  subdsets=None,
+                                  save=False,
+                                  slurm=False,
+                                  resolutions=[64, 128, 256],
+                                  version="4.0",
+                                  timeout=180,
+                                  mem_gb=16,
+                                  volume_wide=True, 
+                                  combine_jobs=False):
+    assert not (combine_jobs and not slurm), "Combining jobs only useful for slurm."
+    
+    if datasets == "all":
+        datasets = os.listdir(paths["DATA"])
+
+    dataset_objects = [utils.build_dataset(ds) for ds in datasets]
+
+    if combine_jobs:
+        for do in dataset_objects:
+            subdset_names = list(do.dset_info.keys()) if subdsets is None else subdsets
+
+            slurm_root = os.path.join(paths["ROOT"], f"bash/submitit/{do.name}")
+            executor = submitit.AutoExecutor(folder=slurm_root)
+            executor.update_parameters(timeout_min=timeout, mem_gb=mem_gb, slurm_partition="sablab", slurm_wckey="")
+            job = executor.submit(batch_pop_stats,
+                                  do,
+                                  subdset_names,
+                                  version,
+                                  resolutions,
+                                  save)
+    else:
+        for do in dataset_objects:
+            subdset_names = list(do.dset_info.keys()) if subdsets is None else subdsets
+            for subdset in subdset_names:
+                if slurm:
+                    slurm_root = os.path.join(paths["ROOT"], f"bash/submitit/{do.name}/{subdset}")
+                    executor = submitit.AutoExecutor(folder=slurm_root)
+                    executor.update_parameters(timeout_min=timeout, mem_gb=mem_gb, slurm_partition="sablab", slurm_wckey="")
+                    job = executor.submit(pps.gather_population_statistics,
+                                          do,
+                                          subdset,
+                                          version,
+                                          resolutions,
+                                          save)
+                else:
+                    pps.gather_population_statistics(do,
+                                                     subdset,
+                                                     version,
+                                                     resolutions,
+                                                     save)
+                
+
+def generate_unique_label_files(datasets,
                               subdsets=None,
                               save=False,
                               slurm=False,
                               resolutions=[64, 128, 256],
                               version="4.0",
+                              redo_processed=False,
                               timeout=180,
                               mem_gb=16,
-                              volume_wide=True):
+                              combine_jobs=False):
+    
     if datasets == "all":
         datasets = os.listdir(paths["DATA"])
 
     dataset_objects = [utils.build_dataset(ds) for ds in datasets]
-
-    for do in dataset_objects:
-        subdset_names = list(do.dset_info.keys()) if subdsets is None else subdsets
-        for subdset in subdset_names:
-            if slurm:
-                slurm_root = os.path.join(paths["ROOT"], f"bash/submitit/{do.name}/{subdset}")
-                executor = submitit.AutoExecutor(folder=slurm_root)
-                executor.update_parameters(timeout_min=timeout, mem_gb=mem_gb, slurm_partition="sablab", slurm_wckey="")
-                job = executor.submit(pps.label_info,
-                                      do,
-                                      subdset,
-                                      version,
-                                      resolutions,
-                                      save)
-            else:
-                pps.label_info(do,
-                               subdset,
-                               version,
-                               resolutions,
-                               save)
-                
+    
+    def get_label_files(dataset_objects, version, resolutions, save):
+        for do in dataset_objects:
+            subdset_names = list(do.dset_info.keys()) if subdsets is None else subdsets
+            for subdset in subdset_names:
+                res_copy = resolutions.copy()
+                if not redo_processed:
+                    for res in res_copy:
+                        if os.path.exists(paths["PROC"], do.name, "label_info", subdset, "all_labels.npy"):
+                            res_copy.remove(res)
+                if len(res_copy) > 0:
+                    pps.gather_unique_labels(do,
+                                          subdset,
+                                          version,
+                                          res_copy,
+                                          save)
+    if combine_jobs:
+        if slurm:
+            slurm_root = os.path.join(paths["ROOT"], f"bash/submitit/label_files")
+            executor = submitit.AutoExecutor(folder=slurm_root)
+            executor.update_parameters(timeout_min=timeout, mem_gb=mem_gb, slurm_partition="sablab", slurm_wckey="")
+            job = executor.submit(get_label_files,
+                                  dataset_objects,
+                                  version,
+                                  resolutions,
+                                  save)
+        else:
+            get_label_files(dataset_objects, 
+                            version, 
+                            resolutions, 
+                            save)
+    else:
+        for do in dataset_objects:
+            subdset_names = list(do.dset_info.keys()) if subdsets is None else subdsets
+            for subdset in subdset_names:
+                if slurm:
+                    slurm_root = os.path.join(paths["ROOT"], f"bash/submitit/{do.name}/{subdset}")
+                    executor = submitit.AutoExecutor(folder=slurm_root)
+                    executor.update_parameters(timeout_min=timeout, mem_gb=mem_gb, slurm_partition="sablab", slurm_wckey="")
+                    job = executor.submit(pps.gather_unique_labels,
+                                          do,
+                                          subdset,
+                                          version,
+                                          resolutions,
+                                          save)
+                else:
+                    pps.gather_unique_labels(do,
+                                          subdset,
+                                          version,
+                                          resolutions,
+                                          save)
+                    
 
 def get_processing_status(datasets,
                           version="4.0"):
@@ -113,27 +261,29 @@ def get_processing_status(datasets,
                 new_entry["Dataset"] = do.name
                 new_entry["Subset"] = subset
                 new_entry["Modality"] = modality
-                new_entry["Num Subj"] = 0.0
-                new_entry["% Processed"] = 0.0
-                total_proc = 0
-                for res in [64, 128, 256]:
-                    label_dir = os.path.join(paths["ROOT"], "processed", f"res{res}", do.name, "label_info", subset, "all_labels.npy")
-                    if os.path.exists(label_dir):
-                        new_entry["Labels Known"] = True
-                        label_file = np.load(label_dir)
-                        new_entry["Num Subj"] = label_file[0]
+                # Load the entire list of subjects
+                subject_file = os.path.join(paths["DATA"], do.name, "process_assets", f"{subset}@subject_list.npy")
+                if os.path.exists(subject_file):
+                    all_subs = np.load(subject_file)          
+                    new_entry["Num Subj"] = len(all_subs)
+                    new_entry["% Processed"] = 0.0
+                    total_proc = 0
+                    for res in [64, 128, 256]:
+                        label_dir = os.path.join(paths["PROC"], f"res{res}", do.name, "label_info", subset, "all_labels.npy")
+                        new_entry["Labels Known"] = os.path.exists(label_dir)
                         for dt in ["maxslice", "midslice"]:
-                            slice_dir = os.path.join(paths["ROOT"], "processed", f"res{res}", do.name, f"{dt}_v{version}", subset, modality, str(do.dset_info[subset]["planes"][0]))
+                            slice_dir = os.path.join(paths["PROC"], f"res{res}", do.name, f"{dt}_v{version}", subset, modality, str(do.dset_info[subset]["planes"][0]))
                             if os.path.exists(slice_dir):
-                                new_entry["Num Subj"] = label_file[0]
                                 num_processed = len(os.listdir(slice_dir))
                                 total_proc += num_processed
                                 new_entry[f"{dt},{res}"] = num_processed
                             else:
                                 new_entry[f"{dt},{res}"] = 0.0
-                    else:
-                        new_entry["Labels Known"] = False
-                new_entry["% Processed"] = np.round((total_proc / (6 * new_entry["Num Subj"])) * 100, 2) if new_entry["Num Subj"] != 0 else 0.0
+                    new_entry["% Processed"] = np.round((total_proc / (6 * new_entry["Num Subj"])) * 100, 2) if new_entry["Num Subj"] != 0 else 0.0
+                else:
+                    new_entry["Num Subj"] = None
+                    new_entry["% Processed"] = 0.0
+                    new_entry["Labels Known"] = False
                 dp_objects.append(new_entry)
     dataframe = pd.DataFrame(dp_objects)
     return dataframe

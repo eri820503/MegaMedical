@@ -1,4 +1,5 @@
 import nibabel as nib
+import numpy as np
 from tqdm.notebook import tqdm_notebook
 import glob
 import os
@@ -36,7 +37,7 @@ class ACDC:
                   redo_processed=True):
         assert not(version is None and save), "Must specify version for saving."
         assert dset_name in self.dset_info.keys(), "Sub-dataset must be in info dictionary."
-        image_list = os.listdir(self.dset_info[dset_name]["image_root_dir"])
+        image_list = sorted(os.listdir(self.dset_info[dset_name]["image_root_dir"]))
         proc_dir = os.path.join(paths['ROOT'], "processed")
         res_dict = {}
         for resolution in resolutions:
@@ -50,9 +51,6 @@ class ACDC:
                     if redo_processed or (len(glob.glob(mid_proc_dir_template)) == 0) or (len(glob.glob(max_proc_dir_template)) == 0):
                         im_dir = os.path.join(self.dset_info[dset_name]["image_root_dir"], image, f"{image}_frame01.nii.gz")
                         label_dir = os.path.join(self.dset_info[dset_name]["label_root_dir"], image, f"{image}_frame01_gt.nii.gz")
-
-                        assert os.path.isfile(im_dir), "Valid image dir required!"
-                        assert os.path.isfile(label_dir), "Valid label dir required!"
 
                         if load_images:
                             loaded_image = put.resample_nib(nib.load(im_dir))

@@ -1,6 +1,7 @@
 import nibabel as nib
 from tqdm.notebook import tqdm_notebook
 import glob
+import numpy as np
 import os
 
 #New line!
@@ -19,7 +20,7 @@ class RibSeg:
                 "label_root_dir": f"{paths['DATA']}/RibSeg/original_unzipped/retrieved_2022_09_01/nii",
                 "modality_names": ["MRI"],
                 "planes": [0,1,2],
-                "clip_args": None
+                "clip_args": None,
                 "norm_scheme": None
             }
         }
@@ -37,7 +38,7 @@ class RibSeg:
                   redo_processed=True):
         assert not(version is None and save), "Must specify version for saving."
         assert dset_name in self.dset_info.keys(), "Sub-dataset must be in info dictionary."
-        image_list = set([f.split("-")[0] for f in os.listdir(self.dset_info[dset_name]["image_root_dir"])])
+        image_list = sorted(set([f.split("-")[0] for f in os.listdir(self.dset_info[dset_name]["image_root_dir"])]))
         proc_dir = os.path.join(paths['ROOT'], "processed")
         res_dict = {}
         for resolution in resolutions:

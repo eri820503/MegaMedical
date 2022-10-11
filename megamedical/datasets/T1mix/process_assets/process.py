@@ -15,11 +15,66 @@ class T1mix:
     def __init__(self):
         self.name = "T1mix"
         self.dset_info = {
-            "retrieved_2021_06_10":{
+            # Note OASIS is available in T1mix, but left out on purpose.
+            "ABIDE":{
                 "main":"T1mix",
-                "image_root_dir":f"{paths['DATA']}/T1mix/original_unzipped/retrieved_2021_06_10/train/vols",
-                "label_root_dir":f"{paths['DATA']}/T1mix/original_unzipped/retrieved_2021_06_10/train/asegs",
-                "modality_names":["T1"],
+                "image_root_dir":f"{paths['DATA']}/T1mix/original_unzipped/retrieved_2021_06_10/ABIDE/vols",
+                "label_root_dir":f"{paths['DATA']}/T1mix/original_unzipped/retrieved_2021_06_10/ABIDE/asegs",
+                "modality_names":["T1", "skull-stripped-T1"],
+                "planes":[0, 1, 2],
+                "clip_args": [0.5, 99.5],
+                "norm_scheme":"MR"
+            },
+            "ADHD200":{
+                "main":"T1mix",
+                "image_root_dir":f"{paths['DATA']}/T1mix/original_unzipped/retrieved_2021_06_10/ADHD200/vols",
+                "label_root_dir":f"{paths['DATA']}/T1mix/original_unzipped/retrieved_2021_06_10/ADHD200/asegs",
+                "modality_names":["T1", "skull-stripped-T1"],
+                "planes":[0, 1, 2],
+                "clip_args": [0.5, 99.5],
+                "norm_scheme":"MR"
+            },
+            "ADNI":{
+                "main":"T1mix",
+                "image_root_dir":f"{paths['DATA']}/T1mix/original_unzipped/retrieved_2021_06_10/ADNI/vols",
+                "label_root_dir":f"{paths['DATA']}/T1mix/original_unzipped/retrieved_2021_06_10/ADNI/asegs",
+                "modality_names":["T1", "skull-stripped-T1"],
+                "planes":[0, 1, 2],
+                "clip_args": [0.5, 99.5],
+                "norm_scheme":"MR"
+            },
+            "COBRE":{
+                "main":"T1mix",
+                "image_root_dir":f"{paths['DATA']}/T1mix/original_unzipped/retrieved_2021_06_10/COBRE/vols",
+                "label_root_dir":f"{paths['DATA']}/T1mix/original_unzipped/retrieved_2021_06_10/COBRE/asegs",
+                "modality_names":["T1", "skull-stripped-T1"],
+                "planes":[0, 1, 2],
+                "clip_args": [0.5, 99.5],
+                "norm_scheme":"MR"
+            },
+            "GSP":{
+                "main":"T1mix",
+                "image_root_dir":f"{paths['DATA']}/T1mix/original_unzipped/retrieved_2021_06_10/GSP/vols",
+                "label_root_dir":f"{paths['DATA']}/T1mix/original_unzipped/retrieved_2021_06_10/GSP/asegs",
+                "modality_names":["T1", "skull-stripped-T1"],
+                "planes":[0, 1, 2],
+                "clip_args": [0.5, 99.5],
+                "norm_scheme":"MR"
+            },
+            "MCIC":{
+                "main":"T1mix",
+                "image_root_dir":f"{paths['DATA']}/T1mix/original_unzipped/retrieved_2021_06_10/MCIC/vols",
+                "label_root_dir":f"{paths['DATA']}/T1mix/original_unzipped/retrieved_2021_06_10/MCIC/asegs",
+                "modality_names":["T1", "skull-stripped-T1"],
+                "planes":[0, 1, 2],
+                "clip_args": [0.5, 99.5],
+                "norm_scheme":"MR"
+            },
+            "PPMI":{
+                "main":"T1mix",
+                "image_root_dir":f"{paths['DATA']}/T1mix/original_unzipped/retrieved_2021_06_10/PPMI/vols",
+                "label_root_dir":f"{paths['DATA']}/T1mix/original_unzipped/retrieved_2021_06_10/PPMI/asegs",
+                "modality_names":["T1", "skull-stripped-T1"],
                 "planes":[0, 1, 2],
                 "clip_args": [0.5, 99.5],
                 "norm_scheme":"MR"
@@ -39,7 +94,7 @@ class T1mix:
                   redo_processed=True):
         assert not(version is None and save), "Must specify version for saving."
         assert dset_name in self.dset_info.keys(), "Sub-dataset must be in info dictionary."
-        image_list = os.listdir(self.dset_info[dset_name]["image_root_dir"])
+        image_list = sorted(os.listdir(self.dset_info[dset_name]["image_root_dir"]))
         proc_dir = os.path.join(paths['ROOT'], "processed")
         res_dict = {}
         for resolution in resolutions:
@@ -50,13 +105,20 @@ class T1mix:
                     template_root = os.path.join(proc_dir, f"res{resolution}", self.name)
                     mid_proc_dir_template = os.path.join(template_root, f"midslice_v{version}", dset_name, "*/*", image)
                     max_proc_dir_template = os.path.join(template_root, f"maxslice_v{version}", dset_name, "*/*", image)
-                    if not("OASIS" in image) and (redo_processed or (len(glob.glob(mid_proc_dir_template)) == 0) or (len(glob.glob(max_proc_dir_template)) == 0)):
-                        im_dir = os.path.join(self.dset_info[dset_name]["image_root_dir"], image)
+                    if redo_processed or (len(glob.glob(mid_proc_dir_template)) == 0) or (len(glob.glob(max_proc_dir_template)) == 0):
+                        # Skull-stripped
+                        vol_im_dir = os.path.join(self.dset_info[dset_name]["image_root_dir"], image)
+                        # Original volume
+                        norm_im_dir = os.path.join(self.dset_info[dset_name]["image_root_dir"].replace("vols", "origs"), image.replace("norm", "orig"))
+                        # Segmentation
                         label_dir = os.path.join(self.dset_info[dset_name]["label_root_dir"], image.replace("norm", "aseg"))
-
+                        
                         if load_images:
-                            loaded_image = np.load(im_dir)['vol_data']
+                            loaded_vol_image = np.load(vol_im_dir)['vol_data']
+                            loaded_norm_image = np.load(norm_im_dir)['vol_data']
+                            loaded_image = np.stack([loaded_vol_image, loaded_norm_image], -1)
                             loaded_label = np.load(label_dir)['vol_data']
+                            
                             assert not (loaded_label is None), "Invalid Label"
                             assert not (loaded_image is None), "Invalid Image"
                         else:

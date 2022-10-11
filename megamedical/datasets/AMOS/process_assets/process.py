@@ -1,4 +1,5 @@
 import nibabel as nib
+import numpy as np
 from tqdm.notebook import tqdm_notebook
 import glob
 import os
@@ -38,7 +39,7 @@ class AMOS:
         assert not(version is None and save), "Must specify version for saving."
         assert dset_name in self.dset_info.keys(), "Sub-dataset must be in info dictionary."
         proc_dir = os.path.join(paths['ROOT'], "processed")
-        image_list = os.listdir(self.dset_info[dset_name]["image_root_dir"])
+        image_list = sorted(os.listdir(self.dset_info[dset_name]["image_root_dir"]))
         res_dict = {}
         for resolution in resolutions:
             accumulator = []

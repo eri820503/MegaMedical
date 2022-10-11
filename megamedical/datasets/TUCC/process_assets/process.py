@@ -37,10 +37,12 @@ class TUCC:
                   show_hists=False,
                   resolutions=None,
                   redo_processed=True):
+        # For reproducibility need to fix seed.
+        np.random.seed(0)
         assert not(version is None and save), "Must specify version for saving."
         assert dset_name in self.dset_info.keys(), "Sub-dataset must be in info dictionary."
         hf = h5py.File(os.path.join(self.dset_info[dset_name]["image_root_dir"],'dataset.hdf5'), 'r')
-        chosen_inds = np.sort(np.random.choice(np.arange(len(hf["image"])), 1000))
+        chosen_inds = sorted(np.sort(np.random.choice(np.arange(len(hf["image"])), 1000)))
         images = hf["image"]
         segs = hf["mask"]
         proc_dir = os.path.join(paths['ROOT'], "processed")

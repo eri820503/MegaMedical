@@ -20,9 +20,10 @@ def get_list_of_subjects(root,
     plane_dir = os.path.join(modality_dir, os.listdir(modality_dir)[0])
     return os.listdir(plane_dir)
 
+
 def get_label_amounts(proc_dir,
                       version,
-                      dset_name,
+                      subdset,
                       image, 
                       loaded_image,
                       loaded_label,
@@ -38,40 +39,77 @@ def get_label_amounts(proc_dir,
     midslice_amount_dict = {}
     
     # Handle resizing
-    old_size = square_label.shape[0]
-    ratio = res/old_size
+    old_seg_size = square_label.shape[0]
+    ratio = res/old_seg_size
+    
     if len(loaded_label.shape) == 2:
         zoom_tup = (ratio, ratio)
     else:
         zoom_tup = (ratio, ratio, ratio)
-    resized_image = ndimage.zoom(square_label, zoom=zoom_tup, order=0)
     
     # Get all labels at this resolution
-    all_labels = np.delete(np.unique(resized_image), [0])
-
-    # Gather label info for max/mid slices
-    lab_shape = resized_image.shape
-    if len(lab_shape) == 2:
-        midslice_amount_dict[0] = {lab : np.count_nonzero((resized_image==lab).astype(int)) for lab in all_labels}
-        maxslice_amount_dict[0] = {lab : np.count_nonzero((resized_image==lab).astype(int)) for lab in all_labels}
-    else:
-        for plane in dset_info["planes"]:
-            all_axes = [0,1,2]
-            all_axes.remove(plane)
-
-            midslice = np.take(resized_image, lab_shape[plane]//2, plane)
-            mid_unique_labels = np.unique(midslice)
-            # Get rid of 0 as a unique label
-            midslice_plane_labels = np.delete(mid_unique_labels, [0])
-
-            midslice_amount_dict[plane] = {lab : np.count_nonzero((midslice==lab).astype(int)) for lab in midslice_plane_labels}
-            maxslice_amount_dict[plane] = {lab : np.amax(np.count_nonzero((resized_image==lab).astype(int), axis=tuple(all_axes))) for lab in all_labels}
+    all_labels = np.load(os.path.join(proc_dir, f"res{res}", dset_info["main"], "label_info", subdset, "all_labels.npy"))
     
-    res_dict["all_labels"] = all_labels
+    if len(square_label.shape) == 2:
+        midslice_amount_dict = {}
+        maxslice_amount_dict = {}
+        for lab in all_labels:
+            bin_mask = np.float32(square_label==lab)
+            
+            #produce resized segmentations
+            bin_seg_res = blur_and_resize(bin_mask, old_seg_size, new_size=res, order=0)
+            
+            if not 0 in midslice_amount_dict.keys():
+                midslice_amount_dict[0] = {}
+            midslice_amount_dict[0][lab] = np.mean(bin_seg_res)
+
+            if not 0 in maxslice_amount_dict.keys():
+                maxslice_amount_dict[0] = {}
+            maxslice_amount_dict[0][lab] = np.mean(bin_seg_res)
+    else:     
+        # Create statistics
+        midslice_amount_dict = {}
+        maxslice_amount_dict = {}
+        for lab in all_labels:
+            bin_mask = np.float32(square_label==lab)
+            
+            #produce resized segmentations
+            bin_seg_res = blur_and_resize(bin_mask, old_seg_size, new_size=res, order=0)
+            
+            for plane in dset_info["planes"]:
+                all_axes = [0,1,2]
+                all_axes.remove(plane)
+                
+                if not plane in midslice_amount_dict.keys():
+                    midslice_amount_dict[plane] = {}
+                midslice_amount_dict[plane][lab] = np.mean(np.take(bin_seg_res, bin_seg_res.shape[plane]//2, plane))
+                
+                if not plane in maxslice_amount_dict.keys():
+                    maxslice_amount_dict[plane] = {}
+                maxslice_amount_dict[plane][lab] = np.amax(np.mean(bin_seg_res, axis=tuple(all_axes)))
+    
     res_dict["midslice"] = midslice_amount_dict
     res_dict["maxslice"] = maxslice_amount_dict
 
     return res_dict
+
+
+def get_all_unique_labels(proc_dir,
+                          version,
+                          dset_name,
+                          image, 
+                          loaded_image,
+                          loaded_label,
+                          dset_info,
+                          show_hists,
+                          show_imgs,
+                          res,
+                          save):
+    
+    # Get all labels and get rid of 0
+    all_labels = np.delete(np.unique(loaded_label), [0])
+
+    return all_labels
 
 
 def save_maxslice(proc_dir, image_res, seg_res, subdset, mode, subject_name, planes, maxslices):

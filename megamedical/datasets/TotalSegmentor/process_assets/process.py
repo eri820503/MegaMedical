@@ -9,15 +9,15 @@ from megamedical.src import preprocess_scripts as pps
 from megamedical.utils.registry import paths
 from megamedical.utils import proc_utils as put
 
-class TotalSeg:
+class TotalSegmentor:
 
     def __init__(self):
-        self.name = "TotalSeg"
+        self.name = "TotalSegmentor"
         self.dset_info = {
             "retreived_09_01_2022":{
-                "main":"TotalSeg",
-                "image_root_dir": f"{paths['DATA']}/TotalSeg/original_unzipped/retreived_09_01_2022/Totalsegmentator_dataset",
-                "label_root_dir": f"{paths['DATA']}/TotalSeg/original_unzipped/retreived_09_01_2022/Totalsegmentator_dataset",
+                "main":"TotalSegmentor",
+                "image_root_dir": f"{paths['DATA']}/TotalSegmentor/original_unzipped/retreived_09_01_2022/Totalsegmentator_dataset",
+                "label_root_dir": f"{paths['DATA']}/TotalSegmentor/original_unzipped/retreived_09_01_2022/Totalsegmentator_dataset",
                 "modality_names": ["CT"],
                 "planes": [0, 1, 2],
                 "clip_args": [-500, 1000],
@@ -38,7 +38,7 @@ class TotalSeg:
                   redo_processed=True):
         assert not(version is None and save), "Must specify version for saving."
         assert dset_name in self.dset_info.keys(), "Sub-dataset must be in info dictionary."
-        image_list = os.listdir(self.dset_info[dset_name]["image_root_dir"])
+        image_list = sorted(os.listdir(self.dset_info[dset_name]["image_root_dir"]))
         proc_dir = os.path.join(paths['ROOT'], "processed")
         res_dict = {}
         for resolution in resolutions:

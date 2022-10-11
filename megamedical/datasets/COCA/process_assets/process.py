@@ -42,7 +42,7 @@ class COCA:
                   redo_processed=True):
         assert not(version is None and save), "Must specify version for saving."
         assert dset_name in self.dset_info.keys(), "Sub-dataset must be in info dictionary."
-        image_list = os.listdir(self.dset_info[dset_name]["label_root_dir"])
+        image_list = sorted(os.listdir(self.dset_info[dset_name]["label_root_dir"]))
         proc_dir = os.path.join(paths['ROOT'], "processed")
         accumulator = []
         res_dict = {}

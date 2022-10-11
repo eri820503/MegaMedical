@@ -8,3 +8,4 @@ bash/
 *.pyc
 *.ipynb
 processed/
+*subject_list.npy

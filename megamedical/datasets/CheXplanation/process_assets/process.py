@@ -43,7 +43,7 @@ class CheXplanation:
         assert not(version is None and save), "Must specify version for saving."
         assert dset_name in self.dset_info.keys(), "Sub-dataset must be in info dictionary."
         proc_dir = os.path.join(paths['ROOT'], "processed")
-        image_list = os.listdir(self.dset_info[dset_name]["image_root_dir"])
+        image_list = sorted(os.listdir(self.dset_info[dset_name]["image_root_dir"]))
         label_dir = os.path.join(self.dset_info[dset_name]["label_root_dir"], "gt_segmentation_val.json")
         label_file = open(label_dir)
         label_json = json.load(label_file)

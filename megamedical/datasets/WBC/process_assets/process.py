@@ -49,7 +49,7 @@ class WBC:
                   redo_processed=True):
         assert not(version is None and save), "Must specify version for saving."
         assert dset_name in self.dset_info.keys(), "Sub-dataset must be in info dictionary."
-        image_list = os.listdir(self.dset_info[dset_name]["image_root_dir"])
+        image_list = sorted(os.listdir(self.dset_info[dset_name]["image_root_dir"]))
         proc_dir = os.path.join(paths['ROOT'], "processed")
         res_dict = {}
         for resolution in resolutions:
@@ -92,4 +92,5 @@ class WBC:
                     #raise ValueError
             res_dict[resolution] = accumulator
         if accumulate:
+            print("res dict", res_dict)
             return proc_dir, res_dict

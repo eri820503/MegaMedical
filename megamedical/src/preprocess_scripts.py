@@ -60,7 +60,6 @@ def produce_slices(root_dir,
         # Get all of the labels in the volume population, note that the first index tracks the number
         # of subjects.
         unique_labels = np.load(os.path.join(root_dir, f"res{res}", dset_info["main"], "label_info", subdset, "all_labels.npy"))
-        unique_labels = np.delete(unique_labels, 0)
 
         #Resize to several resolutions
         image_res = blur_and_resize(square_image, old_image_size, new_size=res, order=1)
@@ -77,7 +76,7 @@ def produce_slices(root_dir,
         for lab_idx, label in enumerate(unique_labels):
             #isolate mask of label
             label = int(label)
-            bin_mask = np.float32((square_label==label))
+            bin_mask = np.float32(square_label==label)
 
             #produce resized segmentations
             bin_seg_res = blur_and_resize(bin_mask, old_seg_size, new_size=res, order=0)
@@ -104,16 +103,15 @@ def produce_slices(root_dir,
                 
 # Produce the "all label" matrices for each resolution
 # and per label statistics for an entire dataset.
-def label_info(data_obj,
-               subdset,
-               version,
-               resolutions,
-               save):
+def gather_population_statistics(data_obj,
+                                 subdset,
+                                 version,
+                                 resolutions,
+                                 save):
     
     # total_label_info is a dictionary that is structed like the following
     # total_label_info
     # - resolution (64, 128, 256, etc.)
-    #     - all labels (after resize)
     #     - label amounts midslice (per plane)
     #         - plane 0,1,2...
     #     - label amounts maxslice (per plane)
@@ -128,11 +126,23 @@ def label_info(data_obj,
     for res in resolutions:
         res_label_info = resolution_label_dict[res]
         num_subjects = len(res_label_info)
-        total_label_info = [li["all_labels"] for li in res_label_info]
         midslice_label_info = [li["midslice"] for li in res_label_info]
         maxslice_label_info = [li["maxslice"] for li in res_label_info]
         
-        unique_labels = sorted(list(set([label for subj in total_label_info for label in subj])))
+        # get all possible labels
+        unique_labels = np.load(os.path.join(paths["PROC"], 
+                                             f"res{res}", 
+                                             data_obj.name, 
+                                             "label_info", 
+                                             subdset, 
+                                             "all_labels.npy")).tolist()
+        # get list of subjects
+        subject_list = np.load(os.path.join(paths["DATA"], 
+                                            data_obj.name, 
+                                            "process_assets", 
+                                            f"{subdset}@subject_list.npy"))
+        
+        assert len(subject_list) == len(res_label_info), "Sanity check: Every subject accounted for."
 
         # define an inverse map going from labels to indices in the list
         label_map = {lab: unique_labels.index(lab) for lab in unique_labels}
@@ -142,22 +152,45 @@ def label_info(data_obj,
             "maxslice": maxslice_label_info
         }
 
-        save_dir = os.path.join(proc_dir, f"res{res}", data_obj.name, "label_info", subdset)
-        
-        if save and len(unique_labels) > 0:
-            # Keep track of number of subjects, its useful (but also causes problems >:( )
-            unique_labels.insert(0, num_subjects)
-            if not os.path.exists(save_dir):
-                os.makedirs(save_dir)
-            all_label_dir = os.path.join(save_dir, f"all_labels.npy")
-            np.save(all_label_dir, np.array(unique_labels))
-
         for slice_type in slice_info_set.keys():
             for plane in data_obj.dset_info[subdset]["planes"]:
-                label_info_array = np.zeros((len(total_label_info), len(unique_labels)))
+                label_info_array = np.zeros((len(res_label_info), len(unique_labels)))
                 for subj_idx, slice_info in enumerate(slice_info_set[slice_type]):
                     for label in slice_info[plane].keys():
                         label_info_array[subj_idx, label_map[int(label)]] = slice_info[plane][label]
                 if save:
+                    save_dir = os.path.join(proc_dir, f"res{res}", data_obj.name, "label_info", subdset)
                     dict_dir = os.path.join(save_dir, f"{slice_type}_pop_lab_amount_{plane}")
-                    np.save(dict_dir, label_info_array)
+                    dict_pair = {
+                        "index": subject_list,
+                        "pop_label_amount": label_info_array
+                    }
+                    dump_dictionary(dict_pair, dict_dir)
+
+
+# Produce the "all label" matrices for each resolution
+# and per label statistics for an entire dataset.
+def gather_unique_labels(data_obj,
+                         subdset,
+                         version,
+                         resolutions,
+                         save):
+    proc_dir, resolution_label_dict = data_obj.proc_func(subdset,
+                                                         get_all_unique_labels,
+                                                         load_images=False,
+                                                         accumulate=True,
+                                                         version=version,
+                                                         resolutions=resolutions,
+                                                         save=save)
+    for res in resolutions:
+        total_label_info = resolution_label_dict[res]
+        num_subjects = len(total_label_info)
+        
+        unique_labels = sorted(list(set([label for subj in total_label_info for label in subj])))
+        
+        if save and len(unique_labels) > 0:
+            save_dir = os.path.join(proc_dir, f"res{res}", data_obj.name, "label_info", subdset)
+            if not os.path.exists(save_dir):
+                os.makedirs(save_dir)
+            all_label_dir = os.path.join(save_dir, f"all_labels.npy")
+            np.save(all_label_dir, np.array(unique_labels))

@@ -3,6 +3,7 @@ import scipy.io
 import cv2
 from tqdm.notebook import tqdm_notebook
 import matplotlib.pyplot as plt
+import numpy as np
 import glob
 import os
 
@@ -40,25 +41,26 @@ class HMC_QU:
                   redo_processed=True):
         assert not(version is None and save), "Must specify version for saving."
         assert dset_name in self.dset_info.keys(), "Sub-dataset must be in info dictionary."
-        image_list = os.listdir(self.dset_info[dset_name]["image_root_dir"])
+        video_list = sorted(os.listdir(self.dset_info[dset_name]["image_root_dir"]))
         proc_dir = os.path.join(paths['ROOT'], "processed")
         res_dict = {}
         for resolution in resolutions:
             accumulator = []
-            for image in tqdm_notebook(image_list, desc=f'Processing: {dset_name}'):
+            for video in tqdm_notebook(video_list, desc=f'Processing: {dset_name}'):
                 try:
                     # template follows processed/resolution/dset/midslice/subset/modality/plane/subject
                     template_root = os.path.join(proc_dir, f"res{resolution}", self.name)
-                    mid_proc_dir_template = os.path.join(template_root, f"midslice_v{version}", dset_name, "*/*", image)
-                    max_proc_dir_template = os.path.join(template_root, f"maxslice_v{version}", dset_name, "*/*", image)
+                    mid_proc_dir_template = os.path.join(template_root, f"midslice_v{version}", dset_name, "*/*", video)
+                    max_proc_dir_template = os.path.join(template_root, f"maxslice_v{version}", dset_name, "*/*", video)
                     if redo_processed or (len(glob.glob(mid_proc_dir_template)) == 0) or (len(glob.glob(max_proc_dir_template)) == 0):
-                        im_dir = os.path.join(self.dset_info[dset_name]["image_root_dir"], image)
-                        label_dir = os.path.join(self.dset_info[dset_name]["label_root_dir"], f"Mask_{image}".replace("avi", "mat"))
+                        im_dir = os.path.join(self.dset_info[dset_name]["image_root_dir"], video)
+                        label_dir = os.path.join(self.dset_info[dset_name]["label_root_dir"], f"Mask_{video}".replace("avi", "mat"))
                         
                         loaded_labeled_video = scipy.io.loadmat(label_dir)["predicted"]
                         if load_images:
                             cap = cv2.VideoCapture(im_dir)
-                        for frame in range(loaded_labeled_video.shape[0]):
+                        frameset = sorted(range(loaded_labeled_video.shape[0]))
+                        for frame in frameset:
                             loaded_label = loaded_labeled_video[frame, ...]
                             if load_images:
                                 #Note that the images are different sizes than the labels, this is ok
@@ -68,11 +70,11 @@ class HMC_QU:
                                 loaded_image = color.rgb2gray(uncropped_loaded_image)[:,half_x_dist:-half_x_dist]
                             else:
                                 loaded_image = None
-
+                            
                             proc_return = proc_func(proc_dir,
                                                       version,
                                                       dset_name,
-                                                      f"{image}_frame{frame}", 
+                                                      f"{video}_frame{frame}", 
                                                       loaded_image,
                                                       loaded_label,
                                                       self.dset_info[dset_name],

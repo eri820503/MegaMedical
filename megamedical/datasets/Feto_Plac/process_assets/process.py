@@ -39,15 +39,15 @@ class Feto_Plac:
                   redo_processed=True):
         assert not(version is None and save), "Must specify version for saving."
         assert dset_name in self.dset_info.keys(), "Sub-dataset must be in info dictionary."
-        image_list = os.listdir(self.dset_info[dset_name]["image_root_dir"])
+        video_list = sorted(os.listdir(self.dset_info[dset_name]["image_root_dir"]))
         proc_dir = os.path.join(paths['ROOT'], "processed")
         res_dict = {}
         for resolution in resolutions:
             accumulator = []
-            for video in tqdm_notebook(image_list, desc=f'Processing: {dset_name}'):
+            for video in tqdm_notebook(video_list, desc=f'Processing: {dset_name}'):
                 vid_dir = os.path.join(self.dset_info[dset_name]["image_root_dir"], video)
-                for frame in os.listdir(os.path.join(vid_dir, "images")):
-                    image = f"{video}_{frame}"
+                frameset = sorted(os.listdir(os.path.join(vid_dir, "images")))
+                for frame in frameset:
                     try:
                         # template follows processed/resolution/dset/midslice/subset/modality/plane/subject
                         template_root = os.path.join(proc_dir, f"res{resolution}", self.name)
@@ -67,16 +67,16 @@ class Feto_Plac:
                                 loaded_label = np.array(Image.open(label_dir).convert('L'))
 
                             proc_return = proc_func(proc_dir,
-                                              version,
-                                              dset_name,
-                                              image, 
-                                              loaded_image,
-                                              loaded_label,
-                                              self.dset_info[dset_name],
-                                              show_hists=show_hists,
-                                              show_imgs=show_imgs,
-                                              res=resolution,
-                                              save=save)
+                                                  version,
+                                                  dset_name,
+                                                  f"{video}_{frame}", 
+                                                  loaded_image,
+                                                  loaded_label,
+                                                  self.dset_info[dset_name],
+                                                  show_hists=show_hists,
+                                                  show_imgs=show_imgs,
+                                                  res=resolution,
+                                                  save=save)
 
                             if accumulate:
                                 accumulator.append(proc_return)

@@ -2,6 +2,7 @@ import nibabel as nib
 from tqdm.notebook import tqdm_notebook
 from PIL import Image
 import numpy as np
+import numpy as np
 import glob
 import os
 
@@ -60,7 +61,8 @@ class PanNuke:
         assert dset_name in self.dset_info.keys(), "Sub-dataset must be in info dictionary."
         volumes_array = np.load(self.dset_info[dset_name]["image_root_dir"])
         labels_array = np.load(self.dset_info[dset_name]["label_root_dir"])
-        image_list = list(range(volumes_array.shape[0]))
+        image_list = sorted(list(range(volumes_array.shape[0])))
+        
         proc_dir = os.path.join(paths['ROOT'], "processed")
         res_dict = {}
         for resolution in resolutions:
