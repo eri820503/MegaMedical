@@ -42,8 +42,10 @@ class Feto_Plac:
         video_list = sorted(os.listdir(self.dset_info[dset_name]["image_root_dir"]))
         proc_dir = os.path.join(paths['ROOT'], "processed")
         res_dict = {}
+        subj_dict = {}
         for resolution in resolutions:
             accumulator = []
+            subj_accumulator = []
             for video in tqdm_notebook(video_list, desc=f'Processing: {dset_name}'):
                 vid_dir = os.path.join(self.dset_info[dset_name]["image_root_dir"], video)
                 frameset = sorted(os.listdir(os.path.join(vid_dir, "images")))
@@ -65,24 +67,27 @@ class Feto_Plac:
                             else:
                                 loaded_image = None
                                 loaded_label = np.array(Image.open(label_dir).convert('L'))
-
+                            
+                            subj_name = f"{video}_{frame}"
                             proc_return = proc_func(proc_dir,
-                                                  version,
-                                                  dset_name,
-                                                  f"{video}_{frame}", 
-                                                  loaded_image,
-                                                  loaded_label,
-                                                  self.dset_info[dset_name],
-                                                  show_hists=show_hists,
-                                                  show_imgs=show_imgs,
-                                                  res=resolution,
-                                                  save=save)
-
-                            if accumulate:
-                                accumulator.append(proc_return)
-                    except Exception as e:
-                        print(e)
-                        #raise ValueError
+                                                version,
+                                                dset_name,
+                                                subj_name, 
+                                                loaded_image,
+                                                loaded_label,
+                                                self.dset_info[dset_name],
+                                                show_hists=show_hists,
+                                                show_imgs=show_imgs,
+                                                res=resolution,
+                                                save=save)
+                        
+                        if accumulate:
+                            accumulator.append(proc_return)
+                            subj_accumulator.append(subj_name)
+                except Exception as e:
+                    print(e)
+                    #raise ValueError
             res_dict[resolution] = accumulator
+            subj_dict[resolution] = subj_accumulator
         if accumulate:
-            return proc_dir, res_dict
+            return proc_dir, subj_dict, res_dict

@@ -17,7 +17,7 @@ class TotalSegmentor:
             "retreived_09_01_2022":{
                 "main":"TotalSegmentor",
                 "image_root_dir": f"{paths['DATA']}/TotalSegmentor/original_unzipped/retreived_09_01_2022/Totalsegmentator_dataset",
-                "label_root_dir": f"{paths['DATA']}/TotalSegmentor/original_unzipped/retreived_09_01_2022/Totalsegmentator_dataset",
+                "label_root_dir": f"{paths['DATA']}/TotalSegmentor/original_unzipped/retreived_09_01_2022/segs",
                 "modality_names": ["CT"],
                 "planes": [0, 1, 2],
                 "clip_args": [-500, 1000],
@@ -41,8 +41,10 @@ class TotalSegmentor:
         image_list = sorted(os.listdir(self.dset_info[dset_name]["image_root_dir"]))
         proc_dir = os.path.join(paths['ROOT'], "processed")
         res_dict = {}
+        subj_dict = {}
         for resolution in resolutions:
             accumulator = []
+            subj_accumulator = []
             for image in tqdm_notebook(image_list, desc=f'Processing: {dset_name}'):
                 try:
                     # template follows processed/resolution/dset/midslice/subset/modality/plane/subject
@@ -51,44 +53,41 @@ class TotalSegmentor:
                     max_proc_dir_template = os.path.join(template_root, f"maxslice_v{version}", dset_name, "*/*", image)
                     if redo_processed or (len(glob.glob(mid_proc_dir_template)) == 0) or (len(glob.glob(max_proc_dir_template)) == 0):
                         im_dir = os.path.join(self.dset_info[dset_name]["image_root_dir"], image, "ct.nii.gz")
-                        segementation_folder = os.path.join(self.dset_info[dset_name]["label_root_dir"], image, "segmentations")
+                        label_dir = os.path.join(self.dset_info[dset_name]["label_root_dir"], f"{image}.npy")
 
                         assert os.path.isfile(im_dir), "Valid image dir required!"
 
                         if load_images:
                             loaded_image = nib.load(im_dir).get_fdata()
-                            labels = [nib.load(os.path.join(segementation_folder, target)).get_fdata() for target in os.listdir(segementation_folder)]
-                            background = np.zeros(loaded_image.shape)
-                            labels.append(background)
-                            combined_labels = np.stack(labels)
-                            loaded_label = np.argmax(combined_labels, axis=0)
+                            loaded_label = np.load(label_dir)
 
                             assert not (loaded_label is None), "Invalid Label"
                             assert not (loaded_image is None), "Invalid Image"
                         else:
                             loaded_image = None
-                            labels = [nib.load(os.path.join(segementation_folder, target)).get_fdata() for target in os.listdir(segementation_folder)]
-                            background = np.zeros(loaded_image.shape)
-                            labels.append(background)
-                            loaded_label = np.argmax(np.concatenate(labels))
+                            loaded_label = np.load(label_dir)
 
+                        # Set the name to be saved
+                        subj_name = image.split(".")[0]
                         proc_return = proc_func(proc_dir,
-                                                  version,
-                                                  dset_name,
-                                                  image, 
-                                                  loaded_image,
-                                                  loaded_label,
-                                                  self.dset_info[dset_name],
-                                                  show_hists=show_hists,
-                                                  show_imgs=show_imgs,
-                                                  res=resolution,
-                                                  save=save)
-
+                                                version,
+                                                dset_name,
+                                                subj_name, 
+                                                loaded_image,
+                                                loaded_label,
+                                                self.dset_info[dset_name],
+                                                show_hists=show_hists,
+                                                show_imgs=show_imgs,
+                                                res=resolution,
+                                                save=save)
+                        
                         if accumulate:
                             accumulator.append(proc_return)
+                            subj_accumulator.append(subj_name)
                 except Exception as e:
                     print(e)
                     #raise ValueError
             res_dict[resolution] = accumulator
+            subj_dict[resolution] = subj_accumulator
         if accumulate:
-            return proc_dir, res_dict
+            return proc_dir, subj_dict, res_dict

@@ -269,10 +269,13 @@ def get_processing_status(datasets,
                     new_entry["% Processed"] = 0.0
                     total_proc = 0
                     for res in [64, 128, 256]:
-                        label_dir = os.path.join(paths["PROC"], f"res{res}", do.name, "label_info", subset, "all_labels.npy")
+                        res_dir = os.path.join(paths["PROC"], f"res{res}", do.name)
+                        label_dir = os.path.join(res_dir, "label_info", subset, "all_labels.npy")
                         new_entry["Labels Known"] = os.path.exists(label_dir)
                         for dt in ["maxslice", "midslice"]:
-                            slice_dir = os.path.join(paths["PROC"], f"res{res}", do.name, f"{dt}_v{version}", subset, modality, str(do.dset_info[subset]["planes"][0]))
+                            pop_paths = [os.path.exists(os.path.join(res_dir, "label_info", subset, f"{dt}_pop_lab_amount_{plane}.pickle")) for plane in do.dset_info[subset]["planes"]]
+                            new_entry[f"{res} {dt} Pop Known"] = np.all(pop_paths)
+                            slice_dir = os.path.join(res_dir, f"{dt}_v{version}", subset, modality, str(do.dset_info[subset]["planes"][0]))
                             if os.path.exists(slice_dir):
                                 num_processed = len(os.listdir(slice_dir))
                                 total_proc += num_processed

@@ -12,7 +12,7 @@ from megamedical.utils.proc_utils import *
 def produce_slices(root_dir,
                    version,
                    subdset,
-                   subject_name,
+                   save_name,
                    loaded_image,
                    loaded_label,
                    dset_info,
@@ -20,8 +20,6 @@ def produce_slices(root_dir,
                    save=False,
                    show_hists=False,
                    show_imgs=False):
-    # Set the name to be saved
-    save_name = subject_name.split(".")[0]
     
     for idx, mode in enumerate(dset_info["modality_names"]):
         #Extract the modality if it exists (mostly used for MSD)
@@ -116,14 +114,15 @@ def gather_population_statistics(data_obj,
     #         - plane 0,1,2...
     #     - label amounts maxslice (per plane)
     #         - plane 0,1,2...
-    proc_dir, resolution_label_dict = data_obj.proc_func(subdset,
-                                                         get_label_amounts,
-                                                         load_images=False,
-                                                         accumulate=True,
-                                                         version=version,
-                                                         resolutions=resolutions,
-                                                         save=save)
+    proc_dir, processed_subjects, resolution_label_dict = data_obj.proc_func(subdset,
+                                                                             get_label_amounts,
+                                                                             load_images=False,
+                                                                             accumulate=True,
+                                                                             version=version,
+                                                                             resolutions=resolutions,
+                                                                             save=save)
     for res in resolutions:
+        res_processed_subjs = processed_subjects[res]
         res_label_info = resolution_label_dict[res]
         num_subjects = len(res_label_info)
         midslice_label_info = [li["midslice"] for li in res_label_info]
@@ -136,13 +135,6 @@ def gather_population_statistics(data_obj,
                                              "label_info", 
                                              subdset, 
                                              "all_labels.npy")).tolist()
-        # get list of subjects
-        subject_list = np.load(os.path.join(paths["DATA"], 
-                                            data_obj.name, 
-                                            "process_assets", 
-                                            f"{subdset}@subject_list.npy"))
-        
-        assert len(subject_list) == len(res_label_info), "Sanity check: Every subject accounted for."
 
         # define an inverse map going from labels to indices in the list
         label_map = {lab: unique_labels.index(lab) for lab in unique_labels}
@@ -162,7 +154,7 @@ def gather_population_statistics(data_obj,
                     save_dir = os.path.join(proc_dir, f"res{res}", data_obj.name, "label_info", subdset)
                     dict_dir = os.path.join(save_dir, f"{slice_type}_pop_lab_amount_{plane}")
                     dict_pair = {
-                        "index": subject_list,
+                        "index": res_processed_subjs,
                         "pop_label_amount": label_info_array
                     }
                     dump_dictionary(dict_pair, dict_dir)
@@ -175,13 +167,13 @@ def gather_unique_labels(data_obj,
                          version,
                          resolutions,
                          save):
-    proc_dir, resolution_label_dict = data_obj.proc_func(subdset,
-                                                         get_all_unique_labels,
-                                                         load_images=False,
-                                                         accumulate=True,
-                                                         version=version,
-                                                         resolutions=resolutions,
-                                                         save=save)
+    proc_dir, processed_subjects, resolution_label_dict = data_obj.proc_func(subdset,
+                                                                             get_all_unique_labels,
+                                                                             load_images=False,
+                                                                             accumulate=True,
+                                                                             version=version,
+                                                                             resolutions=resolutions,
+                                                                             save=save)
     for res in resolutions:
         total_label_info = resolution_label_dict[res]
         num_subjects = len(total_label_info)

@@ -41,8 +41,10 @@ class TCIA:
         image_list = sorted(os.listdir(self.dset_info[dset_name]["image_root_dir"]))
         proc_dir = os.path.join(paths['ROOT'], "processed")
         res_dict = {}
+        subj_dict = {}
         for resolution in resolutions:
             accumulator = []
+            subj_accumulator = []
             for image in tqdm_notebook(image_list, desc=f'Processing: {dset_name}'):
                 try:
                     # template follows processed/resolution/dset/midslice/subset/modality/plane/subject
@@ -68,23 +70,27 @@ class TCIA:
                             loaded_image = None
                             loaded_label = nib.load(label_dir).get_fdata()
 
+                        # Set the name to be saved
+                        subj_name = image.split(".")[0]
                         proc_return = proc_func(proc_dir,
-                                                  version,
-                                                  dset_name,
-                                                  image, 
-                                                  loaded_image,
-                                                  loaded_label,
-                                                  self.dset_info[dset_name],
-                                                  show_hists=show_hists,
-                                                  show_imgs=show_imgs,
-                                                  res=resolution,
-                                                  save=save)
-
+                                                version,
+                                                dset_name,
+                                                subj_name, 
+                                                loaded_image,
+                                                loaded_label,
+                                                self.dset_info[dset_name],
+                                                show_hists=show_hists,
+                                                show_imgs=show_imgs,
+                                                res=resolution,
+                                                save=save)
+                        
                         if accumulate:
                             accumulator.append(proc_return)
+                            subj_accumulator.append(subj_name)
                 except Exception as e:
                     print(e)
                     #raise ValueError
             res_dict[resolution] = accumulator
+            subj_dict[resolution] = subj_accumulator
         if accumulate:
-            return proc_dir, res_dict
+            return proc_dir, subj_dict, res_dict
