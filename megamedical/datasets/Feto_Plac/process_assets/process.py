@@ -81,12 +81,12 @@ class Feto_Plac:
                                                 res=resolution,
                                                 save=save)
                         
-                        if accumulate:
-                            accumulator.append(proc_return)
-                            subj_accumulator.append(subj_name)
-                except Exception as e:
-                    print(e)
-                    #raise ValueError
+                            if accumulate:
+                                accumulator.append(proc_return)
+                                subj_accumulator.append(subj_name)
+                    except Exception as e:
+                        print(e)
+                        #raise ValueError
             res_dict[resolution] = accumulator
             subj_dict[resolution] = subj_accumulator
         if accumulate:

@@ -86,9 +86,9 @@ class HMC_QU:
                                                 res=resolution,
                                                 save=save)
                         
-                        if accumulate:
-                            accumulator.append(proc_return)
-                            subj_accumulator.append(subj_name)
+                            if accumulate:
+                                accumulator.append(proc_return)
+                                subj_accumulator.append(subj_name)
                 except Exception as e:
                     print(e)
                     #raise ValueError
