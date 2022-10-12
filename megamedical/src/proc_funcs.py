@@ -58,7 +58,9 @@ def process_dataset(datasets,
                     version="4.0",
                     timeout=540,
                     mem_gb=32, 
-                    combine_jobs=False):
+                    combine_jobs=False,
+                    parallelize=False,
+                    smallest_first=False):
     assert not (combine_jobs and not slurm), "Combining jobs only useful for slurm."
     assert not (len(datasets) > 1 and visualize), "Can't visualize a list of processing."
     assert not (slurm and visualize), "If you are submitting slurm no vis."
@@ -81,6 +83,7 @@ def process_dataset(datasets,
             job = executor.submit(batch_process,
                                   do.proc_func,
                                   subdset_names,
+                                  parallelize,
                                   load_images,
                                   accumulate,
                                   version,
@@ -100,6 +103,7 @@ def process_dataset(datasets,
                     job = executor.submit(do.proc_func,
                                           subdset,
                                           pps.produce_slices,
+                                          parallelize,
                                           load_images,
                                           accumulate,
                                           version,
@@ -112,6 +116,7 @@ def process_dataset(datasets,
                     try:
                         do.proc_func(subdset,
                                      pps.produce_slices,
+                                     parallelize,
                                      load_images,
                                      accumulate,
                                      version,
@@ -134,7 +139,9 @@ def generate_population_statistics(datasets,
                                   timeout=180,
                                   mem_gb=16,
                                   volume_wide=True, 
-                                  combine_jobs=False):
+                                  combine_jobs=False,
+                                  parallelize=False,
+                                  smallest_first=False):
     assert not (combine_jobs and not slurm), "Combining jobs only useful for slurm."
     
     if datasets == "all":
@@ -186,8 +193,9 @@ def generate_unique_label_files(datasets,
                               redo_processed=False,
                               timeout=180,
                               mem_gb=16,
-                              combine_jobs=False):
-    
+                              combine_jobs=False,
+                              parallelize=False,
+                              smallest_first=False):
     if datasets == "all":
         datasets = os.listdir(paths["DATA"])
 
@@ -204,10 +212,11 @@ def generate_unique_label_files(datasets,
                             res_copy.remove(res)
                 if len(res_copy) > 0:
                     pps.gather_unique_labels(do,
-                                          subdset,
-                                          version,
-                                          res_copy,
-                                          save)
+                                             subdset,
+                                             version,
+                                             res_copy,
+                                             parallelize,
+                                             save)
     if combine_jobs:
         if slurm:
             slurm_root = os.path.join(paths["ROOT"], f"bash/submitit/label_files")
@@ -217,11 +226,13 @@ def generate_unique_label_files(datasets,
                                   dataset_objects,
                                   version,
                                   resolutions,
+                                  parallelize,
                                   save)
         else:
             get_label_files(dataset_objects, 
                             version, 
                             resolutions, 
+                            parallelize,
                             save)
     else:
         for do in dataset_objects:
@@ -236,13 +247,15 @@ def generate_unique_label_files(datasets,
                                           subdset,
                                           version,
                                           resolutions,
+                                          parallelize,
                                           save)
                 else:
                     pps.gather_unique_labels(do,
-                                          subdset,
-                                          version,
-                                          resolutions,
-                                          save)
+                                              subdset,
+                                              version,
+                                              resolutions,
+                                              parallelize,
+                                              save)
                     
 
 def get_processing_status(datasets,
@@ -262,7 +275,8 @@ def get_processing_status(datasets,
                 new_entry["Subset"] = subset
                 new_entry["Modality"] = modality
                 # Load the entire list of subjects
-                subject_file = os.path.join(paths["DATA"], do.name, "process_assets", f"{subset}@subject_list.npy")
+                raise NotImplementedError("Need to implement the subject file.")
+                subject_file = None
                 if os.path.exists(subject_file):
                     all_subs = np.load(subject_file)          
                     new_entry["Num Subj"] = len(all_subs)
