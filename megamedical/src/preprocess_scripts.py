@@ -168,14 +168,18 @@ def gather_unique_labels(data_obj,
                          resolutions,
                          parallelize,
                          save):
-    proc_dir, processed_subjects, resolution_label_dict = data_obj.proc_func(subdset,
-                                                                             get_all_unique_labels,
-                                                                             parallelize,
+    proc_dir, processed_subjects, resolution_label_dict = data_obj.proc_func(subdset=subdset,
+                                                                             pps_function=get_all_unique_labels,
+                                                                             parallelize=parallelize,
                                                                              load_images=False,
                                                                              accumulate=True,
                                                                              version=version,
+                                                                             show_imgs=False,
+                                                                             save=save,
+                                                                             show_hists=False,
                                                                              resolutions=resolutions,
-                                                                             save=save)
+                                                                             redo_processed=True
+                                                                             )                 
     for res in resolutions:
         total_label_info = resolution_label_dict[res]
         num_subjects = len(total_label_info)
