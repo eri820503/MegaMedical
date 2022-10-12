@@ -54,5 +54,5 @@ def process_image_list(process_DATASET_image,
                     subj_accumulator.append(subj_name)    
         res_dict[resolution] = accumulator
         subj_dict[resolution] = subj_accumulator
-    if accumulate:
-        return subj_dict, res_dict
+    
+    return subj_dict, res_dict

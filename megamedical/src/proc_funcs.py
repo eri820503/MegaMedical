@@ -2,16 +2,116 @@ import numpy as np
 import submitit 
 import math 
 import matplotlib.pyplot as plt 
+import shutil
 import os
 import pandas as pd
+import glob
 pd.set_option('display.max_rows',100)
 
 # Megamedical imports
 from megamedical.src import preprocess_scripts as pps
 from megamedical.utils.registry import paths
 import megamedical.utils as utils
+
+
+# Combined function of processing
+def combined_pipeline_process(do,
+                              subdset,
+                              version,
+                              resolutions,
+                              parallelize,
+                              redo_processed,
+                              train_split,
+                              save):
+    print(f"Generating Unique Labels for Dataset: {do.name}, Subdset: {subdset}")
+    # Gather unique labels
+    pps.gather_unique_labels(data_obj=do,
+                             subdset=subdset,
+                             version=version,
+                             resolutions=resolutions,
+                             parallelize=parallelize,
+                             save=save)
+    print(f"Generating Pop Stats for Dataset: {do.name}, Subdset: {subdset}")
+    # Get population label matrices, subj list
+    pps.gather_population_statistics(data_obj=do,
+                                     subdset=subdset,
+                                     version=version,
+                                     resolutions=resolutions,
+                                     parallelize=parallelize,
+                                     save=save)
+    print(f"Processing Images for Dataset: {do.name}, Subdset: {subdset}")
+    # Process Images
+    do.proc_func(subdset=subdset,
+                 pps_function=pps.produce_slices,
+                 parallelize=parallelize,
+                 load_images=True,
+                 version=version,
+                 show_imgs=False,
+                 save=save,
+                 show_hists=False,
+                 resolutions=resolutions,
+                 redo_processed=redo_processed)
+    print(f"Making Training Splits for Dataset: {do.name}, Subdset: {subdset}")
+    # Make training splits
+    make_splits(data_obj=do,
+                subdset=subdset,
+                resolutions=resolutions,
+                version=version,
+                amount_training=train_split)
+    # Finished
+    print(f"Done with Dataset: {do.name}, Subdset: {subdset}!")
         
         
+# High level function, can do process all at once.
+def process_pipeline(datasets,
+                     subdsets=None,
+                     save=False,
+                     slurm=False,
+                     redo_processed=True,
+                     resolutions=[64, 128, 256],
+                     train_split=0.7,
+                     version="4.0",
+                     timeout=540,
+                     mem_gb=32,
+                     parallelize=False):
+    
+    if datasets == "all":
+        datasets = os.listdir(paths["DATA"])
+
+    dataset_objects = [utils.build_dataset(ds) for ds in datasets]
+
+    for do in dataset_objects:
+        subdset_names = list(do.dset_info.keys()) if subdsets is None else subdsets
+        for subdset in subdset_names:
+            try:
+                if slurm:
+                    slurm_root = os.path.join(paths["ROOT"], f"bash/submitit/{do.name}/{subdset}")
+                    executor = submitit.AutoExecutor(folder=slurm_root)
+                    executor.update_parameters(timeout_min=timeout, mem_gb=mem_gb, slurm_partition="sablab", slurm_wckey="")
+                    job = executor.submit(combined_pipeline_process,
+                                          do,
+                                          subdset,
+                                          version,
+                                          resolutions,
+                                          parallelize,
+                                          redo_processed,
+                                          train_split,
+                                          save)
+                else:
+                    combined_pipeline_process(do,
+                                              subdset,
+                                              version,
+                                              resolutions,
+                                              parallelize, 
+                                              redo_processed,
+                                              train_split,
+                                              save)
+            except Exception as e:
+                print(e)
+                continue
+        
+        
+# Middle step of processing, actually process the images:       
 def process_dataset(datasets,
                     subdsets=None,
                     save=False,
@@ -24,7 +124,7 @@ def process_dataset(datasets,
                     timeout=540,
                     mem_gb=32,
                     parallelize=False):
-    
+    assert not (parallelize and show_imgs) or (parallelize and show_hists), "Parallelization disabled for showing graphics."
     assert not (slurm and show_imgs), "If you are submitting slurm no vis."
     
     load_images = True
@@ -71,7 +171,8 @@ def process_dataset(datasets,
                 print(e)
                 continue
                 
-
+                
+# Middle step of processing, determine the label statistics of a dataset.
 def generate_population_statistics(datasets,
                                   subdsets=None,
                                   save=False,
@@ -109,7 +210,8 @@ def generate_population_statistics(datasets,
                                                  parallelize,
                                                  save)
 
-
+                
+# First step of processing, determine the unique labels of a dataset.
 def generate_unique_label_files(datasets,
                               subdsets=None,
                               save=False,
@@ -148,7 +250,7 @@ def generate_unique_label_files(datasets,
                                          parallelize,
                                          save)
                     
-
+# Table for getting current status of processing
 def get_processing_status(datasets,
                           version="4.0"):
     
@@ -197,54 +299,73 @@ def get_processing_status(datasets,
     return dataframe
 
 
-def make_splits(datasets,
-                subdsets=None,
+# Function at the end of processing to produce splits for a dataset
+def make_splits(data_obj,
+                subdset,
                 resolutions=[64, 128, 256],
-                amount_training=0.7,
-                version="4.0"):
+                version="4.0",
+                amount_training=0.7):
     
     split_files_dir = os.path.join(paths["PROC"], "split_files")
     if not os.path.exists(split_files_dir):
         os.makedirs(split_files_dir)
     
     for res in resolutions:
-        if datasets == "all":
-            datasets = os.listdir(os.path.join(paths["PROC"], f"res{res}"))
-        dataset_objects = [utils.build_dataset(ds) for ds in datasets]
-        for do in dataset_objects:
-            for dset_type in ["maxslice_v4.0", "maxslice_v4.0"]:
-                subdset_names = list(do.dset_info.keys()) if subdsets is None else subdsets
-                for subdset in subdset_names:
-                    try:
-                        subjects = np.array(utils.proc_utils.get_list_of_subjects(paths["PROC"], res, dset_type, do.name, subdset))
+        for dset_type in ["midslice_v4.0", "maxslice_v4.0"]:
+            try:
+                subjects = np.array(utils.proc_utils.get_list_of_subjects(paths["PROC"], res, dset_type, data_obj.name, subdset))
 
-                        total_amount = len(subjects)
-                        indices = np.arange(total_amount)
-                        np.random.shuffle(indices)
+                total_amount = len(subjects)
+                indices = np.arange(total_amount)
+                np.random.shuffle(indices)
 
-                        train_amount = int(total_amount*amount_training)
-                        val_test_amount = total_amount - train_amount
-                        val_amount = int(val_test_amount*0.5)
-                        test_amount = val_test_amount - val_amount
+                train_amount = int(total_amount*amount_training)
+                val_test_amount = total_amount - train_amount
+                val_amount = int(val_test_amount*0.5)
+                test_amount = val_test_amount - val_amount
 
-                        train_indices = indices[:train_amount]
-                        val_indices = indices[train_amount:train_amount+val_amount]
-                        test_indices = indices[-test_amount:]
-                        
-                        names_dict = {
-                            "train": subjects[train_indices],
-                            "val": subjects[val_indices], 
-                            "test": subjects[test_indices]
-                        }
-                        
-                        for split in ["train", "val", "test"]:
-                            split_file = open(os.path.join(split_files_dir, f"res{res}__{do.name}__{dset_type}__{subdset}__{split}.txt"), "w")
-                            for file_name in names_dict[split]:
-                                split_file.write(file_name + "\n")
-                            split_file.close()
-                        
-                        print(f"DONE SPLITTING {do.name}!")
-                    except Exception as e:
-                        print("Error:", e)
-                        
+                train_indices = indices[:train_amount]
+                val_indices = indices[train_amount:train_amount+val_amount]
+                test_indices = indices[-test_amount:]
+
+                names_dict = {
+                    "train": subjects[train_indices],
+                    "val": subjects[val_indices], 
+                    "test": subjects[test_indices]
+                }
+
+                for split in ["train", "val", "test"]:
+                    split_file = open(os.path.join(split_files_dir, f"res{res}__{data_obj.name}__{dset_type}__{subdset}__{split}.txt"), "w")
+                    for file_name in names_dict[split]:
+                        split_file.write(file_name + "\n")
+                    split_file.close()
+
+            except Exception as e:
+                print("Error:", e)
+
+                
+# get rid of processed datasets
+def flush_processed_datasets(datasets):
+    
+    if datasets == "all":
+        confirmation = input("Are you SURE. Y/y:")
+        if confirmation in ["y", "Y"]:   
+            datasets = os.listdir(paths["DATA"])
+        else:
+            return 0 
+    
+    dataset_objects = [utils.build_dataset(ds) for ds in datasets]
+    
+    for do in dataset_objects:
+        for res in ["res64", "res128", "res256"]:
+            res_dir = os.path.join(paths["PROC"], res, do.name)
+            if os.path.exists(res_dir):
+                shutil.rmtree(res_dir)
+    
+            split_files = glob.glob(os.path.join(paths["PROC"], "split_files", f"{res}__{do.name}*"))
+            for sf in split_files:
+                os.remove(sf)
+    
+
+
 

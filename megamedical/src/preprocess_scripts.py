@@ -95,8 +95,8 @@ def produce_slices(root_dir,
             max_save_dir = os.path.join(root_dir, f"res{res}", dset_info["main"], f"maxslice_v{version}")
             mid_save_dir = os.path.join(root_dir, f"res{res}", dset_info["main"], f"midslice_v{version}")
             #Save each type of file
-            save_maxslice(max_save_dir, image_res, seg_res, subdset, mode, subject_name, dset_info["planes"], max_slices)
-            save_midslice(mid_save_dir, image_res, seg_res, subdset, mode, subject_name, dset_info["planes"])
+            save_maxslice(max_save_dir, image_res, seg_res, subdset, mode, save_name, dset_info["planes"], max_slices)
+            save_midslice(mid_save_dir, image_res, seg_res, subdset, mode, save_name, dset_info["planes"])
                 
                 
 # Produce the "all label" matrices for each resolution
