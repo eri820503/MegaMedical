@@ -5,7 +5,7 @@ import numpy as np
 import glob
 import os
 
-#New line!
+from megamedical.src import processing as proc
 from megamedical.src import preprocess_scripts as pps
 from megamedical.utils.registry import paths
 from megamedical.utils import proc_utils as put
@@ -46,8 +46,9 @@ class BRATS:
         }
 
     def proc_func(self,
-                  dset_name,
-                  proc_func,
+                  subdset,
+                  pps_function,
+                  parallelize=False,
                   load_images=True,
                   accumulate=False,
                   version=None,
@@ -57,87 +58,98 @@ class BRATS:
                   resolutions=None,
                   redo_processed=True):
         assert not(version is None and save), "Must specify version for saving."
-        assert dset_name in self.dset_info.keys(), "Sub-dataset must be in info dictionary."
-        image_list = sorted(os.listdir(self.dset_info[dset_name]["image_root_dir"]))
+        assert subdset in self.dset_info.keys(), "Sub-dataset must be in info dictionary."
         proc_dir = os.path.join(paths['ROOT'], "processed")
-        res_dict = {}
-        subj_dict = {}
-        for resolution in resolutions:
-            accumulator = []
-            subj_accumulator = []
-            for image in tqdm_notebook(image_list, desc=f'Processing: {dset_name}'):
-                try:
-                    # template follows processed/resolution/dset/midslice/subset/modality/plane/subject
-                    template_root = os.path.join(proc_dir, f"res{resolution}", self.name)
-                    mid_proc_dir_template = os.path.join(template_root, f"midslice_v{version}", dset_name, "*/*", image)
-                    max_proc_dir_template = os.path.join(template_root, f"maxslice_v{version}", dset_name, "*/*", image)
-                    if redo_processed or (len(glob.glob(mid_proc_dir_template)) == 0) or (len(glob.glob(max_proc_dir_template)) == 0):
-                        subj_folder = os.path.join(self.dset_info[dset_name]["image_root_dir"], image)
-                        if dset_name == "2021":
-                            if load_images:
-                                flair_im_dir = os.path.join(subj_folder, f"{image}_flair.nii.gz")
-                                t1_im_dir = os.path.join(subj_folder, f"{image}_t1.nii.gz")
-                                t1c_im_dir = os.path.join(subj_folder, f"{image}_t1ce.nii.gz")
-                                t2_im_dir = os.path.join(subj_folder, f"{image}_t2.nii.gz")
-                                label_dir = os.path.join(self.dset_info[dset_name]["label_root_dir"], image, f"{image}_seg.nii.gz")
-
-                                flair_image = nib.load(flair_im_dir).get_fdata()
-                                t1_image = nib.load(t1_im_dir).get_fdata()
-                                t1c_image = nib.load(t1c_im_dir).get_fdata()
-                                t2_image = nib.load(t2_im_dir).get_fdata()
-
-                                loaded_image = np.stack([flair_image, t1_image, t1c_image, t2_image], axis=-1)
-                                loaded_label = nib.load(label_dir).get_fdata()
-                                assert not (loaded_label is None), "Invalid Label"
-                                assert not (loaded_image is None), "Invalid Image"
-                            else:
-                                label_dir = os.path.join(self.dset_info[dset_name]["label_root_dir"], image, f"{image}_seg.nii.gz")
-                                loaded_image = None
-                                loaded_label = nib.load(label_dir).get_fdata()
-                        else:
-                            if load_images:
-                                flair_im_dir = glob.glob(os.path.join(subj_folder, "VSD.Brain.XX.O.MR_Flair*/VSD.Brain.XX.O.MR_Flair*.mha"))[0]
-                                t1_im_dir = glob.glob(os.path.join(subj_folder, "VSD.Brain.XX.O.MR_T1*/VSD.Brain.XX.O.MR_T1*.mha"))[0]
-                                t1c_im_dir = glob.glob(os.path.join(subj_folder, "VSD.Brain.XX.O.MR_T1c*/VSD.Brain.XX.O.MR_T1c*.mha"))[0]
-                                t2_im_dir = glob.glob(os.path.join(subj_folder, "VSD.Brain.XX.O.MR_T2*/VSD.Brain.XX.O.MR_T2*.mha"))[0]
-                                label_dir = glob.glob(os.path.join(self.dset_info[dset_name]["label_root_dir"], image, "VSD.Brain_*/VSD.Brain_*.mha"))[0]
-
-                                flair_image, _ = medpy.io.load(flair_im_dir)
-                                t1_image, _ = medpy.io.load(t1_im_dir)
-                                t1c_image, _ = medpy.io.load(t1c_im_dir)
-                                t2_image, _ = medpy.io.load(t2_im_dir)
-
-                                loaded_image = np.stack([flair_image, t1_image, t1c_image, t2_image], axis=-1)
-                                loaded_label, _ = medpy.io.load(label_dir)
-                                assert not (loaded_label is None), "Invalid Label"
-                                assert not (loaded_image is None), "Invalid Image"
-                            else:
-                                label_dir = glob.glob(os.path.join(self.dset_info[dset_name]["label_root_dir"], image, "VSD.Brain_*/VSD.Brain_*.mha"))[0]
-
-                                loaded_image = None
-                                loaded_label, _ = medpy.io.load(label_dir)
-
-                        # Set the name to be saved
-                        subj_name = image.split(".")[0]
-                        proc_return = proc_func(proc_dir,
-                                                version,
-                                                dset_name,
-                                                subj_name, 
-                                                loaded_image,
-                                                loaded_label,
-                                                self.dset_info[dset_name],
-                                                show_hists=show_hists,
-                                                show_imgs=show_imgs,
-                                                res=resolution,
-                                                save=save)
-                        
-                        if accumulate:
-                            accumulator.append(proc_return)
-                            subj_accumulator.append(subj_name)
-                except Exception as e:
-                    print(e)
-                    #raise ValueError
-            res_dict[resolution] = accumulator
-            subj_dict[resolution] = subj_accumulator
+        image_list = sorted(os.listdir(self.dset_info[subdset]["image_root_dir"]))
+        subj_dict, res_dict = proc.process_image_list(process_BRATS_image,
+                                                      proc_dir,
+                                                      image_list,
+                                                      parallelize,
+                                                      pps_function,
+                                                      resolutions,
+                                                      self.name,
+                                                      subdset,
+                                                      self.dset_info,
+                                                      redo_processed,
+                                                      load_images,
+                                                      show_hists,
+                                                      version,
+                                                      show_imgs,
+                                                      accumulate,
+                                                      save)
         if accumulate:
             return proc_dir, subj_dict, res_dict
+        
+        
+global process_BRATS_image
+def process_BRATS_image(item):
+    try:
+        dset_info = item['dset_info']
+        # template follows processed/resolution/dset/midslice/subset/modality/plane/subject
+        if item['redo_processed'] or is_processed_check(item):
+            subj_folder = os.path.join(dset_info[item['subdset']]["image_root_dir"], item['image'])
+            if item['subdset'] == "2021":
+                if item['load_images']:
+                    flair_im_dir = os.path.join(subj_folder, f"{item['image']}_flair.nii.gz")
+                    t1_im_dir = os.path.join(subj_folder, f"{item['image']}_t1.nii.gz")
+                    t1c_im_dir = os.path.join(subj_folder, f"{item['image']}_t1ce.nii.gz")
+                    t2_im_dir = os.path.join(subj_folder, f"{item['image']}_t2.nii.gz")
+                    label_dir = os.path.join(dset_info[item['subdset']]["label_root_dir"], item['image'], f"{item['image']}_seg.nii.gz")
+
+                    flair_image = nib.load(flair_im_dir).get_fdata()
+                    t1_image = nib.load(t1_im_dir).get_fdata()
+                    t1c_image = nib.load(t1c_im_dir).get_fdata()
+                    t2_image = nib.load(t2_im_dir).get_fdata()
+
+                    loaded_image = np.stack([flair_image, t1_image, t1c_image, t2_image], axis=-1)
+                    loaded_label = nib.load(label_dir).get_fdata()
+                    assert not (loaded_label is None), "Invalid Label"
+                    assert not (loaded_image is None), "Invalid Image"
+                else:
+                    label_dir = os.path.join(dset_info[item['subdset']]["label_root_dir"], item['image'], f"{item['image']}_seg.nii.gz")
+                    loaded_image = None
+                    loaded_label = nib.load(label_dir).get_fdata()
+            else:
+                if item['load_images']:
+                    flair_im_dir = glob.glob(os.path.join(subj_folder, "VSD.Brain.XX.O.MR_Flair*/VSD.Brain.XX.O.MR_Flair*.mha"))[0]
+                    t1_im_dir = glob.glob(os.path.join(subj_folder, "VSD.Brain.XX.O.MR_T1*/VSD.Brain.XX.O.MR_T1*.mha"))[0]
+                    t1c_im_dir = glob.glob(os.path.join(subj_folder, "VSD.Brain.XX.O.MR_T1c*/VSD.Brain.XX.O.MR_T1c*.mha"))[0]
+                    t2_im_dir = glob.glob(os.path.join(subj_folder, "VSD.Brain.XX.O.MR_T2*/VSD.Brain.XX.O.MR_T2*.mha"))[0]
+                    label_dir = glob.glob(os.path.join(dset_info[item['subdset']]["label_root_dir"], item['image'], "VSD.Brain_*/VSD.Brain_*.mha"))[0]
+
+                    flair_image, _ = medpy.io.load(flair_im_dir)
+                    t1_image, _ = medpy.io.load(t1_im_dir)
+                    t1c_image, _ = medpy.io.load(t1c_im_dir)
+                    t2_image, _ = medpy.io.load(t2_im_dir)
+
+                    loaded_image = np.stack([flair_image, t1_image, t1c_image, t2_image], axis=-1)
+                    loaded_label, _ = medpy.io.load(label_dir)
+                    assert not (loaded_label is None), "Invalid Label"
+                    assert not (loaded_image is None), "Invalid Image"
+                else:
+                    label_dir = glob.glob(os.path.join(dset_info[item['subdset']]["label_root_dir"], item['image'], "VSD.Brain_*/VSD.Brain_*.mha"))[0]
+
+                    loaded_image = None
+                    loaded_label, _ = medpy.io.load(label_dir)
+
+            # Set the name to be saved
+            subj_name = item['image'].split(".")[0]
+            pps_function = item['pps_function']
+            proc_return = pps_function(item['proc_dir'],
+                                        item['version'],
+                                        item['subdset'],
+                                        subj_name, 
+                                        loaded_image,
+                                        loaded_label,
+                                        dset_info[item['subdset']],
+                                        show_hists=item['show_hists'],
+                                        show_imgs=item['show_imgs'],
+                                        res=item['resolution'],
+                                        save=item['save'])
+
+            return proc_return, subj_name
+        else:
+            return None, None
+    except Exception as e:
+        print(e)
+        return None, None

@@ -5,10 +5,10 @@ from tqdm.notebook import tqdm_notebook
 
 
 def process_image_list(process_DATASET_image,
+                       proc_dir,
                        image_list,
                        parallelize,
                        pps_function,
-                       proc_dir,
                        resolutions,
                        dataset,
                        subdset,
@@ -28,8 +28,8 @@ def process_image_list(process_DATASET_image,
         item_list = [{
                       "image": image,
                       "pps_function": pps_function,
-                      "proc_dir": proc_dir,
                       "resolution": resolution,
+                      "proc_dir": proc_dir,
                       "dataset": dataset,
                       "subdset": subdset,
                       "dset_info": dset_info,
@@ -55,4 +55,4 @@ def process_image_list(process_DATASET_image,
         res_dict[resolution] = accumulator
         subj_dict[resolution] = subj_accumulator
     if accumulate:
-        return proc_dir, subj_dict, res_dict
+        return subj_dict, res_dict

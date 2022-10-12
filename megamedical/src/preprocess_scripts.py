@@ -17,9 +17,9 @@ def produce_slices(root_dir,
                    loaded_label,
                    dset_info,
                    res,
-                   save=False,
-                   show_hists=False,
-                   show_imgs=False):
+                   save,
+                   show_hists,
+                   show_imgs):
     
     for idx, mode in enumerate(dset_info["modality_names"]):
         #Extract the modality if it exists (mostly used for MSD)
@@ -105,6 +105,7 @@ def gather_population_statistics(data_obj,
                                  subdset,
                                  version,
                                  resolutions,
+                                 parallelize,
                                  save):
     
     # total_label_info is a dictionary that is structed like the following
@@ -114,13 +115,17 @@ def gather_population_statistics(data_obj,
     #         - plane 0,1,2...
     #     - label amounts maxslice (per plane)
     #         - plane 0,1,2...
-    proc_dir, processed_subjects, resolution_label_dict = data_obj.proc_func(subdset,
-                                                                             get_label_amounts,
+    proc_dir, processed_subjects, resolution_label_dict = data_obj.proc_func(subdset=subdset,
+                                                                             pps_function=get_label_amounts,
+                                                                             parallelize=parallelize,
                                                                              load_images=False,
                                                                              accumulate=True,
                                                                              version=version,
+                                                                             show_imgs=False,
+                                                                             save=save,
+                                                                             show_hists=False,
                                                                              resolutions=resolutions,
-                                                                             save=save)
+                                                                             redo_processed=True)
     for res in resolutions:
         res_processed_subjs = processed_subjects[res]
         res_label_info = resolution_label_dict[res]

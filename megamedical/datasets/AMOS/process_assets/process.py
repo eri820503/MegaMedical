@@ -42,10 +42,10 @@ class AMOS:
         proc_dir = os.path.join(paths['ROOT'], "processed")
         image_list = sorted(os.listdir(self.dset_info[subdset]["image_root_dir"]))
         subj_dict, res_dict = proc.process_image_list(process_AMOS_image,
+                                                      proc_dir,
                                                       image_list,
                                                       parallelize,
                                                       pps_function,
-                                                      proc_dir,
                                                       resolutions,
                                                       self.name,
                                                       subdset,
