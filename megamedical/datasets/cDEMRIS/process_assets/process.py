@@ -5,7 +5,7 @@ import numpy as np
 import glob
 import os
 
-#New line!
+from megamedical.src import processing as proc
 from megamedical.src import preprocess_scripts as pps
 from megamedical.utils.registry import paths
 from megamedical.utils import proc_utils as put
@@ -36,8 +36,9 @@ class cDEMRIS:
         }
 
     def proc_func(self,
-                  dset_name,
-                  proc_func,
+                  subdset,
+                  pps_function,
+                  parallelize=False,
                   load_images=True,
                   accumulate=False,
                   version=None,
@@ -47,58 +48,69 @@ class cDEMRIS:
                   resolutions=None,
                   redo_processed=True):
         assert not(version is None and save), "Must specify version for saving."
-        assert dset_name in self.dset_info.keys(), "Sub-dataset must be in info dictionary."
-        image_list = sorted(os.listdir(self.dset_info[dset_name]["image_root_dir"]))
+        assert subdset in self.dset_info.keys(), "Sub-dataset must be in info dictionary."
         proc_dir = os.path.join(paths['ROOT'], "processed")
-        res_dict = {}
-        subj_dict = {}
-        for resolution in resolutions:
-            accumulator = []
-            subj_accumulator = []
-            for image in tqdm_notebook(image_list, desc=f'Processing: {dset_name}'):
-                try:
-                    # template follows processed/resolution/dset/midslice/subset/modality/plane/subject
-                    template_root = os.path.join(proc_dir, f"res{resolution}", self.name)
-                    mid_proc_dir_template = os.path.join(template_root, f"midslice_v{version}", dset_name, "*/*", image)
-                    max_proc_dir_template = os.path.join(template_root, f"maxslice_v{version}", dset_name, "*/*", image)
-                    if redo_processed or (len(glob.glob(mid_proc_dir_template)) == 0) or (len(glob.glob(max_proc_dir_template)) == 0):
-                        vers = "a" if dset_name == "ISBI_2012_pre" else "b"
-                        im_dir = os.path.join(self.dset_info[dset_name]["image_root_dir"], image, f"de_{vers}_{image[1:]}.nrrd")
-                        label_dir = os.path.join(self.dset_info[dset_name]["label_root_dir"], image, f"la_seg_{vers}_{image[1:]}.nrrd")
-
-                        assert os.path.isfile(im_dir), "Valid image dir required!"
-                        assert os.path.isfile(label_dir), "Valid label dir required!"
-
-                        if load_images:
-                            loaded_image, _ = nrrd.read(im_dir)
-                            loaded_label, _ = nrrd.read(label_dir)
-                            assert not (loaded_label is None), "Invalid Label"
-                            assert not (loaded_image is None), "Invalid Image"
-                        else:
-                            loaded_image = None
-                            loaded_label, _ = nrrd.read(label_dir)
-
-                        # Set the name to be saved
-                        subj_name = image.split(".")[0]
-                        proc_return = proc_func(proc_dir,
-                                                version,
-                                                dset_name,
-                                                subj_name, 
-                                                loaded_image,
-                                                loaded_label,
-                                                self.dset_info[dset_name],
-                                                show_hists=show_hists,
-                                                show_imgs=show_imgs,
-                                                res=resolution,
-                                                save=save)
-                        
-                        if accumulate:
-                            accumulator.append(proc_return)
-                            subj_accumulator.append(subj_name)
-                except Exception as e:
-                    print(e)
-                    #raise ValueError
-            res_dict[resolution] = accumulator
-            subj_dict[resolution] = subj_accumulator
+        image_list = sorted(os.listdir(self.dset_info[subdset]["image_root_dir"]))
+        subj_dict, res_dict = proc.process_image_list(process_cDEMRIS_image,
+                                                      proc_dir,
+                                                      image_list,
+                                                      parallelize,
+                                                      pps_function,
+                                                      resolutions,
+                                                      self.name,
+                                                      subdset,
+                                                      self.dset_info,
+                                                      redo_processed,
+                                                      load_images,
+                                                      show_hists,
+                                                      version,
+                                                      show_imgs,
+                                                      accumulate,
+                                                      save)
         if accumulate:
             return proc_dir, subj_dict, res_dict
+
+    
+global process_cDEMRIS_image
+def process_cDEMRIS_image(item):
+    try:
+        dset_info = item['dset_info']
+        # template follows processed/resolution/dset/midslice/subset/modality/plane/subject
+        if item['redo_processed'] or is_processed_check(item):
+            vers = "a" if item['subdset'] == "ISBI_2012_pre" else "b"
+            im_dir = os.path.join(dset_info[item['subdset']]["image_root_dir"], item['image'], f"de_{vers}_{item['image'][1:]}.nrrd")
+            label_dir = os.path.join(dset_info[item['subdset']]["label_root_dir"], item['image'], f"la_seg_{vers}_{item['image'][1:]}.nrrd")
+
+            assert os.path.isfile(im_dir), "Valid image dir required!"
+            assert os.path.isfile(label_dir), "Valid label dir required!"
+
+            if item['load_images']:
+                loaded_image, _ = nrrd.read(im_dir)
+                loaded_label, _ = nrrd.read(label_dir)
+                assert not (loaded_label is None), "Invalid Label"
+                assert not (loaded_image is None), "Invalid Image"
+            else:
+                loaded_image = None
+                loaded_label, _ = nrrd.read(label_dir)
+
+            # Set the name to be saved
+            subj_name = item['image'].split(".")[0]
+            pps_function = item['pps_function']
+            proc_return = pps_function(item['proc_dir'],
+                                        item['version'],
+                                        item['subdset'],
+                                        subj_name, 
+                                        loaded_image,
+                                        loaded_label,
+                                        dset_info[item['subdset']],
+                                        show_hists=item['show_hists'],
+                                        show_imgs=item['show_imgs'],
+                                        res=item['resolution'],
+                                        save=item['save'])
+
+            return proc_return, subj_name
+        else:
+            return None, None
+    except Exception as e:
+        print(e)
+        return None, None
