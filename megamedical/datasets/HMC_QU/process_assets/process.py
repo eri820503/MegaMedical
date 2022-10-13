@@ -96,3 +96,5 @@ class HMC_QU:
             subj_dict[resolution] = subj_accumulator
         if accumulate:
             return proc_dir, subj_dict, res_dict
+
+   
