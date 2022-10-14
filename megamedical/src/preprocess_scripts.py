@@ -106,8 +106,22 @@ def gather_population_statistics(data_obj,
                                  version,
                                  resolutions,
                                  parallelize,
+                                 redo_processed,
                                  save):
     
+    # Check if we need to process anything
+    if not redo_processed:
+        pickle_dirs = []
+        for res in resolutions:
+            res_save_dir = os.path.join(os.path.join(paths['ROOT'], "processed"), f"res{res}", data_obj.name, "label_info", subdset)
+            for slice_type in ["midslice", "maxslice"]:
+                for plane in data_obj.dset_info[subdset]["planes"]:
+                    slicetype_plane_dir = os.path.join(res_save_dir, f"{slice_type}_pop_lab_amount_{plane}.pickle")
+                    if not os.path.exists(slicetype_plane_dir):
+                        pickle_dirs.append(slicetype_plane_dir)          
+        if len(pickle_dirs) == 0:
+            return
+        
     # total_label_info is a dictionary that is structed like the following
     # total_label_info
     # - resolution (64, 128, 256, etc.)
@@ -172,7 +186,13 @@ def gather_unique_labels(data_obj,
                          version,
                          resolutions,
                          parallelize,
+                         redo_processed,
                          save):
+    
+    save_dirs = [os.path.join(os.path.join(paths['ROOT'], "processed"), f"res{res}", data_obj.name, "label_info", subdset, "all_labels.npy") for res in resolutions]
+    if (not redo_processed) and np.all([os.path.exists(save_dir) for save_dir in save_dirs]):
+        return
+        
     proc_dir, processed_subjects, resolution_label_dict = data_obj.proc_func(subdset=subdset,
                                                                              pps_function=get_all_unique_labels,
                                                                              parallelize=parallelize,
@@ -192,8 +212,7 @@ def gather_unique_labels(data_obj,
         unique_labels = sorted(list(set([label for subj in total_label_info for label in subj])))
         
         if save and len(unique_labels) > 0:
-            save_dir = os.path.join(proc_dir, f"res{res}", data_obj.name, "label_info", subdset)
             if not os.path.exists(save_dir):
                 os.makedirs(save_dir)
-            all_label_dir = os.path.join(save_dir, f"all_labels.npy")
+            all_label_dir = os.path.join(save_dir, "all_labels.npy")
             np.save(all_label_dir, np.array(unique_labels))

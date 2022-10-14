@@ -27,8 +27,9 @@ class Feto_Plac:
         }
 
     def proc_func(self,
-                  dset_name,
-                  proc_func,
+                  subdset,
+                  pps_function,
+                  parallelize=False,
                   load_images=True,
                   accumulate=False,
                   version=None,
@@ -38,23 +39,23 @@ class Feto_Plac:
                   resolutions=None,
                   redo_processed=True):
         assert not(version is None and save), "Must specify version for saving."
-        assert dset_name in self.dset_info.keys(), "Sub-dataset must be in info dictionary."
-        video_list = sorted(os.listdir(self.dset_info[dset_name]["image_root_dir"]))
+        assert subdset in self.dset_info.keys(), "Sub-dataset must be in info dictionary."
+        video_list = sorted(os.listdir(self.dset_info[subdset]["image_root_dir"]))
         proc_dir = os.path.join(paths['ROOT'], "processed")
         res_dict = {}
         subj_dict = {}
         for resolution in resolutions:
             accumulator = []
             subj_accumulator = []
-            for video in tqdm_notebook(video_list, desc=f'Processing: {dset_name}'):
-                vid_dir = os.path.join(self.dset_info[dset_name]["image_root_dir"], video)
+            for video in tqdm_notebook(video_list, desc=f'Processing: {subdset}'):
+                vid_dir = os.path.join(self.dset_info[subdset]["image_root_dir"], video)
                 frameset = sorted(os.listdir(os.path.join(vid_dir, "images")))
                 for frame in frameset:
                     try:
                         # template follows processed/resolution/dset/midslice/subset/modality/plane/subject
                         template_root = os.path.join(proc_dir, f"res{resolution}", self.name)
-                        mid_proc_dir_template = os.path.join(template_root, f"midslice_v{version}", dset_name, "*/*", image)
-                        max_proc_dir_template = os.path.join(template_root, f"maxslice_v{version}", dset_name, "*/*", image)
+                        mid_proc_dir_template = os.path.join(template_root, f"midslice_v{version}", subdset, "*/*", image)
+                        max_proc_dir_template = os.path.join(template_root, f"maxslice_v{version}", subdset, "*/*", image)
                         if redo_processed or (len(glob.glob(mid_proc_dir_template)) == 0) or (len(glob.glob(max_proc_dir_template)) == 0):
                             im_dir = os.path.join(vid_dir, "images", frame)
                             label_dir = os.path.join(vid_dir, "masks_gt", f"{frame[:-4]}_mask.png")
@@ -69,17 +70,17 @@ class Feto_Plac:
                                 loaded_label = np.array(Image.open(label_dir).convert('L'))
                             
                             subj_name = f"{video}_{frame}"
-                            proc_return = proc_func(proc_dir,
-                                                version,
-                                                dset_name,
-                                                subj_name, 
-                                                loaded_image,
-                                                loaded_label,
-                                                self.dset_info[dset_name],
-                                                show_hists=show_hists,
-                                                show_imgs=show_imgs,
-                                                res=resolution,
-                                                save=save)
+                            proc_return = pps_function(proc_dir,
+                                                        version,
+                                                        subdset,
+                                                        subj_name, 
+                                                        loaded_image,
+                                                        loaded_label,
+                                                        self.dset_info[subdset],
+                                                        show_hists=show_hists,
+                                                        show_imgs=show_imgs,
+                                                        res=resolution,
+                                                        save=save)
                         
                             if accumulate:
                                 accumulator.append(proc_return)

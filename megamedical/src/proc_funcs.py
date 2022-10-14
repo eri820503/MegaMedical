@@ -14,8 +14,9 @@ from megamedical.utils.registry import paths
 import megamedical.utils as utils
 
 
-# Combined function of processing
-def combined_pipeline_process(do,
+# Combined function of processing ["labels","stats","images","splits"]
+def combined_pipeline_process(steps, 
+                              do,
                               subdset,
                               version,
                               resolutions,
@@ -23,47 +24,58 @@ def combined_pipeline_process(do,
                               redo_processed,
                               train_split,
                               save):
-    print(f"Generating Unique Labels for Dataset: {do.name}, Subdset: {subdset}")
-    # Gather unique labels
-    pps.gather_unique_labels(data_obj=do,
-                             subdset=subdset,
-                             version=version,
-                             resolutions=resolutions,
-                             parallelize=parallelize,
-                             save=save)
-    print(f"Generating Pop Stats for Dataset: {do.name}, Subdset: {subdset}")
-    # Get population label matrices, subj list
-    pps.gather_population_statistics(data_obj=do,
-                                     subdset=subdset,
-                                     version=version,
-                                     resolutions=resolutions,
-                                     parallelize=parallelize,
-                                     save=save)
-    print(f"Processing Images for Dataset: {do.name}, Subdset: {subdset}")
-    # Process Images
-    do.proc_func(subdset=subdset,
-                 pps_function=pps.produce_slices,
-                 parallelize=parallelize,
-                 load_images=True,
-                 version=version,
-                 show_imgs=False,
-                 save=save,
-                 show_hists=False,
-                 resolutions=resolutions,
-                 redo_processed=redo_processed)
-    print(f"Making Training Splits for Dataset: {do.name}, Subdset: {subdset}")
-    # Make training splits
-    make_splits(data_obj=do,
-                subdset=subdset,
-                resolutions=resolutions,
-                version=version,
-                amount_training=train_split)
+    if "labels" in steps:
+        print(f"Generating Unique Labels for Dataset: {do.name}, Subdset: {subdset}")
+        # Gather unique labels
+        pps.gather_unique_labels(data_obj=do,
+                                 subdset=subdset,
+                                 version=version,
+                                 resolutions=resolutions,
+                                 parallelize=parallelize,
+                                 redo_processed=redo_processed,
+                                 save=save)
+        
+    if "stats" in steps:
+        print(f"Generating Pop Stats for Dataset: {do.name}, Subdset: {subdset}")
+        # Get population label matrices, subj list
+        pps.gather_population_statistics(data_obj=do,
+                                         subdset=subdset,
+                                         version=version,
+                                         resolutions=resolutions,
+                                         parallelize=parallelize,
+                                         redo_processed=redo_processed,
+                                         save=save)
+    
+    if "images" in steps:
+        print(f"Processing Images for Dataset: {do.name}, Subdset: {subdset}")
+        # Process Images
+        do.proc_func(subdset=subdset,
+                     pps_function=pps.produce_slices,
+                     parallelize=parallelize,
+                     load_images=True,
+                     version=version,
+                     show_imgs=False,
+                     save=save,
+                     show_hists=False,
+                     resolutions=resolutions,
+                     redo_processed=redo_processed)
+    
+    if "splits" in steps:
+        print(f"Making Training Splits for Dataset: {do.name}, Subdset: {subdset}")
+        # Make training splits
+        make_splits(data_obj=do,
+                    subdset=subdset,
+                    resolutions=resolutions,
+                    version=version,
+                    amount_training=train_split)
     # Finished
     print(f"Done with Dataset: {do.name}, Subdset: {subdset}!")
         
         
 # High level function, can do process all at once.
-def process_pipeline(datasets,
+def process_pipeline(steps,
+                     datasets,
+                     ignore_datasets=None,
                      subdsets=None,
                      save=False,
                      slurm=False,
@@ -77,6 +89,11 @@ def process_pipeline(datasets,
     
     if datasets == "all":
         datasets = os.listdir(paths["DATA"])
+    
+    # Avoid double processing
+    if ignore_datasets:
+        for dset in ignore_datasets:
+            datasets.remove(dset)
 
     dataset_objects = [utils.build_dataset(ds) for ds in datasets]
 
@@ -89,6 +106,7 @@ def process_pipeline(datasets,
                     executor = submitit.AutoExecutor(folder=slurm_root)
                     executor.update_parameters(timeout_min=timeout, mem_gb=mem_gb, slurm_partition="sablab", slurm_wckey="")
                     job = executor.submit(combined_pipeline_process,
+                                          steps,
                                           do,
                                           subdset,
                                           version,
@@ -98,7 +116,8 @@ def process_pipeline(datasets,
                                           train_split,
                                           save)
                 else:
-                    combined_pipeline_process(do,
+                    combined_pipeline_process(steps,
+                                              do,
                                               subdset,
                                               version,
                                               resolutions,
