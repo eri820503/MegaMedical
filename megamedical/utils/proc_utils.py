@@ -38,66 +38,68 @@ def get_label_amounts(proc_dir,
                       dset_info,
                       show_hists,
                       show_imgs,
-                      res,
+                      resolutions,
                       save):
     square_label = squarify(loaded_label)
     
     res_dict = {}
-    maxslice_amount_dict = {}
-    midslice_amount_dict = {}
-    
-    # Handle resizing
-    old_seg_size = square_label.shape[0]
-    ratio = res/old_seg_size
-    
-    if len(loaded_label.shape) == 2:
-        zoom_tup = (ratio, ratio)
-    else:
-        zoom_tup = (ratio, ratio, ratio)
-    
-    # Get all labels at this resolution
-    all_labels = np.load(os.path.join(proc_dir, f"res{res}", dset_info["main"], "label_info", subdset, "all_labels.npy"))
-    
-    if len(square_label.shape) == 2:
-        midslice_amount_dict = {}
+    for res in resolutions:
+        res_dict[res] = {}
         maxslice_amount_dict = {}
-        for lab in all_labels:
-            bin_mask = np.float32(square_label==lab)
-            
-            #produce resized segmentations
-            bin_seg_res = blur_and_resize(bin_mask, old_seg_size, new_size=res, order=0)
-            
-            if not 0 in midslice_amount_dict.keys():
-                midslice_amount_dict[0] = {}
-            midslice_amount_dict[0][lab] = np.mean(bin_seg_res)
+        midslice_amount_dict = {}
 
-            if not 0 in maxslice_amount_dict.keys():
-                maxslice_amount_dict[0] = {}
-            maxslice_amount_dict[0][lab] = np.mean(bin_seg_res)
-    else:     
-        # Create statistics
-        midslice_amount_dict = {}
-        maxslice_amount_dict = {}
-        for lab in all_labels:
-            bin_mask = np.float32(square_label==lab)
-            
-            #produce resized segmentations
-            bin_seg_res = blur_and_resize(bin_mask, old_seg_size, new_size=res, order=0)
-            
-            for plane in dset_info["planes"]:
-                all_axes = [0,1,2]
-                all_axes.remove(plane)
-                
-                if not plane in midslice_amount_dict.keys():
-                    midslice_amount_dict[plane] = {}
-                midslice_amount_dict[plane][lab] = np.mean(np.take(bin_seg_res, bin_seg_res.shape[plane]//2, plane))
-                
-                if not plane in maxslice_amount_dict.keys():
-                    maxslice_amount_dict[plane] = {}
-                maxslice_amount_dict[plane][lab] = np.amax(np.mean(bin_seg_res, axis=tuple(all_axes)))
-    
-    res_dict["midslice"] = midslice_amount_dict
-    res_dict["maxslice"] = maxslice_amount_dict
+        # Handle resizing
+        old_seg_size = square_label.shape[0]
+        ratio = res/old_seg_size
+
+        if len(loaded_label.shape) == 2:
+            zoom_tup = (ratio, ratio)
+        else:
+            zoom_tup = (ratio, ratio, ratio)
+
+        # Get all labels at this resolution
+        all_labels = np.load(os.path.join(proc_dir, f"res{res}", dset_info["main"], "label_info", subdset, "all_labels.npy"))
+
+        if len(square_label.shape) == 2:
+            midslice_amount_dict = {}
+            maxslice_amount_dict = {}
+            for lab in all_labels:
+                bin_mask = np.float32(square_label==lab)
+
+                #produce resized segmentations
+                bin_seg_res = blur_and_resize(bin_mask, old_seg_size, new_size=res, order=0)
+
+                if not 0 in midslice_amount_dict.keys():
+                    midslice_amount_dict[0] = {}
+                midslice_amount_dict[0][lab] = np.mean(bin_seg_res)
+
+                if not 0 in maxslice_amount_dict.keys():
+                    maxslice_amount_dict[0] = {}
+                maxslice_amount_dict[0][lab] = np.mean(bin_seg_res)
+        else:     
+            # Create statistics
+            midslice_amount_dict = {}
+            maxslice_amount_dict = {}
+            for lab in all_labels:
+                bin_mask = np.float32(square_label==lab)
+
+                #produce resized segmentations
+                bin_seg_res = blur_and_resize(bin_mask, old_seg_size, new_size=res, order=0)
+
+                for plane in dset_info["planes"]:
+                    all_axes = [0,1,2]
+                    all_axes.remove(plane)
+
+                    if not plane in midslice_amount_dict.keys():
+                        midslice_amount_dict[plane] = {}
+                    midslice_amount_dict[plane][lab] = np.mean(np.take(bin_seg_res, bin_seg_res.shape[plane]//2, plane))
+
+                    if not plane in maxslice_amount_dict.keys():
+                        maxslice_amount_dict[plane] = {}
+                    maxslice_amount_dict[plane][lab] = np.amax(np.mean(bin_seg_res, axis=tuple(all_axes)))
+
+        res_dict[res]["midslice"] = midslice_amount_dict
+        res_dict[res]["maxslice"] = maxslice_amount_dict
 
     return res_dict
 
@@ -111,7 +113,7 @@ def get_all_unique_labels(proc_dir,
                           dset_info,
                           show_hists,
                           show_imgs,
-                          res,
+                          resolutions,
                           save):
     
     # Get all labels and get rid of 0
