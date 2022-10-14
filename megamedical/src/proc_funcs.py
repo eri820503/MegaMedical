@@ -262,39 +262,51 @@ def get_processing_status(datasets,
     dp_objects = []
     for do in dataset_objects:
         for subset in do.dset_info.keys():
-            for modality in do.dset_info[subset]["modality_names"]:
-                new_entry = {}
-                new_entry["Dataset"] = do.name
-                new_entry["Subset"] = subset
-                new_entry["Modality"] = modality
-                # Load the entire list of subjects
-                raise NotImplementedError("Need to implement the subject file.")
-                subject_file = None
-                if os.path.exists(subject_file):
-                    all_subs = np.load(subject_file)          
-                    new_entry["Num Subj"] = len(all_subs)
-                    new_entry["% Processed"] = 0.0
-                    total_proc = 0
-                    for res in [64, 128, 256]:
-                        res_dir = os.path.join(paths["PROC"], f"res{res}", do.name)
-                        label_dir = os.path.join(res_dir, "label_info", subset, "all_labels.npy")
-                        new_entry["Labels Known"] = os.path.exists(label_dir)
-                        for dt in ["maxslice", "midslice"]:
-                            pop_paths = [os.path.exists(os.path.join(res_dir, "label_info", subset, f"{dt}_pop_lab_amount_{plane}.pickle")) for plane in do.dset_info[subset]["planes"]]
-                            new_entry[f"{res} {dt} Pop Known"] = np.all(pop_paths)
-                            slice_dir = os.path.join(res_dir, f"{dt}_v{version}", subset, modality, str(do.dset_info[subset]["planes"][0]))
-                            if os.path.exists(slice_dir):
-                                num_processed = len(os.listdir(slice_dir))
-                                total_proc += num_processed
-                                new_entry[f"{dt},{res}"] = num_processed
-                            else:
-                                new_entry[f"{dt},{res}"] = 0.0
-                    new_entry["% Processed"] = np.round((total_proc / (6 * new_entry["Num Subj"])) * 100, 2) if new_entry["Num Subj"] != 0 else 0.0
+            new_entry = {}
+            new_entry["Dataset"] = do.name
+            new_entry["Subset"] = subset
+            new_entry["Modalities"] = do.dset_info[subset]["modality_names"]
+            new_entry["Planes"] = do.dset_info[subset]["planes"]
+            label_files = [os.path.join(paths["PROC"],f"res{res}", do.name, "label_info", subset, "all_labels.npy") for res in [64, 128, 256]]
+            
+            # Unique label files
+            if np.all([os.path.exists(label_file) for label_file in label_files]):
+                # Load 64 version as they should all be the same.
+                new_entry["Labels"] = np.load(label_files[0])
+            else:
+                new_entry["Labels"] = None
+                
+            # Population statistics
+            proc_data_files = []
+            for res in [64, 128, 256]:
+                for plane in do.dset_info[subset]["planes"]:
+                    proc_data_files.append(os.path.join(paths["PROC"],f"res{res}", do.name, "label_info", subset, f"midslice_pop_lab_amount_{plane}.pickle"))
+            new_entry["Pop Stats Known"] = np.all([os.path.exists(pdf) for pdf in proc_data_files])
+            
+            if new_entry["Pop Stats Known"]:
+                stats_file = utils.proc_utils.load_obj(proc_data_files[0])
+                new_entry["Num Subjs"] = len(stats_file["index"])
+                proc_dir_64 = os.path.join(paths["PROC"], "res64", do.name, f"midslice_v{version}", subset, new_entry["Modalities"][0], str(new_entry["Planes"][0]))
+                proc_dir_128 = proc_dir_64.replace("res64", "res128")
+                proc_dir_256 = proc_dir_64.replace("res64", "res256")
+                if os.path.exists(proc_dir_64) and new_entry["Num Subjs"] != 0:
+                    new_entry["% 64 Proc"] = np.round(len(os.listdir(proc_dir_64))/new_entry["Num Subjs"], 3) * 100
                 else:
-                    new_entry["Num Subj"] = None
-                    new_entry["% Processed"] = 0.0
-                    new_entry["Labels Known"] = False
-                dp_objects.append(new_entry)
+                    new_entry["% 64 Proc"] = None
+                if os.path.exists(proc_dir_128) and new_entry["Num Subjs"] != 0:
+                    new_entry["% 128 Proc"] = np.round(len(os.listdir(proc_dir_128))/new_entry["Num Subjs"], 3) * 100
+                else:
+                    new_entry["% 128 Proc"] = None
+                if os.path.exists(proc_dir_256) and new_entry["Num Subjs"] != 0:
+                    new_entry["% 256 Proc"] = np.round(len(os.listdir(proc_dir_256))/new_entry["Num Subjs"], 3) * 100
+                else:
+                    new_entry["% 256 Proc"] = None
+            else:
+                new_entry["Num Subjs"] = None
+                new_entry["% 64 Proc"] = None
+                new_entry["% 128 Proc"] = None
+                new_entry["% 256 Proc"] = None
+            dp_objects.append(new_entry)
     dataframe = pd.DataFrame(dp_objects)
     return dataframe
 
