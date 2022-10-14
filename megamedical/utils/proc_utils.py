@@ -9,12 +9,12 @@ import os
 from scipy import ndimage
 import scipy
 
-
+# returns True if not both midslice and maxslice are processed.
 def is_processed_check(item):
     template_root = os.path.join(item['proc_dir'], f"res{item['resolution']}", item['dataset'])
     mid_proc_dir_template = os.path.join(template_root, f"midslice_v{item['version']}", item['subdset'], "*/*", item['image'])
     max_proc_dir_template = os.path.join(template_root, f"maxslice_v{item['version']}", item['subdset'], "*/*", item['image'])
-    return (len(glob.glob(mid_proc_dir_template)) == 0) or (len(glob.glob(max_proc_dir_template)) == 0)
+    return not (len(glob.glob(mid_proc_dir_template)) != 0 and len(glob.glob(max_proc_dir_template)) != 0)
             
 
 def get_list_of_subjects(root,

@@ -103,6 +103,9 @@ def process_pipeline(steps,
             try:
                 if slurm:
                     slurm_root = os.path.join(paths["ROOT"], f"bash/submitit/{do.name}/{subdset}")
+                    # Reset the directory if it exists
+                    if os.path.exists(slurm_root):
+                        shutil.rmtree(slurm_root)
                     executor = submitit.AutoExecutor(folder=slurm_root)
                     executor.update_parameters(timeout_min=timeout, mem_gb=mem_gb, slurm_partition="sablab", slurm_wckey="")
                     job = executor.submit(combined_pipeline_process,
@@ -160,6 +163,9 @@ def process_dataset(datasets,
             try:
                 if slurm:
                     slurm_root = os.path.join(paths["ROOT"], f"bash/submitit/{do.name}/{subdset}")
+                    # Reset the directory if it exists
+                    if os.path.exists(slurm_root):
+                        shutil.rmtree(slurm_root)
                     executor = submitit.AutoExecutor(folder=slurm_root)
                     executor.update_parameters(timeout_min=timeout, mem_gb=mem_gb, slurm_partition="sablab", slurm_wckey="")
                     job = executor.submit(do.proc_func,
@@ -212,6 +218,9 @@ def generate_population_statistics(datasets,
         for subdset in subdset_names:
             if slurm:
                 slurm_root = os.path.join(paths["ROOT"], f"bash/submitit/{do.name}/{subdset}")
+                # Reset the directory if it exists
+                if os.path.exists(slurm_root):
+                    shutil.rmtree(slurm_root)
                 executor = submitit.AutoExecutor(folder=slurm_root)
                 executor.update_parameters(timeout_min=timeout, mem_gb=mem_gb, slurm_partition="sablab", slurm_wckey="")
                 job = executor.submit(pps.gather_population_statistics,
@@ -252,6 +261,9 @@ def generate_unique_label_files(datasets,
         for subdset in subdset_names:
             if slurm:
                 slurm_root = os.path.join(paths["ROOT"], f"bash/submitit/{do.name}/{subdset}")
+                # Reset the directory if it exists
+                if os.path.exists(slurm_root):
+                    shutil.rmtree(slurm_root)
                 executor = submitit.AutoExecutor(folder=slurm_root)
                 executor.update_parameters(timeout_min=timeout, mem_gb=mem_gb, slurm_partition="sablab", slurm_wckey="")
                 job = executor.submit(pps.gather_unique_labels,

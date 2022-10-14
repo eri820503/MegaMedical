@@ -208,10 +208,9 @@ def gather_unique_labels(data_obj,
     for res in resolutions:
         total_label_info = resolution_label_dict[res]
         num_subjects = len(total_label_info)
-        
         unique_labels = sorted(list(set([label for subj in total_label_info for label in subj])))
-        
         if save and len(unique_labels) > 0:
+            save_dir = os.path.join(os.path.join(paths['ROOT'], "processed"), f"res{res}", data_obj.name, "label_info", subdset)
             if not os.path.exists(save_dir):
                 os.makedirs(save_dir)
             all_label_dir = os.path.join(save_dir, "all_labels.npy")
