@@ -81,7 +81,7 @@ class EPISURG:
                                                 self.dset_info[dset_name],
                                                 show_hists=show_hists,
                                                 show_imgs=show_imgs,
-                                                res=resolution,
+                                                resolutions=resolutions,
                                                 save=save)
                         
                         if accumulate:

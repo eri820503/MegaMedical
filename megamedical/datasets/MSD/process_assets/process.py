@@ -183,7 +183,7 @@ def process_MSD_image(item):
                                         dset_info[item['subdset']],
                                         show_hists=item['show_hists'],
                                         show_imgs=item['show_imgs'],
-                                        res=item['resolution'],
+                                        resolutions=item['resolutions'],
                                         save=item['save'])
 
             return proc_return, subj_name
