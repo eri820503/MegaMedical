@@ -76,7 +76,7 @@ def process_BrainDevelopment_image(item):
     try:
         dset_info = item['dset_info']
         # template follows processed/resolution/dset/midslice/subset/modality/plane/subject
-        if item['redo_processed'] or is_processed_check(item):
+        if item['redo_processed'] or put.is_processed_check(item):
             im_dir = os.path.join(dset_info[item['subdset']]["image_root_dir"], item['image'])
             seg_addon = "-seg.nii.gz" if item['subdset'] == "HammersAtlasDatabase" else "_seg_83ROI.nii.gz"
             label_dir = os.path.join(dset_info[item['subdset']]["label_root_dir"], item['image'].replace(".nii.gz", seg_addon))

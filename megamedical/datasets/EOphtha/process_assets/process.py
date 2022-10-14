@@ -75,14 +75,14 @@ def process_EOphtha_image(item):
     try:
         dset_info = item['dset_info']
         # template follows processed/resolution/dset/midslice/subset/modality/plane/subject
-        if item['redo_processed'] or is_processed_check(item):
-            sub_im_dir = os.path.join(self.dset_info[dset_name]["image_root_dir"], image)
-            sub_label_dir = os.path.join(self.dset_info[dset_name]["label_root_dir"], image)
+        if item['redo_processed'] or put.is_processed_check(item):
+            sub_im_dir = os.path.join(dset_info[item['subdset']]["image_root_dir"], item['image'])
+            sub_label_dir = os.path.join(dset_info[item['subdset']]["label_root_dir"], item['image'])
 
             im_dir = os.path.join(sub_im_dir, os.listdir(sub_im_dir)[0])
             label_dir = os.path.join(sub_label_dir, os.listdir(sub_label_dir)[0])
 
-            if load_images:
+            if item['load_images']:
                 loaded_image = np.array(Image.open(im_dir).convert('L'))
                 loaded_label = np.array(Image.open(label_dir).convert('L'))
                 assert not (loaded_label is None), "Invalid Label"

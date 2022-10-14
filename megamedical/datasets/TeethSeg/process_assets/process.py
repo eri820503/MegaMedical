@@ -67,7 +67,7 @@ def process_TeethSeg_image(item):
     try:
         dset_info = item['dset_info']
         # template follows processed/resolution/dset/midslice/subset/modality/plane/subject
-        if item['redo_processed'] or is_processed_check(item):
+        if item['redo_processed'] or put.is_processed_check(item):
             im_dir = os.path.join(self.dset_info[dset_name]["image_root_dir"], image, f"{image}_frame01.nii.gz")
             if dset_name == "Challenge2017":
                 label_dir = os.path.join(self.dset_info[dset_name]["label_root_dir"], image, f"{image}_frame01_gt.nii.gz")

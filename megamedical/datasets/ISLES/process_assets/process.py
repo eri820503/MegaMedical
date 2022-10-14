@@ -65,7 +65,7 @@ def process_ISLES_image(item):
     try:
         dset_info = item['dset_info']
         # template follows processed/resolution/dset/midslice/subset/modality/plane/subject
-        if item['redo_processed'] or is_processed_check(item):
+        if item['redo_processed'] or put.is_processed_check(item):
             subj_folder = os.path.join(dset_info[item['subdset']]["image_root_dir"], item['image'])
             
             prefix = "VSD.Brain.XX.O.MR_"

@@ -69,7 +69,7 @@ def process_IDRID_image(item):
     try:
         dset_info = item['dset_info']
         # template follows processed/resolution/dset/midslice/subset/modality/plane/subject
-        if item['redo_processed'] or is_processed_check(item):
+        if item['redo_processed'] or put.is_processed_check(item):
             im_dir = os.path.join(dset_info[item['subdset']]["image_root_dir"], item['image'])
             lab_root = dset_info[item['subdset']]["label_root_dir"]
             ma_dir = os.path.join(lab_root, "1. Microaneurysms", f"{item['image'][:-4]}_MA.tif")

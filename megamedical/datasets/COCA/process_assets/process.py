@@ -70,7 +70,7 @@ def process_COCA_image(item):
     try:
         dset_info = item['dset_info']
         # template follows processed/resolution/dset/midslice/subset/modality/plane/subject
-        if item['redo_processed'] or is_processed_check(item):
+        if item['redo_processed'] or put.is_processed_check(item):
             #flat_img_slices = glob.glob(os.path.join(self.dset_info[dset_name]["image_root_dir"],image,"*/*"))
             label_dir = os.path.join(self.dset_info[dset_name]["label_root_dir"],f"{image}.xml")
             keypoints = process_xml(label_dir)

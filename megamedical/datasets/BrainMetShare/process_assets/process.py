@@ -67,7 +67,7 @@ def process_BrainMetShare_image(item):
     try:
         dset_info = item['dset_info']
         # template follows processed/resolution/dset/midslice/subset/modality/plane/subject
-        if item['redo_processed'] or is_processed_check(item):
+        if item['redo_processed'] or put.is_processed_check(item):
             image_dir = os.path.join(dset_info[item['subdset']]["image_root_dir"], item['image'])
             label_dirs = [os.path.join(image_dir, "seg", slice) for slice in os.listdir(os.path.join(image_dir, "seg"))]
             if item['load_images']:

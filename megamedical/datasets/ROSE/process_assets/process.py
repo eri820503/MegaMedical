@@ -94,7 +94,7 @@ def process_ROSE_image(item):
     try:
         dset_info = item['dset_info']
         # template follows processed/resolution/dset/midslice/subset/modality/plane/subject
-        if item['redo_processed'] or is_processed_check(item):
+        if item['redo_processed'] or put.is_processed_check(item):
             im_dir = os.path.join(dset_info[item['subdset']]["image_root_dir"], item['image'])
             if item['subdset'] in ["ROSE-1-DVC", "ROSE-1-SVC", "ROSE-2"]:
                 label_dir = os.path.join(dset_info[item['subdset']]["label_root_dir"], item['image'])

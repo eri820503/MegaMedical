@@ -88,7 +88,7 @@ def process_PanNuke_image(item):
     try:
         dset_info = item['dset_info']
         # template follows processed/resolution/dset/midslice/subset/modality/plane/subject
-        if item['redo_processed'] or is_processed_check(item):
+        if item['redo_processed'] or put.is_processed_check(item):
             volumes_array = np.load(dset_info[item['subdset']]["image_root_dir"])
             labels_array = np.load(dset_info[item['subdset']]["label_root_dir"])
             # "clever" hack to get Image.fromarray to work

@@ -66,7 +66,7 @@ def process_RibSeg_image(item):
     try:
         dset_info = item['dset_info']
         # template follows processed/resolution/dset/midslice/subset/modality/plane/subject
-        if item['redo_processed'] or is_processed_check(item):
+        if item['redo_processed'] or put.is_processed_check(item):
             im_dir = os.path.join(dset_info[item['subdset']]["image_root_dir"], f"{item['image']}-rib-cl.nii.gz")
             label_dir = os.path.join(dset_info[item['subdset']]["label_root_dir"], f"{item['image']}-rib-seg.nii.gz")
 
