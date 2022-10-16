@@ -100,37 +100,33 @@ def process_pipeline(steps,
     for do in dataset_objects:
         subdset_names = list(do.dset_info.keys()) if subdsets is None else subdsets
         for subdset in subdset_names:
-            try:
-                if slurm:
-                    slurm_root = os.path.join(paths["ROOT"], f"bash/submitit/{do.name}/{subdset}")
-                    # Reset the directory if it exists
-                    if os.path.exists(slurm_root):
-                        shutil.rmtree(slurm_root)
-                    executor = submitit.AutoExecutor(folder=slurm_root)
-                    executor.update_parameters(timeout_min=timeout, mem_gb=mem_gb, slurm_partition="sablab", slurm_wckey="")
-                    job = executor.submit(combined_pipeline_process,
-                                          steps,
+            if slurm:
+                slurm_root = os.path.join(paths["ROOT"], f"bash/submitit/{do.name}/{subdset}")
+                # Reset the directory if it exists
+                if os.path.exists(slurm_root):
+                    shutil.rmtree(slurm_root)
+                executor = submitit.AutoExecutor(folder=slurm_root)
+                executor.update_parameters(timeout_min=timeout, mem_gb=mem_gb, slurm_partition="sablab", slurm_wckey="")
+                job = executor.submit(combined_pipeline_process,
+                                      steps,
+                                      do,
+                                      subdset,
+                                      version,
+                                      resolutions,
+                                      parallelize,
+                                      redo_processed,
+                                      train_split,
+                                      save)
+            else:
+                combined_pipeline_process(steps,
                                           do,
                                           subdset,
                                           version,
                                           resolutions,
-                                          parallelize,
+                                          parallelize, 
                                           redo_processed,
                                           train_split,
                                           save)
-                else:
-                    combined_pipeline_process(steps,
-                                              do,
-                                              subdset,
-                                              version,
-                                              resolutions,
-                                              parallelize, 
-                                              redo_processed,
-                                              train_split,
-                                              save)
-            except Exception as e:
-                print(e)
-                continue
         
         
 # Middle step of processing, actually process the images:       
@@ -160,41 +156,37 @@ def process_dataset(datasets,
     for do in dataset_objects:
         subdset_names = list(do.dset_info.keys()) if subdsets is None else subdsets
         for subdset in subdset_names:
-            try:
-                if slurm:
-                    slurm_root = os.path.join(paths["ROOT"], f"bash/submitit/{do.name}/{subdset}")
-                    # Reset the directory if it exists
-                    if os.path.exists(slurm_root):
-                        shutil.rmtree(slurm_root)
-                    executor = submitit.AutoExecutor(folder=slurm_root)
-                    executor.update_parameters(timeout_min=timeout, mem_gb=mem_gb, slurm_partition="sablab", slurm_wckey="")
-                    job = executor.submit(do.proc_func,
-                                          subdset,
-                                          pps.produce_slices,
-                                          parallelize,
-                                          load_images,
-                                          accumulate,
-                                          version,
-                                          show_imgs,
-                                          save,
-                                          show_hists,
-                                          resolutions,
-                                          redo_processed)
-                else:
-                    do.proc_func(subdset,
-                                 pps.produce_slices,
-                                 parallelize,
-                                 load_images,
-                                 accumulate,
-                                 version,
-                                 show_imgs,
-                                 save,
-                                 show_hists,
-                                 resolutions,
-                                 redo_processed)
-            except Exception as e:
-                print(e)
-                continue
+            if slurm:
+                slurm_root = os.path.join(paths["ROOT"], f"bash/submitit/{do.name}/{subdset}")
+                # Reset the directory if it exists
+                if os.path.exists(slurm_root):
+                    shutil.rmtree(slurm_root)
+                executor = submitit.AutoExecutor(folder=slurm_root)
+                executor.update_parameters(timeout_min=timeout, mem_gb=mem_gb, slurm_partition="sablab", slurm_wckey="")
+                job = executor.submit(do.proc_func,
+                                      subdset,
+                                      pps.produce_slices,
+                                      parallelize,
+                                      load_images,
+                                      accumulate,
+                                      version,
+                                      show_imgs,
+                                      save,
+                                      show_hists,
+                                      resolutions,
+                                      redo_processed)
+            else:
+                do.proc_func(subdset,
+                             pps.produce_slices,
+                             parallelize,
+                             load_images,
+                             accumulate,
+                             version,
+                             show_imgs,
+                             save,
+                             show_hists,
+                             resolutions,
+                             redo_processed)
                 
                 
 # Middle step of processing, determine the label statistics of a dataset.
@@ -206,6 +198,7 @@ def generate_population_statistics(datasets,
                                   version="4.0",
                                   timeout=180,
                                   mem_gb=16,
+                                  redo_processed=True,
                                   parallelize=False):
     
     if datasets == "all":
@@ -229,6 +222,7 @@ def generate_population_statistics(datasets,
                                       version,
                                       resolutions,
                                       parallelize,
+                                      redo_processed,
                                       save)
             else:
                 pps.gather_population_statistics(do,
@@ -236,6 +230,7 @@ def generate_population_statistics(datasets,
                                                  version,
                                                  resolutions,
                                                  parallelize,
+                                                 redo_processed,
                                                  save)
 
                 
@@ -272,6 +267,7 @@ def generate_unique_label_files(datasets,
                                       version,
                                       resolutions,
                                       parallelize,
+                                      redo_processed,
                                       save)
             else:
                 pps.gather_unique_labels(do,
@@ -279,6 +275,7 @@ def generate_unique_label_files(datasets,
                                          version,
                                          resolutions,
                                          parallelize,
+                                         redo_processed,
                                          save)
                     
 # Table for getting current status of processing
@@ -355,36 +352,32 @@ def make_splits(data_obj,
     
     for res in resolutions:
         for dset_type in ["midslice_v4.0", "maxslice_v4.0"]:
-            try:
-                subjects = np.array(utils.proc_utils.get_list_of_subjects(paths["PROC"], res, dset_type, data_obj.name, subdset))
+            subjects = np.array(utils.proc_utils.get_list_of_subjects(paths["PROC"], res, dset_type, data_obj.name, subdset))
 
-                total_amount = len(subjects)
-                indices = np.arange(total_amount)
-                np.random.shuffle(indices)
+            total_amount = len(subjects)
+            indices = np.arange(total_amount)
+            np.random.shuffle(indices)
 
-                train_amount = int(total_amount*amount_training)
-                val_test_amount = total_amount - train_amount
-                val_amount = int(val_test_amount*0.5)
-                test_amount = val_test_amount - val_amount
+            train_amount = int(total_amount*amount_training)
+            val_test_amount = total_amount - train_amount
+            val_amount = int(val_test_amount*0.5)
+            test_amount = val_test_amount - val_amount
 
-                train_indices = indices[:train_amount]
-                val_indices = indices[train_amount:train_amount+val_amount]
-                test_indices = indices[-test_amount:]
+            train_indices = indices[:train_amount]
+            val_indices = indices[train_amount:train_amount+val_amount]
+            test_indices = indices[-test_amount:]
 
-                names_dict = {
-                    "train": subjects[train_indices],
-                    "val": subjects[val_indices], 
-                    "test": subjects[test_indices]
-                }
+            names_dict = {
+                "train": subjects[train_indices],
+                "val": subjects[val_indices], 
+                "test": subjects[test_indices]
+            }
 
-                for split in ["train", "val", "test"]:
-                    split_file = open(os.path.join(split_files_dir, f"res{res}__{data_obj.name}__{dset_type}__{subdset}__{split}.txt"), "w")
-                    for file_name in names_dict[split]:
-                        split_file.write(file_name + "\n")
-                    split_file.close()
-
-            except Exception as e:
-                print("Error:", e)
+            for split in ["train", "val", "test"]:
+                split_file = open(os.path.join(split_files_dir, f"res{res}__{data_obj.name}__{dset_type}__{subdset}__{split}.txt"), "w")
+                for file_name in names_dict[split]:
+                    split_file.write(file_name + "\n")
+                split_file.close()
 
                 
 # get rid of processed datasets

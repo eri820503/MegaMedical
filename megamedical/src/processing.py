@@ -37,7 +37,7 @@ def process_image_list(process_DATASET_image,
                   "save": save
                   } for image in image_list]
     
-    res_dict = {}
+    res_dict = {res:[] for res in resolutions}
     subj_accumulator = []
     if parallelize:
         with ProcessPoolExecutor(max_workers=16) as executor:

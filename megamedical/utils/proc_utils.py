@@ -11,10 +11,12 @@ import scipy
 
 # returns True if not both midslice and maxslice are processed.
 def is_processed_check(item):
-    template_root = os.path.join(item['proc_dir'], f"res{item['resolution']}", item['dataset'])
-    mid_proc_dir_template = os.path.join(template_root, f"midslice_v{item['version']}", item['subdset'], "*/*", item['image'])
-    max_proc_dir_template = os.path.join(template_root, f"maxslice_v{item['version']}", item['subdset'], "*/*", item['image'])
-    return not (len(glob.glob(mid_proc_dir_template)) != 0 and len(glob.glob(max_proc_dir_template)) != 0)
+    proc_dir_processed = []
+    for dt in ["midslice", "maxslice"]:
+        for res in item['resolutions']:
+            template_root = os.path.join(item['proc_dir'], f"res{res}", item['dataset'])
+            proc_dir_processed.append(len(glob.glob(os.path.join(template_root, f"{dt}_v{item['version']}", item['subdset'], "*/*", item['image']))) != 0)
+    return not np.all(proc_dir_processed)
             
 
 def get_list_of_subjects(root,
@@ -118,8 +120,9 @@ def get_all_unique_labels(proc_dir,
     
     # Get all labels and get rid of 0
     all_labels = np.delete(np.unique(loaded_label), [0])
+    res_dict = {res: all_labels for res in resolutions}
 
-    return all_labels
+    return res_dict
 
 
 def save_maxslice(proc_dir, image_res, seg_res, subdset, mode, subject_name, planes, maxslices):

@@ -20,7 +20,7 @@ class VerSe:
                 "image_root_dir":f"{paths['DATA']}/VerSe/original_unzipped/VerSe19/dataset-verse19training/rawdata",
                 "label_root_dir":f"{paths['DATA']}/VerSe/original_unzipped/VerSe19/dataset-verse19training/derivatives",
                 "modality_names":["CT"],
-                "planes": [0],
+                "planes": [0, 2],
                 "clip_args":[-500,1000],
                 "norm_scheme":"CT"
             },
@@ -85,8 +85,12 @@ def process_VerSe_image(item):
                 label_dir = os.path.join(dset_info[item['subdset']]["label_root_dir"], item['image'], f"{item['image']}_dir-ax_seg-vert_msk.nii.gz")
 
             if item['load_images']:
-                loaded_image = put.resample_nib(nib.load(im_dir))
-                loaded_label = put.resample_mask_to(nib.load(label_dir), loaded_image)
+                if item["subdset"] == "VerSe19":
+                    loaded_image = nib.load(im_dir)
+                    loaded_label = nib.load(label_dir)
+                else:
+                    loaded_image = put.resample_nib(nib.load(im_dir))
+                    loaded_label = put.resample_mask_to(nib.load(label_dir), loaded_image)
 
                 loaded_image = loaded_image.get_fdata()
                 loaded_label = loaded_label.get_fdata()
