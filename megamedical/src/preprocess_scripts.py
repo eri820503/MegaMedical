@@ -21,85 +21,83 @@ def produce_slices(root_dir,
                    show_hists,
                    show_imgs):
     
-    for res in resolutions:
-        for idx, mode in enumerate(dset_info["modality_names"]):
-            #Extract the modality if it exists (mostly used for MSD)
-            if len(dset_info["modality_names"]) != 1:
-                modality_loaded_image = loaded_image[:,:,:,idx]
-            else:
-                modality_loaded_image = loaded_image
+    for idx, mode in enumerate(dset_info["modality_names"]):
+        #Extract the modality if it exists (mostly used for MSD)
+        if len(dset_info["modality_names"]) != 1:
+            modality_loaded_image = loaded_image[:,:,:,idx]
+        else:
+            modality_loaded_image = loaded_image
 
-            if show_hists:
-                display_histogram(modality_loaded_image.flatten())
+        if show_hists:
+            display_histogram(modality_loaded_image.flatten())
 
-            #clip volume between prespecified values
-            modality_loaded_image = clip_volume(modality_loaded_image, 
-                                                dset_info["norm_scheme"], 
-                                                dset_info["clip_args"])
+        #clip volume between prespecified values
+        modality_loaded_image = clip_volume(modality_loaded_image, 
+                                            dset_info["norm_scheme"], 
+                                            dset_info["clip_args"])
 
-            if show_hists:
-                display_histogram(modality_loaded_image.flatten())
+        if show_hists:
+            display_histogram(modality_loaded_image.flatten())
 
-            #normalize the volume between [0,1]
-            normalized_modality_image = relative_norm(modality_loaded_image)
+        #normalize the volume between [0,1]
+        normalized_modality_image = relative_norm(modality_loaded_image)
 
-            #make the volume/label a 3D cube
-            square_image = squarify(normalized_modality_image)
-            square_label = squarify(loaded_label)
+        #make the volume/label a 3D cube
+        square_image = squarify(normalized_modality_image)
+        square_label = squarify(loaded_label)
 
-            #original square image size
-            old_image_size = square_image.shape[0]
-            old_seg_size = square_label.shape[0]
+        #original square image size
+        old_image_size = square_image.shape[0]
+        old_seg_size = square_label.shape[0]
 
-            #show midslices
-            if show_imgs:
-                for plane in dset_info["planes"]:
-                    display_processing_slices(square_image, square_label, plane)
-            
-            # otherwise jdo processing
-            else:
-                # Get all of the labels in the volume population, note that the first index tracks the number
-                # of subjects.
-                unique_labels = np.load(os.path.join(root_dir, f"res{res}", dset_info["main"], "label_info", subdset, "all_labels.npy"))
+        #show midslices
+        if show_imgs:
+            for plane in dset_info["planes"]:
+                display_processing_slices(square_image, square_label, plane)
+        
+        for res in resolutions:
+            # Get all of the labels in the volume population, note that the first index tracks the number
+            # of subjects.
+            unique_labels = np.load(os.path.join(root_dir, f"res{res}", dset_info["main"], "label_info", subdset, "all_labels.npy"))
 
-                #Resize to several resolutions
-                image_res = blur_and_resize(square_image, old_image_size, new_size=res, order=1)
+            #Resize to several resolutions
+            image_res = blur_and_resize(square_image, old_image_size, new_size=res, order=1)
 
-                #final segmentations are with labels in the last dimension
-                if len(square_image.shape) == 2:
-                    seg_res = np.zeros((res, res, len(unique_labels)))
-                else:     
-                    seg_res = np.zeros((res, res, res, len(unique_labels)))
+            #final segmentations are with labels in the last dimension
+            if len(square_image.shape) == 2:
+                seg_res = np.zeros((res, res, len(unique_labels)))
+            else:     
+                seg_res = np.zeros((res, res, res, len(unique_labels)))
 
-                #go through unique labels and add to slices
-                max_slices = {pl : np.zeros((len(unique_labels))) for pl in dset_info["planes"]}
+            #go through unique labels and add to slices
+            max_slices = {pl : np.zeros((len(unique_labels))) for pl in dset_info["planes"]}
 
-                for lab_idx, label in enumerate(unique_labels):
-                    #isolate mask of label
-                    label = int(label)
-                    bin_mask = np.float32(square_label==label)
+            for lab_idx, label in enumerate(unique_labels):
+                #isolate mask of label
+                label = int(label)
+                bin_mask = np.float32(square_label==label)
 
-                    #produce resized segmentations
-                    bin_seg_res = blur_and_resize(bin_mask, old_seg_size, new_size=res, order=0)
+                #produce resized segmentations
+                bin_seg_res = blur_and_resize(bin_mask, old_seg_size, new_size=res, order=0)
 
-                    # Gather maxslice info
-                    if len(bin_seg_res.shape) == 3:
-                        for pl in dset_info["planes"]:
-                            all_axes = [0, 1, 2]
-                            all_axes.remove(pl)
-                            greatest_index = np.argmax(np.count_nonzero(bin_seg_res, axis=tuple(all_axes)))
-                            max_slices[pl][lab_idx] = greatest_index
+                # Gather maxslice info
+                if len(bin_seg_res.shape) == 3:
+                    for pl in dset_info["planes"]:
+                        all_axes = [0, 1, 2]
+                        all_axes.remove(pl)
+                        greatest_index = np.argmax(np.count_nonzero(bin_seg_res, axis=tuple(all_axes)))
+                        max_slices[pl][lab_idx] = greatest_index
 
-                    # Place resized segs in regular array
-                    seg_res[..., lab_idx] = bin_seg_res
+                # Place resized segs in regular array
+                seg_res[..., lab_idx] = bin_seg_res
 
-                if save:
-                    #Save file directories
-                    max_save_dir = os.path.join(root_dir, f"res{res}", dset_info["main"], f"maxslice_v{version}")
-                    mid_save_dir = os.path.join(root_dir, f"res{res}", dset_info["main"], f"midslice_v{version}")
-                    #Save each type of file
-                    save_maxslice(max_save_dir, image_res, seg_res, subdset, mode, save_name, dset_info["planes"], max_slices)
-                    save_midslice(mid_save_dir, image_res, seg_res, subdset, mode, save_name, dset_info["planes"])
+            if save:
+                #Save file directories
+                max_save_dir = os.path.join(root_dir, f"res{res}", dset_info["main"], f"maxslice_v{version}")
+                mid_save_dir = os.path.join(root_dir, f"res{res}", dset_info["main"], f"midslice_v{version}")
+                #Save each type of file
+                save_maxslice(max_save_dir, image_res, seg_res, subdset, mode, save_name, dset_info["planes"], max_slices)
+                save_midslice(mid_save_dir, image_res, seg_res, subdset, mode, save_name, dset_info["planes"])
                 
                 
 # Produce the "all label" matrices for each resolution
