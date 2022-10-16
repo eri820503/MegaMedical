@@ -23,7 +23,8 @@ class DDR:
                 "modality_names":["NA"],
                 "planes":[0, 1, 2],
                 "clip_args": None,
-                "norm_scheme": None
+                "norm_scheme": None,
+                "functional": False
             }
         }
 

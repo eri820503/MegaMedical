@@ -21,7 +21,8 @@ class TCIA:
                 "modality_names": ["dr","g","h"],
                 "planes": [0],
                 "clip_args": [0.5, 99.5],
-                "norm_scheme":"MR"
+                "norm_scheme":"MR",
+                "functional": False
             }
         }
 

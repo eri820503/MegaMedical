@@ -38,20 +38,20 @@ def process_image_list(process_DATASET_image,
                   } for image in image_list]
     
     res_dict = {res:[] for res in resolutions}
-    subj_accumulator = []
+    subj_dict = {res:[] for res in resolutions}
     if parallelize:
         with ProcessPoolExecutor(max_workers=16) as executor:
             for (proc_return, subj_name) in executor.map(process_DATASET_image, item_list):
                 if accumulate and subj_name is not None:
                     for res in resolutions:
                         res_dict[res].append(proc_return[res])
-                    subj_accumulator.append(subj_name)
+                        subj_dict[res].append(subj_name)
     else:
         for item in tqdm_notebook(item_list, desc=f'Processing: {subdset}'):
             proc_return, subj_name = process_DATASET_image(item)
             if accumulate and subj_name is not None:
                 for res in resolutions:
                     res_dict[res].append(proc_return[res])
-                subj_accumulator.append(subj_name)  
+                    subj_dict[res].append(subj_name)  
     
-    return subj_dict, res_dict
+    return subj_accumulator, res_dict

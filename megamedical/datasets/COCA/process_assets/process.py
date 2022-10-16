@@ -25,7 +25,8 @@ class COCA:
                 "modality_names":["MRI"],
                 "planes":[2],
                 "clip_args":None,
-                "norm_scheme":"MR"
+                "norm_scheme":"MR",
+                "functional": False
             }
         }
 

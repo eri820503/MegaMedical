@@ -21,7 +21,8 @@ class EchoNet:
                 "modality_names":["MRI"],
                 "planes":[2],
                 "clip_args": None,
-                "norm_scheme": None
+                "norm_scheme": None,
+                "functional": False
             }
         }
 
