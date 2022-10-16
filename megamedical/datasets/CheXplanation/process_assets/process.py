@@ -70,10 +70,7 @@ def process_CheXplanation_image(item):
     try:
         dset_info = item['dset_info']
         # template follows processed/resolution/dset/midslice/subset/modality/plane/subject
-        if item['redo_processed']:
-            rtp = put.check_proc_res(item)
-        else:
-            rtp = item["resolutions"]
+        rtp = item["resolutions"] if item['redo_processed'] else put.check_proc_res(item)
         if len(rtp) > 0:
             im_dir = os.path.join(dset_info[item['subdset']]["image_root_dir"], item['image'], "study1/view1_frontal.jpg")
             label_dir = os.path.join(dset_info[item['subdset']]["label_root_dir"], "gt_segmentation_val.json")

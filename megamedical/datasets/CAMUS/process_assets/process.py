@@ -94,10 +94,7 @@ def process_CAMUS_image(item):
     try:
         dset_info = item['dset_info']
         # template follows processed/resolution/dset/midslice/subset/modality/plane/subject
-        if item['redo_processed']:
-            rtp = put.check_proc_res(item)
-        else:
-            rtp = item["resolutions"]
+        rtp = item["resolutions"] if item['redo_processed'] else put.check_proc_res(item)
         if len(rtp) > 0:
             # Get rid of "train-" in front
             patient_name = item['image'][6:]

@@ -43,11 +43,11 @@ class TUCC:
         proc_dir = os.path.join(paths['ROOT'], "processed")
         # For reproducibility, fix seed
         np.random.seed(0)
-        hf = h5py.File(os.path.join(self.dset_info[dset_name]["image_root_dir"],'dataset.hdf5'), 'r')
-        chosen_inds = sorted(np.sort(np.random.choice(np.arange(len(hf["image"])), 1000)))
+        hf = h5py.File(os.path.join(self.dset_info[subdset]["image_root_dir"],'dataset.hdf5'), 'r')
+        image_list = [str(ind) for ind in np.sort(np.random.choice(np.arange(len(hf["image"])), 1000))]
         images = hf["image"]
         segs = hf["mask"]
-        subj_dict, res_dict = proc.process_image_list(process_AMOS_image,
+        subj_dict, res_dict = proc.process_image_list(process_TUCC_image,
                                                       proc_dir,
                                                       image_list,
                                                       parallelize,
@@ -62,7 +62,9 @@ class TUCC:
                                                       version,
                                                       show_imgs,
                                                       accumulate,
-                                                      save)
+                                                      save,
+                                                      preloaded_images=images,
+                                                      preloaded_labels=segs)
         if accumulate:
             return proc_dir, subj_dict, res_dict
         
@@ -72,22 +74,19 @@ def process_TUCC_image(item):
     try:
         dset_info = item['dset_info']
         # template follows processed/resolution/dset/midslice/subset/modality/plane/subject
-        if item['redo_processed']:
-            rtp = put.check_proc_res(item)
-        else:
-            rtp = item["resolutions"]
+        rtp = item["resolutions"] if item['redo_processed'] else put.check_proc_res(item)
         if len(rtp) > 0:
-            if load_images:
-                loaded_image = np.array(images[image, ...])
-                loaded_label = np.array(segs[image, ...])
+            if item['load_images']:
+                loaded_image = np.array(item["image_array"][int(item['image']), ...])
+                loaded_label = np.array(item["label_array"][int(item['image']), ...])
                 assert not (loaded_label is None), "Invalid Label"
                 assert not (loaded_image is None), "Invalid Image"
             else:
                 loaded_image = None
-                loaded_label = np.array(segs[image, ...])
+                loaded_label = np.array(item["label_array"][int(item['image']), ...])
 
             # Set the name to be saved
-            subj_name = f"frame_{image}"
+            subj_name = f"frame_{item['image']}"
             pps_function = item['pps_function']
             proc_return = pps_function(item['proc_dir'],
                                         item['version'],
@@ -106,4 +105,5 @@ def process_TUCC_image(item):
             return None, None
     except Exception as e:
         print(e)
+        raise ValueError
         return None, None
