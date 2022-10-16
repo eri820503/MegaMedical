@@ -67,7 +67,11 @@ def process_SegTHOR_image(item):
     try:
         dset_info = item['dset_info']
         # template follows processed/resolution/dset/midslice/subset/modality/plane/subject
-        if item['redo_processed'] or put.is_processed_check(item):
+        if item['redo_processed']:
+            rtp = put.check_proc_res(item)
+        else:
+            rtp = item["resolutions"]
+        if len(rtp) > 0:
             im_dir = os.path.join(dset_info[item['subdset']]['image_root_dir'], item['image'], f"{item['image']}.nii.gz")
             label_dir = os.path.join(dset_info[item['subdset']]['label_root_dir'], item['image'], "GT.nii.gz")
 
@@ -97,7 +101,7 @@ def process_SegTHOR_image(item):
                                        dset_info[item['subdset']],
                                        show_hists=item['show_hists'],
                                        show_imgs=item['show_imgs'],
-                                       resolutions=item['resolutions'],
+                                       resolutions=rtp,
                                        save=item['save'])
 
             return proc_return, subj_name

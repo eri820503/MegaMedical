@@ -189,7 +189,6 @@ def gather_unique_labels(data_obj,
                          parallelize,
                          redo_processed,
                          save):
-    
     save_dirs = [os.path.join(os.path.join(paths['ROOT'], "processed"), f"res{res}", data_obj.name, "label_info", subdset, "all_labels.npy") for res in resolutions]
     if (not redo_processed) and np.all([os.path.exists(save_dir) for save_dir in save_dirs]):
         return

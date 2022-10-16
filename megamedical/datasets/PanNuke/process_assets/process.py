@@ -61,8 +61,9 @@ class PanNuke:
         assert not(version is None and save), "Must specify version for saving."
         assert subdset in self.dset_info.keys(), "Sub-dataset must be in info dictionary."
         proc_dir = os.path.join(paths['ROOT'], "processed")
-        volumes_array = np.load(self.dset_info[subdset]["image_root_dir"])
-        image_list = sorted(list(range(volumes_array.shape[0])))
+        image_array = np.load(self.dset_info[subdset]["image_root_dir"])
+        label_array = np.load(self.dset_info[subdset]["label_root_dir"])
+        image_list = [str(idx) for idx in range(image_array.shape[0])]
         subj_dict, res_dict = proc.process_image_list(process_PanNuke_image,
                                                       proc_dir,
                                                       image_list,
@@ -78,7 +79,9 @@ class PanNuke:
                                                       version,
                                                       show_imgs,
                                                       accumulate,
-                                                      save)
+                                                      save,
+                                                      preloaded_images=image_array,
+                                                      preloaded_labels=label_array)
         if accumulate:
             return proc_dir, subj_dict, res_dict
 
@@ -88,14 +91,13 @@ def process_PanNuke_image(item):
     try:
         dset_info = item['dset_info']
         # template follows processed/resolution/dset/midslice/subset/modality/plane/subject
-        if item['redo_processed'] or put.is_processed_check(item):
-            volumes_array = np.load(dset_info[item['subdset']]["image_root_dir"])
-            labels_array = np.load(dset_info[item['subdset']]["label_root_dir"])
+        rtp = item["resolutions"] if item['redo_processed'] else put.check_proc_res(item)
+        if len(rtp) > 0:
             # "clever" hack to get Image.fromarray to work
-            loaded_image = volumes_array[item['image'],...]
+            loaded_image = item["image_array"][int(item['image']),...]
             loaded_image = 0.2989*loaded_image[...,0] + 0.5870*loaded_image[...,1] + 0.1140*loaded_image[...,2] 
 
-            loaded_label = np.transpose(labels_array[item['image'],...], (2, 0, 1))
+            loaded_label = np.transpose(item["label_array"][int(item['image']),...], (2, 0, 1))
             background_label = np.zeros((1, loaded_label.shape[1], loaded_label.shape[2]))
             loaded_label = np.concatenate([background_label, loaded_label], axis=0)
             loaded_label = np.argmax(loaded_label, axis=0)
@@ -115,9 +117,8 @@ def process_PanNuke_image(item):
                                         dset_info[item['subdset']],
                                         show_hists=item['show_hists'],
                                         show_imgs=item['show_imgs'],
-                                        resolutions=item['resolutions'],
+                                        resolutions=rtp,
                                         save=item['save'])
-
             return proc_return, subj_name
         else:
             return None, None

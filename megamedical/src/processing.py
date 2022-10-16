@@ -19,7 +19,9 @@ def process_image_list(process_DATASET_image,
                        version,
                        show_imgs,
                        accumulate,
-                       save): 
+                       save,
+                       preloaded_images=None,
+                       preloaded_labels=None): 
     
     item_list = [{
                   "image": image,
@@ -34,7 +36,9 @@ def process_image_list(process_DATASET_image,
                   "show_hists": show_hists,
                   "version": version,
                   "show_imgs": show_imgs,
-                  "save": save
+                  "save": save,
+                  "image_array": preloaded_images,
+                  "label_array": preloaded_labels
                   } for image in image_list]
     
     res_dict = {res:[] for res in resolutions}
