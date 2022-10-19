@@ -404,6 +404,14 @@ def flush_processed_datasets(datasets):
             for sf in split_files:
                 os.remove(sf)
     
+    
+# get rid of processed datasets
+def replace_label_file(dataset,
+                       subset,
+                       new_labels):
+    for res in ["res64", "res128", "res256"]:
+        label_file_dir = os.path.join(paths["PROC"], res, dataset, "label_info", subset, "all_labels.npy")
+        np.save(label_file_dir, np.array(new_labels))
 
 
 

@@ -48,6 +48,7 @@ class PanNuke:
 
     def proc_func(self,
                   subdset,
+                  task,
                   pps_function,
                   parallelize=False,
                   load_images=True,
@@ -66,6 +67,7 @@ class PanNuke:
         image_list = [str(idx) for idx in range(image_array.shape[0])]
         subj_dict, res_dict = proc.process_image_list(process_PanNuke_image,
                                                       proc_dir,
+                                                      task,
                                                       image_list,
                                                       parallelize,
                                                       pps_function,

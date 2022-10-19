@@ -27,7 +27,8 @@ class EPISURG:
         }
 
     def proc_func(self,
-                  dset_name,
+                  subdset,
+                  task,
                   proc_func,
                   load_images=True,
                   accumulate=False,

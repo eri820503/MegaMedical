@@ -30,6 +30,7 @@ class HMC_QU:
 
     def proc_func(self,
                   subdset,
+                  task,
                   pps_function,
                   parallelize=False,
                   load_images=True,

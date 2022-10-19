@@ -28,6 +28,7 @@ class LITS:
 
     def proc_func(self,
                   subdset,
+                  task,
                   pps_function,
                   parallelize=False,
                   load_images=True,
@@ -44,6 +45,7 @@ class LITS:
         image_list = sorted(os.listdir(self.dset_info[subdset]["image_root_dir"]))
         subj_dict, res_dict = proc.process_image_list(process_LITS_image,
                                                       proc_dir,
+                                                      task,
                                                       image_list,
                                                       parallelize,
                                                       pps_function,

@@ -6,6 +6,7 @@ from tqdm.notebook import tqdm_notebook
 
 def process_image_list(process_DATASET_image,
                        proc_dir,
+                       task,
                        image_list,
                        parallelize,
                        pps_function,
@@ -25,6 +26,7 @@ def process_image_list(process_DATASET_image,
     
     item_list = [{
                   "image": image,
+                  "task": task, 
                   "pps_function": pps_function,
                   "resolutions": resolutions,
                   "proc_dir": proc_dir,

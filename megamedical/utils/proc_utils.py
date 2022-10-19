@@ -12,11 +12,20 @@ import scipy
 # returns True if not both midslice and maxslice are processed.
 def check_proc_res(item):
     resolutions_to_process = []
-    for dt in ["midslice", "maxslice"]:
+    if item["task"] == "images":
+        for dt in ["midslice", "maxslice"]:
+            for res in item['resolutions']:
+                template_root = os.path.join(item['proc_dir'], f"res{res}", item['dataset'])
+                if len(glob.glob(os.path.join(template_root, f"{dt}_v{item['version']}", item['subdset'], "*/*", item['image']))) == 0:
+                    resolutions_to_process.append(res)
+    elif item["task"] == "stats":
         for res in item['resolutions']:
-            template_root = os.path.join(item['proc_dir'], f"res{res}", item['dataset'])
-            if len(glob.glob(os.path.join(template_root, f"{dt}_v{item['version']}", item['subdset'], "*/*", item['image']))) == 0:
-                resolutions_to_process.append(res)
+                template_root = os.path.join(item['proc_dir'], f"res{res}", item['dataset'], "label_info", item['subdset'], "pop_info_files")
+                if not os.path.exists(os.path.join(template_root, f"{item['image']}.pickle")):
+                    resolutions_to_process.append(res)
+    else:
+        raise ValueError("Task not defined.")
+                    
     return list(set(resolutions_to_process))
             
 
@@ -35,7 +44,7 @@ def get_list_of_subjects(root,
 def get_label_amounts(proc_dir,
                       version,
                       subdset,
-                      image, 
+                      save_name, 
                       loaded_image,
                       loaded_label,
                       dset_info,
@@ -43,13 +52,10 @@ def get_label_amounts(proc_dir,
                       show_imgs,
                       resolutions,
                       save):
+    
     square_label = squarify(loaded_label)
     
-    res_dict = {}
     for res in resolutions:
-        res_dict[res] = {}
-        maxslice_amount_dict = {}
-        midslice_amount_dict = {}
 
         # Handle resizing
         old_seg_size = square_label.shape[0]
@@ -61,56 +67,46 @@ def get_label_amounts(proc_dir,
             zoom_tup = (ratio, ratio, ratio)
 
         # Get all labels at this resolution
-        all_labels = np.load(os.path.join(proc_dir, f"res{res}", dset_info["main"], "label_info", subdset, "all_labels.npy"))
+        lab_info_root = os.path.join(proc_dir, f"res{res}", dset_info["main"], "label_info", subdset)
+        all_labels = np.load(os.path.join(lab_info_root, "all_labels.npy"))   
+            
+        # Create statistics
+        midslice_amounts = np.zeros((len(dset_info["planes"]), len(all_labels)))
+        maxslice_amounts = np.zeros((len(dset_info["planes"]), len(all_labels)))
+        
+        for l_idx, lab in enumerate(all_labels):
+            bin_mask = np.float32(square_label==lab)
 
-        if len(square_label.shape) == 2:
-            midslice_amount_dict = {}
-            maxslice_amount_dict = {}
-            for lab in all_labels:
-                bin_mask = np.float32(square_label==lab)
+            #produce resized segmentations
+            bin_seg_res = blur_and_resize(bin_mask, old_seg_size, new_size=res, order=0, blur=False)
 
-                #produce resized segmentations
-                bin_seg_res = blur_and_resize(bin_mask, old_seg_size, new_size=res, order=0)
-
-                if not 0 in midslice_amount_dict.keys():
-                    midslice_amount_dict[0] = {}
-                midslice_amount_dict[0][lab] = np.mean(bin_seg_res)
-
-                if not 0 in maxslice_amount_dict.keys():
-                    maxslice_amount_dict[0] = {}
-                maxslice_amount_dict[0][lab] = np.mean(bin_seg_res)
-        else:     
-            # Create statistics
-            midslice_amount_dict = {}
-            maxslice_amount_dict = {}
-            for lab in all_labels:
-                bin_mask = np.float32(square_label==lab)
-
-                #produce resized segmentations
-                bin_seg_res = blur_and_resize(bin_mask, old_seg_size, new_size=res, order=0)
-
+            if len(square_label.shape) == 2:
+                midslice_amounts[0, l_idx] = np.mean(bin_seg_res)
+                maxslice_amounts[0, l_idx] = np.mean(bin_seg_res)
+            else:
                 for plane in dset_info["planes"]:
                     all_axes = [0,1,2]
                     all_axes.remove(plane)
 
-                    if not plane in midslice_amount_dict.keys():
-                        midslice_amount_dict[plane] = {}
-                    midslice_amount_dict[plane][lab] = np.mean(np.take(bin_seg_res, bin_seg_res.shape[plane]//2, plane))
-
-                    if not plane in maxslice_amount_dict.keys():
-                        maxslice_amount_dict[plane] = {}
-                    maxslice_amount_dict[plane][lab] = np.amax(np.mean(bin_seg_res, axis=tuple(all_axes)))
-
-        res_dict[res]["midslice"] = midslice_amount_dict
-        res_dict[res]["maxslice"] = maxslice_amount_dict
-
-    return res_dict
+                    midslice_amounts[plane, l_idx] = np.round(np.mean(np.take(bin_seg_res, bin_seg_res.shape[plane]//2, plane)), 5)                 
+                    maxslice_amounts[plane, l_idx] = np.amax(np.round(np.mean(bin_seg_res, axis=tuple(all_axes)), 5))
+        if save:
+            # Save dir for all the pickle files
+            save_dir = os.path.join(lab_info_root, "pop_info_files")
+            if not os.path.exists(save_dir):
+                os.makedirs(save_dir)
+            save_dict = {
+                "midslice": midslice_amounts,
+                "maxslice": maxslice_amounts
+            }
+            subj_file = os.path.join(save_dir, save_name) 
+            dump_dictionary(save_dict, subj_file)
 
 
 def get_all_unique_labels(proc_dir,
                           version,
                           dset_name,
-                          image, 
+                          save_name, 
                           loaded_image,
                           loaded_label,
                           dset_info,
@@ -201,11 +197,14 @@ def display_processing_slices(image, seg, plane):
     plt.colorbar(seg_obj, ax=axarr[1])
     plt.show()
 
-def blur_and_resize(image, old_size, new_size, order):
+def blur_and_resize(image, old_size, new_size, order, blur=True):
     sigma = 1/4 * old_size / new_size
     ratio = new_size/old_size
     
-    blurred_resized_image = ndimage.gaussian_filter(image, sigma=sigma)
+    if blur:
+        blurred_resized_image = ndimage.gaussian_filter(image, sigma=sigma)
+    else:
+        blurred_resized_image = image
     
     if len(blurred_resized_image.shape) == 2:
         zoom_tup = (ratio, ratio)

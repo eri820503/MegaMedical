@@ -37,6 +37,7 @@ class PanDental:
 
     def proc_func(self,
                   subdset,
+                  task,
                   pps_function,
                   parallelize=False,
                   load_images=True,
@@ -60,6 +61,7 @@ class PanDental:
         image_list = sorted(image_list)
         subj_dict, res_dict = proc.process_image_list(process_PanDental_image,
                                                       proc_dir,
+                                                      task,
                                                       image_list,
                                                       parallelize,
                                                       pps_function,

@@ -109,20 +109,7 @@ def gather_population_statistics(data_obj,
                                  parallelize,
                                  redo_processed,
                                  save):
-    
-    # Check if we need to process anything
-    if not redo_processed:
-        pickle_dirs = []
-        for res in resolutions:
-            res_save_dir = os.path.join(os.path.join(paths['ROOT'], "processed"), f"res{res}", data_obj.name, "label_info", subdset)
-            for slice_type in ["midslice", "maxslice"]:
-                for plane in data_obj.dset_info[subdset]["planes"]:
-                    slicetype_plane_dir = os.path.join(res_save_dir, f"{slice_type}_pop_lab_amount_{plane}.pickle")
-                    if not os.path.exists(slicetype_plane_dir):
-                        pickle_dirs.append(slicetype_plane_dir)          
-        if len(pickle_dirs) == 0:
-            return
-        
+      
     # total_label_info is a dictionary that is structed like the following
     # total_label_info
     # - resolution (64, 128, 256, etc.)
@@ -130,17 +117,19 @@ def gather_population_statistics(data_obj,
     #         - plane 0,1,2...
     #     - label amounts maxslice (per plane)
     #         - plane 0,1,2...
-    proc_dir, processed_subjects, resolution_label_dict = data_obj.proc_func(subdset=subdset,
-                                                                             pps_function=get_label_amounts,
-                                                                             parallelize=parallelize,
-                                                                             load_images=False,
-                                                                             accumulate=True,
-                                                                             version=version,
-                                                                             show_imgs=False,
-                                                                             save=save,
-                                                                             show_hists=False,
-                                                                             resolutions=resolutions,
-                                                                             redo_processed=True)
+    data_obj.proc_func(subdset=subdset,
+                       task="stats",
+                       pps_function=get_label_amounts,
+                       parallelize=parallelize,
+                       load_images=False,
+                       accumulate=False,
+                       version=version,
+                       show_imgs=False,
+                       save=save,
+                       show_hists=False,
+                       resolutions=resolutions,
+                       redo_processed=redo_processed)
+    
     for res in resolutions:
         res_processed_subjs = processed_subjects[res]
         res_label_info = resolution_label_dict[res]

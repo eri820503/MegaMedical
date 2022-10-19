@@ -28,6 +28,7 @@ class Feto_Plac:
 
     def proc_func(self,
                   subdset,
+                  task,
                   pps_function,
                   parallelize=False,
                   load_images=True,
