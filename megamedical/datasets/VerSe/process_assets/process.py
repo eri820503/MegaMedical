@@ -78,14 +78,16 @@ def process_VerSe_image(item):
     try:
         dset_info = item['dset_info']
         # template follows processed/resolution/dset/midslice/subset/modality/plane/subject
+        file_name = item['image']
+        item['image'] = file_name.split(".")[0]
         rtp = item["resolutions"] if item['redo_processed'] else put.check_proc_res(item)
         if len(rtp) > 0:
             if item['subdset'] == "VerSe19":
-                im_dir = os.path.join(dset_info[item['subdset']]["image_root_dir"], item['image'], f"{item['image']}_ct.nii.gz")
-                label_dir = os.path.join(dset_info[item['subdset']]["label_root_dir"], item['image'], f"{item['image']}_seg-vert_msk.nii.gz")
+                im_dir = os.path.join(dset_info[item['subdset']]["image_root_dir"], file_name, f"{file_name}_ct.nii.gz")
+                label_dir = os.path.join(dset_info[item['subdset']]["label_root_dir"], file_name, f"{file_name}_seg-vert_msk.nii.gz")
             else:
-                im_dir = os.path.join(dset_info[item['subdset']]["image_root_dir"], item['image'], f"{item['image']}_dir-ax_ct.nii.gz")
-                label_dir = os.path.join(dset_info[item['subdset']]["label_root_dir"], item['image'], f"{item['image']}_dir-ax_seg-vert_msk.nii.gz")
+                im_dir = os.path.join(dset_info[item['subdset']]["image_root_dir"], file_name, f"{file_name}_dir-ax_ct.nii.gz")
+                label_dir = os.path.join(dset_info[item['subdset']]["label_root_dir"], file_name, f"{file_name}_dir-ax_seg-vert_msk.nii.gz")
 
             if item['load_images']:
                 if item["subdset"] == "VerSe19":
@@ -104,7 +106,7 @@ def process_VerSe_image(item):
                 loaded_label = nib.load(label_dir).get_fdata()
 
             # Set the name to be saved
-            subj_name = item['image'].split(".")[0]
+            subj_name = item['image']
             pps_function = item['pps_function']
             proc_return = pps_function(item['proc_dir'],
                                         item['version'],

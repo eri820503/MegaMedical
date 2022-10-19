@@ -163,8 +163,10 @@ def process_dataset(datasets,
                     shutil.rmtree(slurm_root)
                 executor = submitit.AutoExecutor(folder=slurm_root)
                 executor.update_parameters(timeout_min=timeout, mem_gb=mem_gb, slurm_partition="sablab", slurm_wckey="")
+                task = "images"
                 job = executor.submit(do.proc_func,
                                       subdset,
+                                      task, 
                                       pps.produce_slices,
                                       parallelize,
                                       load_images,
@@ -176,7 +178,9 @@ def process_dataset(datasets,
                                       resolutions,
                                       redo_processed)
             else:
+                task = "images"
                 do.proc_func(subdset,
+                             task, 
                              pps.produce_slices,
                              parallelize,
                              load_images,

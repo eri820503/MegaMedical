@@ -130,20 +130,19 @@ def gather_population_statistics(data_obj,
                        resolutions=resolutions,
                        redo_processed=redo_processed)
     
+    
     for res in resolutions:
-        res_processed_subjs = processed_subjects[res]
-        res_label_info = resolution_label_dict[res]
+        subdset_res_root = os.path.join(paths["PROC"], f"res{res}", data_obj.name, "label_info", subdset)
+        
+        subj_label_file_dir = os.path.join(subdset_res_root, "pop_info_files")
+        res_processed_subjs = [subj_name.replace('.pickle', '') for subj_name in os.listdir(subj_label_file_dir)]
+        res_label_info = [load_obj(os.path.join(subj_label_file_dir, subj_name)) for subj_name in os.listdir(subj_label_file_dir)]
         num_subjects = len(res_label_info)
         midslice_label_info = [li["midslice"] for li in res_label_info]
         maxslice_label_info = [li["maxslice"] for li in res_label_info]
         
         # get all possible labels
-        unique_labels = np.load(os.path.join(paths["PROC"], 
-                                             f"res{res}", 
-                                             data_obj.name, 
-                                             "label_info", 
-                                             subdset, 
-                                             "all_labels.npy")).tolist()
+        unique_labels = np.load(os.path.join(subdset_res_root, "all_labels.npy")).tolist()
 
         # define an inverse map going from labels to indices in the list
         label_map = {lab: unique_labels.index(lab) for lab in unique_labels}
@@ -152,16 +151,22 @@ def gather_population_statistics(data_obj,
             "midslice": midslice_label_info, 
             "maxslice": maxslice_label_info
         }
-
+        
+        num_unique_labels = len(unique_labels)
         for slice_type in slice_info_set.keys():
+            
             for plane in data_obj.dset_info[subdset]["planes"]:
-                label_info_array = np.zeros((len(res_label_info), len(unique_labels)))
+                
+                label_info_array = np.zeros((num_subjects, num_unique_labels))
+                
                 for subj_idx, slice_info in enumerate(slice_info_set[slice_type]):
-                    for label in slice_info[plane].keys():
-                        label_info_array[subj_idx, label_map[int(label)]] = slice_info[plane][label]
+                    
+                    for l_idx in range(num_unique_labels):
+                                           
+                        label_info_array[subj_idx, l_idx] = slice_info[plane, l_idx]
+                                           
                 if save:
-                    save_dir = os.path.join(proc_dir, f"res{res}", data_obj.name, "label_info", subdset)
-                    dict_dir = os.path.join(save_dir, f"{slice_type}_pop_lab_amount_{plane}")
+                    dict_dir = os.path.join(subdset_res_root, f"{slice_type}_pop_lab_amount_{plane}")
                     dict_pair = {
                         "index": res_processed_subjs,
                         "pop_label_amount": label_info_array

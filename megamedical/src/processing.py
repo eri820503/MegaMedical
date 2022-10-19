@@ -45,6 +45,7 @@ def process_image_list(process_DATASET_image,
     
     res_dict = {res:[] for res in resolutions}
     subj_dict = {res:[] for res in resolutions}
+    
     if parallelize:
         with ProcessPoolExecutor(max_workers=16) as executor:
             for (proc_return, subj_name) in tqdm_notebook(executor.map(process_DATASET_image, item_list), 
