@@ -67,7 +67,8 @@ def combined_pipeline_process(steps,
                     subdset=subdset,
                     resolutions=resolutions,
                     version=version,
-                    amount_training=train_split)
+                    amount_training=train_split,
+                    save=save)
     # Finished
     print(f"Done with Dataset: {do.name}, Subdset: {subdset}!")
         
@@ -350,40 +351,49 @@ def make_splits(data_obj,
                 subdset,
                 resolutions=[64, 128, 256],
                 version="4.0",
-                amount_training=0.7):
+                amount_training=0.7,
+                save=False):
     
     split_files_dir = os.path.join(paths["PROC"], "split_files")
     if not os.path.exists(split_files_dir):
         os.makedirs(split_files_dir)
     
+    res_proc_subjs = []
     for res in resolutions:
         for dset_type in ["midslice_v4.0", "maxslice_v4.0"]:
-            subjects = np.array(utils.proc_utils.get_list_of_subjects(paths["PROC"], res, dset_type, data_obj.name, subdset))
+            res_proc_subjs.append(len(utils.proc_utils.get_list_of_subjects(paths["PROC"], 64, "midslice_v4.0", data_obj.name, subdset)))
 
-            total_amount = len(subjects)
-            indices = np.arange(total_amount)
-            np.random.shuffle(indices)
+    res_num_subjs = (np.array(res_proc_subjs) == res_proc_subjs[0])
+    assert np.all(res_num_subjs), "Make sure all things are equivalently processed."
+    
+    # Default to res64 and dset type midslice_v4.0
+    subjects = np.array(utils.proc_utils.get_list_of_subjects(paths["PROC"], 64, "midslice_v4.0", data_obj.name, subdset))
 
-            train_amount = int(total_amount*amount_training)
-            val_test_amount = total_amount - train_amount
-            val_amount = int(val_test_amount*0.5)
-            test_amount = val_test_amount - val_amount
+    total_amount = len(subjects)
+    indices = np.arange(total_amount)
+    np.random.shuffle(indices)
 
-            train_indices = indices[:train_amount]
-            val_indices = indices[train_amount:train_amount+val_amount]
-            test_indices = indices[-test_amount:]
+    train_amount = int(total_amount*amount_training)
+    val_test_amount = total_amount - train_amount
+    val_amount = int(val_test_amount*0.5)
+    test_amount = val_test_amount - val_amount
 
-            names_dict = {
-                "train": subjects[train_indices],
-                "val": subjects[val_indices], 
-                "test": subjects[test_indices]
-            }
+    train_indices = indices[:train_amount]
+    val_indices = indices[train_amount:train_amount+val_amount]
+    test_indices = indices[-test_amount:]
 
-            for split in ["train", "val", "test"]:
-                split_file = open(os.path.join(split_files_dir, f"res{res}__{data_obj.name}__{dset_type}__{subdset}__{split}.txt"), "w")
-                for file_name in names_dict[split]:
-                    split_file.write(file_name + "\n")
-                split_file.close()
+    names_dict = {
+        "train": subjects[train_indices],
+        "val": subjects[val_indices], 
+        "test": subjects[test_indices]
+    }
+    
+    if save:
+        for split in ["train", "val", "test"]:
+            split_file = open(os.path.join(split_files_dir, f"{data_obj.name}__{subdset}__{split}.txt"), "w")
+            for file_name in names_dict[split]:
+                split_file.write(file_name + "\n")
+            split_file.close()
 
                 
 # get rid of processed datasets
