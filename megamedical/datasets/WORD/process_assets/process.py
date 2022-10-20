@@ -73,6 +73,7 @@ def process_WORD_image(item):
         item['image'] = file_name.split(".")[0]
         rtp = item["resolutions"] if item['redo_processed'] else put.check_proc_res(item)
         if len(rtp) > 0:
+            print("Processing:", item['image'])
             im_dir = os.path.join(dset_info[item['subdset']]['image_root_dir'], file_name)
             label_dir = os.path.join(dset_info[item['subdset']]['label_root_dir'], file_name)
 

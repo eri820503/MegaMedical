@@ -18,6 +18,7 @@ def check_proc_res(item):
                 template_root = os.path.join(item['proc_dir'], f"res{res}", item['dataset'])
                 if len(glob.glob(os.path.join(template_root, f"{dt}_v{item['version']}", item['subdset'], "*/*", item['image']))) == 0:
                     resolutions_to_process.append(res)
+        
     elif item["task"] == "stats":
         for res in item['resolutions']:
                 template_root = os.path.join(item['proc_dir'], f"res{res}", item['dataset'], "label_info", item['subdset'], "pop_info_files")
@@ -25,7 +26,7 @@ def check_proc_res(item):
                     resolutions_to_process.append(res)
     else:
         raise ValueError("Task not defined.")
-                    
+        
     return list(set(resolutions_to_process))
             
 
