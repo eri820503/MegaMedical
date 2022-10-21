@@ -24,8 +24,6 @@ def check_proc_res(item):
                 template_root = os.path.join(item['proc_dir'], f"res{res}", item['dataset'], "label_info", item['subdset'], "pop_info_files")
                 if not os.path.exists(os.path.join(template_root, f"{item['image']}.pickle")):
                     resolutions_to_process.append(res)
-    else:
-        raise ValueError("Task not defined.")
         
     return list(set(resolutions_to_process))
             

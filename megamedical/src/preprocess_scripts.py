@@ -188,6 +188,7 @@ def gather_unique_labels(data_obj,
         return
         
     proc_dir, processed_subjects, resolution_label_dict = data_obj.proc_func(subdset=subdset,
+                                                                             task="labels",
                                                                              pps_function=get_all_unique_labels,
                                                                              parallelize=parallelize,
                                                                              load_images=False,
