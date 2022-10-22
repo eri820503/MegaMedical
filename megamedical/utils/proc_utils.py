@@ -70,8 +70,8 @@ def get_label_amounts(proc_dir,
         all_labels = np.load(os.path.join(lab_info_root, "all_labels.npy"))   
             
         # Create statistics
-        midslice_amounts = np.zeros((len(dset_info["planes"]), len(all_labels)))
-        maxslice_amounts = np.zeros((len(dset_info["planes"]), len(all_labels)))
+        midslice_amounts = {plane : np.zeros(len(all_labels)) for plane in dset_info["planes"]}
+        maxslice_amounts = {plane : np.zeros(len(all_labels)) for plane in dset_info["planes"]}
         
         for l_idx, lab in enumerate(all_labels):
             bin_mask = np.float32(square_label==lab)
@@ -79,16 +79,15 @@ def get_label_amounts(proc_dir,
             #produce resized segmentations
             bin_seg_res = blur_and_resize(bin_mask, old_seg_size, new_size=res, order=0, blur=False)
 
-            if len(square_label.shape) == 2:
-                midslice_amounts[0, l_idx] = np.mean(bin_seg_res)
-                maxslice_amounts[0, l_idx] = np.mean(bin_seg_res)
-            else:
-                for plane in dset_info["planes"]:
+            for plane in dset_info["planes"]:
+                if len(square_label.shape) == 2:
+                    midslice_amounts[plane][l_idx] = np.mean(bin_seg_res)
+                    maxslice_amounts[plane][l_idx] = np.mean(bin_seg_res)
+                else:
                     all_axes = [0,1,2]
                     all_axes.remove(plane)
-
-                    midslice_amounts[plane, l_idx] = np.round(np.mean(np.take(bin_seg_res, bin_seg_res.shape[plane]//2, plane)), 5)                 
-                    maxslice_amounts[plane, l_idx] = np.amax(np.round(np.mean(bin_seg_res, axis=tuple(all_axes)), 5))
+                    midslice_amounts[plane][l_idx] = np.round(np.mean(np.take(bin_seg_res, bin_seg_res.shape[plane]//2, plane)), 5)                 
+                    maxslice_amounts[plane][l_idx] = np.amax(np.round(np.mean(bin_seg_res, axis=tuple(all_axes)), 5))
         if save:
             # Save dir for all the pickle files
             save_dir = os.path.join(lab_info_root, "pop_info_files")

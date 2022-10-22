@@ -50,6 +50,7 @@ def combined_pipeline_process(steps,
         print(f"Processing Images for Dataset: {do.name}, Subdset: {subdset}")
         # Process Images
         do.proc_func(subdset=subdset,
+                     task="images",
                      pps_function=pps.produce_slices,
                      parallelize=parallelize,
                      load_images=True,
@@ -77,6 +78,7 @@ def combined_pipeline_process(steps,
 def process_pipeline(steps,
                      datasets,
                      ignore_datasets=None,
+                     ignore_subdsets=None,
                      subdsets=None,
                      save=False,
                      slurm=False,
@@ -101,33 +103,34 @@ def process_pipeline(steps,
     for do in dataset_objects:
         subdset_names = list(do.dset_info.keys()) if subdsets is None else subdsets
         for subdset in subdset_names:
-            if slurm:
-                slurm_root = os.path.join(paths["ROOT"], f"bash/submitit/{do.name}/{subdset}")
-                # Reset the directory if it exists
-                if os.path.exists(slurm_root):
-                    shutil.rmtree(slurm_root)
-                executor = submitit.AutoExecutor(folder=slurm_root)
-                executor.update_parameters(timeout_min=timeout, mem_gb=mem_gb, slurm_partition="sablab", slurm_wckey="")
-                job = executor.submit(combined_pipeline_process,
-                                      steps,
-                                      do,
-                                      subdset,
-                                      version,
-                                      resolutions,
-                                      parallelize,
-                                      redo_processed,
-                                      train_split,
-                                      save)
-            else:
-                combined_pipeline_process(steps,
+            if ignore_subdsets is None or subdset not in ignore_subdsets:
+                if slurm:
+                    slurm_root = os.path.join(paths["ROOT"], f"bash/submitit/{do.name}/{subdset}")
+                    # Reset the directory if it exists
+                    if os.path.exists(slurm_root):
+                        shutil.rmtree(slurm_root)
+                    executor = submitit.AutoExecutor(folder=slurm_root)
+                    executor.update_parameters(timeout_min=timeout, mem_gb=mem_gb, slurm_partition="sablab", slurm_wckey="")
+                    job = executor.submit(combined_pipeline_process,
+                                          steps,
                                           do,
                                           subdset,
                                           version,
                                           resolutions,
-                                          parallelize, 
+                                          parallelize,
                                           redo_processed,
                                           train_split,
                                           save)
+                else:
+                    combined_pipeline_process(steps,
+                                              do,
+                                              subdset,
+                                              version,
+                                              resolutions,
+                                              parallelize, 
+                                              redo_processed,
+                                              train_split,
+                                              save)
         
         
 # Middle step of processing, actually process the images:       

@@ -163,7 +163,7 @@ def gather_population_statistics(data_obj,
                     
                     for l_idx in range(num_unique_labels):
                                            
-                        label_info_array[subj_idx, l_idx] = slice_info[plane, l_idx]
+                        label_info_array[subj_idx, l_idx] = slice_info[plane][l_idx]
                                            
                 if save:
                     dict_dir = os.path.join(subdset_res_root, f"{slice_type}_pop_lab_amount_{plane}")

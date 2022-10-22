@@ -20,7 +20,7 @@ class ISBI:
                 "image_root_dir":f"{paths['DATA']}/ISBI/original_unzipped/retrieved_2021_10_12/images",
                 "label_root_dir":f"{paths['DATA']}/ISBI/original_unzipped/retrieved_2021_10_12/segs",
                 "modality_names":["MRI"],
-                "planes":[0, 1, 2],
+                "planes":[2],
                 "clip_args": [0.5, 99.5],
                 "norm_scheme":"MR"
             }
@@ -66,47 +66,42 @@ class ISBI:
         
 global process_ISBI_image
 def process_ISBI_image(item):
-    try:
-        dset_info = item['dset_info']
-        # template follows processed/resolution/dset/midslice/subset/modality/plane/subject
-        rtp = item["resolutions"] if item['redo_processed'] else put.check_proc_res(item)
-        if len(rtp) > 0:
-            im_dir = os.path.join(dset_info[item['subdset']]["image_root_dir"], item['image'])
-            label_dir = os.path.join(dset_info[item['subdset']]["label_root_dir"], f"{item['image'][:-7]}_segmentation.nii.gz")
+    dset_info = item['dset_info']
+    # template follows processed/resolution/dset/midslice/subset/modality/plane/subject
+    file_name = item['image']
+    item['image'] = file_name.split(".")[0]
+    rtp = item["resolutions"] if item['redo_processed'] else put.check_proc_res(item)
+    if len(rtp) > 0:
+        im_dir = os.path.join(dset_info[item['subdset']]["image_root_dir"], file_name)
+        label_dir = os.path.join(dset_info[item['subdset']]["label_root_dir"], file_name.replace(".nii.gz", "_segmentation.nii.gz"))
 
-            assert os.path.isfile(im_dir), "Valid image dir required!"
-            assert os.path.isfile(label_dir), "Valid label dir required!"
+        assert os.path.isfile(im_dir), "Valid image dir required!"
+        assert os.path.isfile(label_dir), "Valid label dir required!"
 
-            if item['load_images']:
-                loaded_image = put.resample_nib(nib.load(im_dir))
-                loaded_label = put.resample_mask_to(nib.load(label_dir), loaded_image)
-
-                loaded_image = loaded_image.get_fdata()
-                loaded_label = loaded_label.get_fdata()
-                assert not (loaded_label is None), "Invalid Label"
-                assert not (loaded_image is None), "Invalid Image"
-            else:
-                loaded_image = None
-                loaded_label = nib.load(label_dir).get_fdata()
-
-            # Set the name to be saved
-            subj_name = item['image'].split(".")[0]
-            pps_function = item['pps_function']
-            proc_return = pps_function(item['proc_dir'],
-                                        item['version'],
-                                        item['subdset'],
-                                        subj_name, 
-                                        loaded_image,
-                                        loaded_label,
-                                        dset_info[item['subdset']],
-                                        show_hists=item['show_hists'],
-                                        show_imgs=item['show_imgs'],
-                                        resolutions=rtp,
-                                        save=item['save'])
-
-            return proc_return, subj_name
+        if item['load_images']:
+            loaded_image = nib.load(im_dir).get_fdata()
+            loaded_label = nib.load(label_dir).get_fdata()
+            assert not (loaded_label is None), "Invalid Label"
+            assert not (loaded_image is None), "Invalid Image"
         else:
-            return None, None
-    except Exception as e:
-        print(e)
+            loaded_image = None
+            loaded_label = nib.load(label_dir).get_fdata()
+
+        # Set the name to be saved
+        subj_name = item['image']
+        pps_function = item['pps_function']
+        proc_return = pps_function(item['proc_dir'],
+                                    item['version'],
+                                    item['subdset'],
+                                    subj_name, 
+                                    loaded_image,
+                                    loaded_label,
+                                    dset_info[item['subdset']],
+                                    show_hists=item['show_hists'],
+                                    show_imgs=item['show_imgs'],
+                                    resolutions=rtp,
+                                    save=item['save'])
+
+        return proc_return, subj_name
+    else:
         return None, None
