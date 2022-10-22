@@ -433,10 +433,16 @@ def replace_label_file(dataset,
 
 
 # get rid of processed datasets
-def check_datasets():
-    root = pathlib.Path("/home/vib9/src/MegaMedical/processed")
-    paths = check.all_paths(root)
-    N = len(paths)
-    for i, p in enumerate(paths, start=1):
-        err = check.check_dataset(p)
+def check_datasets(datasets,
+                   subdsets=None):
+    
+    if datasets == "all":
+        datasets = os.listdir(paths["DATA"])
 
+    dataset_objects = [utils.build_dataset(ds) for ds in datasets]
+    
+    for do in dataset_objects:
+        subdset_names = list(do.dset_info.keys()) if subdsets is None else subdsets
+        for subdset in subdset_names:
+            check.verify_dataset(do, subdset)
+                

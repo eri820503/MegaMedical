@@ -1,52 +1,28 @@
-import itertools
-import pathlib
+import os
+from pylot.util import autoload
+from megamedical.utils.registry import paths
 
-from pydantic import validate_arguments
-from tqdm import tqdm
-import einops as E
+def verify_dataset(data_object,
+                   subdset):
+    split_root = os.path.join(paths["PROC"], "split_files")
+    skip_datasets = ["COCA", "DDR", "MS_CMR", "EPISURG", "EchoNet", "HRF", "MNMS", "MouseBrainAtlas", "RibSeg", "SMIR", "SegThy", "TCIA", "TeethSeg", "TotalSegmentor"]
+    skip_subdsets = ["ABIDE", "GSP", "VerSe20"]
+    if data_object.name not in skip_datasets and subdset not in skip_subdsets:
+        split_files = get_splits(split_root, data_object.name, subdset)
+        from_splits = set(sum(split_files.values(), start=[]))
+        for data_type in ["midslice_v4.0", "maxslice_v4.0"]:
+            for res_dir in ["res64", "res128", "res256"]:
+                for modality in data_object.dset_info[subdset]["modality_names"]:
+                    for plane in data_object.dset_info[subdset]["planes"]:
+                        proc_dir = os.path.join(paths["PROC"], res_dir, data_object.name, data_type, subdset, modality, str(plane))
+                        from_files = set(os.listdir(proc_dir))
+                        
+                        missing = list(from_splits - from_files)
+                        print(missing)
 
-
-def check_dataset(path: pathlib.Path):
-    assert path.exists()
-    db = ThunderReader(path)
-    s = ""
-    subjects = db["_subjects"]
-    splits = db["_splits"]
-    a = db["_attrs"]
-    res = a["resolution"]
-    n_labels = a["n_labels"]
-    k = subjects[0]
-    img, seg = db[k]
-    if not img.shape in [(res, res), (n_labels, res, res)]:
-        s += "\tImage shape mismatch\n"
-    if not seg.shape == (n_labels, res, res):
-        s += "\tSegmentation shape mismatch\n"
-
-    from_splits = set(sum(splits.values(), start=[]))
-    from_files = set(subjects)
-    if (n := len(from_splits - from_files)) != 0:
-        missing = list(from_splits - from_files)
-        s += f"\tMissing {n} subjects listed in splits\n\t\t{missing}"
-    if (n := len(from_files - from_splits)) != 0:
-        missing = list(from_files - from_splits)
-        s += f"\tUnaccounted {n} subjects not listed in splits\n\t\t{missing}"
-
-    return s.strip('\n')
-
-
-def all_paths(root: pathlib.Path):
-
-    folders = [
-        root / "res64/maxslice",
-        root / "res64/midslice",
-        root / "res128/maxslice",
-        root / "res128/midslice",
-        root / "res256/maxslice",
-        root / "res256/midslice",
-    ]
-    paths = [
-        str(x.parent)
-        for x in itertools.chain.from_iterable([f.glob("**/data.mdb") for f in folders])
-        if not str(x.parent).endswith(".tmp")
-    ]
-    return paths
+                    
+def get_splits(root, dataset, group):
+    return {
+        split: autoload(os.path.join(root, f"{dataset}__{group}__{split}.txt"))
+        for split in ("train", "val", "test")
+    }                   
