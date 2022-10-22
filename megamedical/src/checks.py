@@ -5,11 +5,7 @@ from pydantic import validate_arguments
 from tqdm import tqdm
 import einops as E
 
-from pylot.util import ThunderReader
-from pylot.util.future import remove_prefix
 
-
-@validate_arguments
 def check_dataset(path: pathlib.Path):
     assert path.exists()
     db = ThunderReader(path)
@@ -38,7 +34,6 @@ def check_dataset(path: pathlib.Path):
     return s.strip('\n')
 
 
-@validate_arguments
 def all_paths(root: pathlib.Path):
 
     folders = [
@@ -55,15 +50,3 @@ def all_paths(root: pathlib.Path):
         if not str(x.parent).endswith(".tmp")
     ]
     return paths
-
-
-if __name__ == "__main__":
-
-    root = pathlib.Path("/storage/megamedical/v4.0")
-    paths = all_paths(root)
-    N = len(paths)
-    for i, p in enumerate(paths, start=1):
-        if err := check_dataset(p):
-            relp = remove_prefix(str(p), str(root))
-            print(relp)
-            print(err)

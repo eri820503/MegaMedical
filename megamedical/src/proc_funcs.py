@@ -10,6 +10,7 @@ pd.set_option('display.max_rows',100)
 
 # Megamedical imports
 from megamedical.src import preprocess_scripts as pps
+from megamedical.src import checks as check
 from megamedical.utils.registry import paths
 import megamedical.utils as utils
 
@@ -431,4 +432,11 @@ def replace_label_file(dataset,
         np.save(label_file_dir, np.array(new_labels))
 
 
+# get rid of processed datasets
+def check_datasets():
+    root = pathlib.Path("/home/vib9/src/MegaMedical/processed")
+    paths = check.all_paths(root)
+    N = len(paths)
+    for i, p in enumerate(paths, start=1):
+        err = check.check_dataset(p)
 
