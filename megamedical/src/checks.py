@@ -16,9 +16,9 @@ def verify_dataset(data_object,
                     for plane in data_object.dset_info[subdset]["planes"]:
                         proc_dir = os.path.join(paths["PROC"], res_dir, data_object.name, data_type, subdset, modality, str(plane))
                         from_files = set(os.listdir(proc_dir))
-                        
                         missing = list(from_splits - from_files)
-                        print(missing)
+                        if len(missing) > 0:
+                            print(proc_dir)
 
                     
 def get_splits(root, dataset, group):

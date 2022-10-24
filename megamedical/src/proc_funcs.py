@@ -11,6 +11,7 @@ pd.set_option('display.max_rows',100)
 # Megamedical imports
 from megamedical.src import preprocess_scripts as pps
 from megamedical.src import checks as check
+from megamedical.src import thunder
 from megamedical.utils.registry import paths
 import megamedical.utils as utils
 
@@ -445,4 +446,17 @@ def check_datasets(datasets,
         subdset_names = list(do.dset_info.keys()) if subdsets is None else subdsets
         for subdset in subdset_names:
             check.verify_dataset(do, subdset)
+            
+            
+# get rid of processed datasets
+def thunderify_datasets(force=True,
+                        max_workers=16,
+                        suppress_exceptions=False,
+                        dry_run=False,
+                        version=4.1):
+    thunder.reprocess_hierarchy(force,
+                                max_workers,
+                                suppress_exceptions,
+                                dry_run,
+                                version)
                 
