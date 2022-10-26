@@ -90,40 +90,38 @@ class PanNuke:
         
 global process_PanNuke_image
 def process_PanNuke_image(item):
-    try:
-        dset_info = item['dset_info']
-        # template follows processed/resolution/dset/midslice/subset/modality/plane/subject
-        rtp = item["resolutions"] if item['redo_processed'] else put.check_proc_res(item)
-        if len(rtp) > 0:
-            # "clever" hack to get Image.fromarray to work
-            loaded_image = item["image_array"][int(item['image']),...]
-            loaded_image = 0.2989*loaded_image[...,0] + 0.5870*loaded_image[...,1] + 0.1140*loaded_image[...,2] 
+    dset_info = item['dset_info']
+    # template follows processed/resolution/dset/midslice/subset/modality/plane/subject
+    file_name = item['image']
+    item['image'] = file_name.split(".")[0]
+    rtp = item["resolutions"] if item['redo_processed'] else put.check_proc_res(item)
+    if len(rtp) > 0:
+        # "clever" hack to get Image.fromarray to work
+        loaded_image = item["image_array"][int(file_name),...]
+        loaded_image = 0.2989*loaded_image[...,0] + 0.5870*loaded_image[...,1] + 0.1140*loaded_image[...,2] 
 
-            loaded_label = np.transpose(item["label_array"][int(item['image']),...], (2, 0, 1))
-            background_label = np.zeros((1, loaded_label.shape[1], loaded_label.shape[2]))
-            loaded_label = np.concatenate([background_label, loaded_label], axis=0)
-            loaded_label = np.argmax(loaded_label, axis=0)
+        loaded_label = np.transpose(item["label_array"][int(file_name),...], (2, 0, 1))
+        background_label = np.zeros((1, loaded_label.shape[1], loaded_label.shape[2]))
+        loaded_label = np.concatenate([background_label, loaded_label], axis=0)
+        loaded_label = np.argmax(loaded_label, axis=0)
 
-            assert not (loaded_image is None), "Invalid Image"
-            assert not (loaded_label is None), "Invalid Label"
+        assert not (loaded_image is None), "Invalid Image"
+        assert not (loaded_label is None), "Invalid Label"
 
-            # Set the name to be saved
-            subj_name = item['image'].split(".")[0]
-            pps_function = item['pps_function']
-            proc_return = pps_function(item['proc_dir'],
-                                        item['version'],
-                                        item['subdset'],
-                                        subj_name, 
-                                        loaded_image,
-                                        loaded_label,
-                                        dset_info[item['subdset']],
-                                        show_hists=item['show_hists'],
-                                        show_imgs=item['show_imgs'],
-                                        resolutions=rtp,
-                                        save=item['save'])
-            return proc_return, subj_name
-        else:
-            return None, None
-    except Exception as e:
-        print(e)
+        # Set the name to be saved
+        subj_name = item['image']
+        pps_function = item['pps_function']
+        proc_return = pps_function(item['proc_dir'],
+                                    item['version'],
+                                    item['subdset'],
+                                    subj_name, 
+                                    loaded_image,
+                                    loaded_label,
+                                    dset_info[item['subdset']],
+                                    show_hists=item['show_hists'],
+                                    show_imgs=item['show_imgs'],
+                                    resolutions=rtp,
+                                    save=item['save'])
+        return proc_return, subj_name
+    else:
         return None, None

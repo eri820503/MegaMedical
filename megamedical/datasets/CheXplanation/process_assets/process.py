@@ -72,9 +72,11 @@ def process_CheXplanation_image(item):
     try:
         dset_info = item['dset_info']
         # template follows processed/resolution/dset/midslice/subset/modality/plane/subject
+        file_name = item['image']
+        item['image'] = file_name.split(".")[0]
         rtp = item["resolutions"] if item['redo_processed'] else put.check_proc_res(item)
         if len(rtp) > 0:
-            im_dir = os.path.join(dset_info[item['subdset']]["image_root_dir"], item['image'], "study1/view1_frontal.jpg")
+            im_dir = os.path.join(dset_info[item['subdset']]["image_root_dir"], file_name, "study1/view1_frontal.jpg")
             label_dir = os.path.join(dset_info[item['subdset']]["label_root_dir"], "gt_segmentation_val.json")
             assert os.path.isfile(im_dir), "Valid image dir required!"
             assert os.path.isfile(label_dir), "Valid label dir required!"
@@ -85,7 +87,7 @@ def process_CheXplanation_image(item):
             if item['load_images']:
                 loaded_image = np.array(Image.open(im_dir).convert('L'))
                 loaded_labels = []
-                subj_dict = label_json[f"{item['image']}_study1_view1_frontal"]
+                subj_dict = label_json[f"{file_name}_study1_view1_frontal"]
                 for label in subj_dict.keys():
                     loaded_labels.append(mask.decode(subj_dict[label]))
                 loaded_label = np.argmax(np.stack(loaded_labels), axis=0)
@@ -94,7 +96,7 @@ def process_CheXplanation_image(item):
             else:
                 loaded_image = None
                 loaded_labels = []
-                subj_dict = label_json[f"{item['image']}_study1_view1_frontal"]
+                subj_dict = label_json[f"{file_name}_study1_view1_frontal"]
                 for label in subj_dict.keys():
                     loaded_labels.append(mask.decode(subj_dict[label]))
                 loaded_label = np.argmax(np.stack(loaded_labels), axis=0)
@@ -102,7 +104,7 @@ def process_CheXplanation_image(item):
             label_file.close()
 
             # Set the name to be saved
-            subj_name = item['image'].split(".")[0]
+            subj_name = item['image']
             pps_function = item['pps_function']
             proc_return = pps_function(item['proc_dir'],
                                         item['version'],

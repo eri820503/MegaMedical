@@ -359,20 +359,21 @@ def make_splits(data_obj,
                 amount_training=0.7,
                 save=False):
     
-    split_files_dir = os.path.join(paths["PROC"], "split_files")
+    proc_raw_root = os.path.join(paths["PROC"], "processed_raw")
+    split_files_dir = os.path.join(proc_raw_root, "split_files")
     if not os.path.exists(split_files_dir):
         os.makedirs(split_files_dir)
     
     res_proc_subjs = []
     for res in resolutions:
         for dset_type in ["midslice_v4.0", "maxslice_v4.0"]:
-            res_proc_subjs.append(len(utils.proc_utils.get_list_of_subjects(paths["PROC"], 64, "midslice_v4.0", data_obj.name, subdset)))
+            res_proc_subjs.append(len(utils.proc_utils.get_list_of_subjects(proc_raw_root, 64, "midslice_v4.0", data_obj.name, subdset)))
 
     res_num_subjs = (np.array(res_proc_subjs) == res_proc_subjs[0])
     assert np.all(res_num_subjs), "Make sure all things are equivalently processed."
     
     # Default to res64 and dset type midslice_v4.0
-    subjects = np.array(utils.proc_utils.get_list_of_subjects(paths["PROC"], 64, "midslice_v4.0", data_obj.name, subdset))
+    subjects = np.array(utils.proc_utils.get_list_of_subjects(proc_raw_root, 64, "midslice_v4.0", data_obj.name, subdset))
 
     total_amount = len(subjects)
     indices = np.arange(total_amount)

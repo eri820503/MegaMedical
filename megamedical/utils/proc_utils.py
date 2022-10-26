@@ -74,6 +74,7 @@ def get_label_amounts(proc_dir,
         maxslice_amounts = {plane : np.zeros(len(all_labels)) for plane in dset_info["planes"]}
         
         for l_idx, lab in enumerate(all_labels):
+            #print("Starting label:", lab)
             bin_mask = np.float32(square_label==lab)
 
             #produce resized segmentations
@@ -81,6 +82,8 @@ def get_label_amounts(proc_dir,
 
             for plane in dset_info["planes"]:
                 if len(square_label.shape) == 2:
+                    #print(np.mean(bin_seg_res))
+                    #plt.imshow(bin_seg_res)
                     midslice_amounts[plane][l_idx] = np.mean(bin_seg_res)
                     maxslice_amounts[plane][l_idx] = np.mean(bin_seg_res)
                 else:
@@ -88,6 +91,7 @@ def get_label_amounts(proc_dir,
                     all_axes.remove(plane)
                     midslice_amounts[plane][l_idx] = np.round(np.mean(np.take(bin_seg_res, bin_seg_res.shape[plane]//2, plane)), 5)                 
                     maxslice_amounts[plane][l_idx] = np.amax(np.round(np.mean(bin_seg_res, axis=tuple(all_axes)), 5))
+                plt.show()
         if save:
             # Save dir for all the pickle files
             save_dir = os.path.join(lab_info_root, "pop_info_files")
@@ -132,6 +136,7 @@ def save_maxslice(proc_dir, image_res, seg_res, subdset, mode, subject_name, pla
  
         # Get midslice slices
         subj_shape = image_res.shape
+        
         if len(subj_shape) == 2:
             maxslice_img = np.repeat(image_res[..., np.newaxis], seg_res.shape[-1], axis=2)
             maxslice_seg = seg_res
@@ -195,6 +200,7 @@ def display_processing_slices(image, seg, plane):
     plt.colorbar(seg_obj, ax=axarr[1])
     plt.show()
 
+    
 def blur_and_resize(image, old_size, new_size, order, blur=True):
     sigma = 1/4 * old_size / new_size
     ratio = new_size/old_size

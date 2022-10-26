@@ -1,5 +1,6 @@
 import nibabel as nib
 from tqdm.notebook import tqdm_notebook
+import SimpleITK as sitk
 import glob
 import numpy as np
 import os
