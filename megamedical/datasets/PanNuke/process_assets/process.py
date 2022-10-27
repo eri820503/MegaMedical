@@ -62,8 +62,8 @@ class PanNuke:
         assert not(version is None and save), "Must specify version for saving."
         assert subdset in self.dset_info.keys(), "Sub-dataset must be in info dictionary."
         proc_dir = os.path.join(paths['ROOT'], "processed")
-        image_array = np.load(self.dset_info[subdset]["image_root_dir"])
-        label_array = np.load(self.dset_info[subdset]["label_root_dir"])
+        image_array = np.load(self.dset_info[subdset]["image_root_dir"], mmap_mode='r')
+        label_array = np.load(self.dset_info[subdset]["label_root_dir"], mmap_mode='r')
         image_list = [str(idx) for idx in range(image_array.shape[0])]
         subj_dict, res_dict = proc.process_image_list(process_PanNuke_image,
                                                       proc_dir,

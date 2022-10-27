@@ -6,6 +6,7 @@ import shutil
 import os
 import pandas as pd
 import glob
+import tarfile
 pd.set_option('display.max_rows',100)
 
 # Megamedical imports
@@ -450,14 +451,34 @@ def check_datasets(datasets,
             
             
 # get rid of processed datasets
-def thunderify_datasets(force=True,
+def thunderify_datasets(datasets,
+                        export_name,
+                        force=True,
                         max_workers=16,
                         suppress_exceptions=False,
                         dry_run=False,
-                        version=4.1):
+                        version=4.1,
+                        clean_dirs=True):
+    assert export_name != "", "Must have non-empty export name."
+    
+    root = "/home/vib9/src/MegaMedical/processed"
+    for res in ["res64", "res128", "res256"]:
+        for dset in datasets:
+            old_dir = os.path.join(root, res, dset)
+            new_dir_root = os.path.join(root, "processed_raw", res)
+            if not os.path.exists(new_dir_root):
+                os.makedirs(new_dir_root)
+            new_dir = os.path.join(new_dir_root, dset)
+            shutil.move(old_dir, new_dir)
+        
     thunder.reprocess_hierarchy(force,
                                 max_workers,
                                 suppress_exceptions,
                                 dry_run,
+                                
                                 version)
-                
+    
+    source_dir = "/home/vib9/src/MegaMedical/processed/lmdb_processed/4.1"
+    output_filename = f"/home/vib9/src/MegaMedical/processed/lmdb_processed/{export_name}"
+    with tarfile.open(output_filename, "w:gz") as tar:
+        tar.add(source_dir, arcname=os.path.basename(source_dir))

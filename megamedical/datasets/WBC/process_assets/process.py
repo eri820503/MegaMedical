@@ -76,43 +76,39 @@ class WBC:
         
 global process_WBC_image
 def process_WBC_image(item):
-    try:
-        dset_info = item['dset_info']
-        # template follows processed/resolution/dset/midslice/subset/modality/plane/subject
-        file_name = item['image']
-        item['image'] = file_name.split(".")[0]
-        rtp = item["resolutions"] if item['redo_processed'] else put.check_proc_res(item)
-        if len(rtp) > 0:
-            im_dir = os.path.join(dset_info[item['subdset']]["image_root_dir"], file_name) 
-            label_dir = os.path.join(dset_info[item['subdset']]["label_root_dir"], file_name.replace("bmp", "png"))
+    dset_info = item['dset_info']
+    # template follows processed/resolution/dset/midslice/subset/modality/plane/subject
+    file_name = item['image']
+    item['image'] = file_name.split(".")[0]
+    rtp = item["resolutions"] if item['redo_processed'] else put.check_proc_res(item)
+    if len(rtp) > 0:
+        im_dir = os.path.join(dset_info[item['subdset']]["image_root_dir"], file_name) 
+        label_dir = os.path.join(dset_info[item['subdset']]["label_root_dir"], file_name.replace("bmp", "png"))
 
-            if item['load_images']:
-                loaded_image = np.array(Image.open(im_dir).convert('L'))
-                loaded_label = np.array(Image.open(label_dir))
-                assert not (loaded_label is None), "Invalid Label"
-                assert not (loaded_image is None), "Invalid Image"
-            else:
-                loaded_image = None
-                loaded_label = np.array(Image.open(label_dir))
-
-            # Set the name to be saved
-            subj_name = item['image']
-            pps_function = item['pps_function']
-            proc_return = pps_function(item['proc_dir'],
-                                        item['version'],
-                                        item['subdset'],
-                                        subj_name, 
-                                        loaded_image,
-                                        loaded_label,
-                                        dset_info[item['subdset']],
-                                        show_hists=item['show_hists'],
-                                        show_imgs=item['show_imgs'],
-                                        resolutions=rtp,
-                                        save=item['save'])
-
-            return proc_return, subj_name
+        if item['load_images']:
+            loaded_image = np.array(Image.open(im_dir).convert('L'))
+            loaded_label = np.array(Image.open(label_dir))
+            assert not (loaded_label is None), "Invalid Label"
+            assert not (loaded_image is None), "Invalid Image"
         else:
-            return None, None
-    except Exception as e:
-        print(e)
+            loaded_image = None
+            loaded_label = np.array(Image.open(label_dir))
+
+        # Set the name to be saved
+        subj_name = item['image']
+        pps_function = item['pps_function']
+        proc_return = pps_function(item['proc_dir'],
+                                    item['version'],
+                                    item['subdset'],
+                                    subj_name, 
+                                    loaded_image,
+                                    loaded_label,
+                                    dset_info[item['subdset']],
+                                    show_hists=item['show_hists'],
+                                    show_imgs=item['show_imgs'],
+                                    resolutions=rtp,
+                                    save=item['save'])
+
+        return proc_return, subj_name
+    else:
         return None, None

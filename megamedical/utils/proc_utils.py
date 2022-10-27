@@ -82,8 +82,9 @@ def get_label_amounts(proc_dir,
 
             for plane in dset_info["planes"]:
                 if len(square_label.shape) == 2:
-                    #print(np.mean(bin_seg_res))
-                    #plt.imshow(bin_seg_res)
+#                     print(np.mean(bin_seg_res))
+#                     plt.imshow(bin_seg_res)
+#                     plt.show()
                     midslice_amounts[plane][l_idx] = np.mean(bin_seg_res)
                     maxslice_amounts[plane][l_idx] = np.mean(bin_seg_res)
                 else:
@@ -91,7 +92,7 @@ def get_label_amounts(proc_dir,
                     all_axes.remove(plane)
                     midslice_amounts[plane][l_idx] = np.round(np.mean(np.take(bin_seg_res, bin_seg_res.shape[plane]//2, plane)), 5)                 
                     maxslice_amounts[plane][l_idx] = np.amax(np.round(np.mean(bin_seg_res, axis=tuple(all_axes)), 5))
-                plt.show()
+                
         if save:
             # Save dir for all the pickle files
             save_dir = os.path.join(lab_info_root, "pop_info_files")
