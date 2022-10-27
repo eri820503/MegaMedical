@@ -78,11 +78,13 @@ def process_cDEMRIS_image(item):
     try:
         dset_info = item['dset_info']
         # template follows processed/resolution/dset/midslice/subset/modality/plane/subject
+        file_name = item['image']
+        item['image'] = file_name.split(".")[0]
         rtp = item["resolutions"] if item['redo_processed'] else put.check_proc_res(item)
         if len(rtp) > 0:
             vers = "a" if item['subdset'] == "ISBI_2012_pre" else "b"
-            im_dir = os.path.join(dset_info[item['subdset']]["image_root_dir"], item['image'], f"de_{vers}_{item['image'][1:]}.nrrd")
-            label_dir = os.path.join(dset_info[item['subdset']]["label_root_dir"], item['image'], f"la_seg_{vers}_{item['image'][1:]}.nrrd")
+            im_dir = os.path.join(dset_info[item['subdset']]["image_root_dir"], file_name, f"de_{vers}_{file_name[1:]}.nrrd")
+            label_dir = os.path.join(dset_info[item['subdset']]["label_root_dir"], file_name, f"la_seg_{vers}_{file_name[1:]}.nrrd")
 
             assert os.path.isfile(im_dir), "Valid image dir required!"
             assert os.path.isfile(label_dir), "Valid label dir required!"
@@ -97,7 +99,7 @@ def process_cDEMRIS_image(item):
                 loaded_label, _ = nrrd.read(label_dir)
 
             # Set the name to be saved
-            subj_name = item['image'].split(".")[0]
+            subj_name = item['image']
             pps_function = item['pps_function']
             proc_return = pps_function(item['proc_dir'],
                                         item['version'],
