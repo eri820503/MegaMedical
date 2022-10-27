@@ -452,6 +452,7 @@ def check_datasets(datasets,
             
 # get rid of processed datasets
 def thunderify_datasets(datasets,
+                        move_datasets,
                         export_name,
                         force=True,
                         max_workers=16,
@@ -461,21 +462,33 @@ def thunderify_datasets(datasets,
                         clean_dirs=True):
     assert export_name != "", "Must have non-empty export name."
     
-    root = "/home/vib9/src/MegaMedical/processed"
-    for res in ["res64", "res128", "res256"]:
-        for dset in datasets:
-            old_dir = os.path.join(root, res, dset)
-            new_dir_root = os.path.join(root, "processed_raw", res)
-            if not os.path.exists(new_dir_root):
-                os.makedirs(new_dir_root)
-            new_dir = os.path.join(new_dir_root, dset)
-            shutil.move(old_dir, new_dir)
+    if move_datasets:
+        root = "/home/vib9/src/MegaMedical/processed"
+        for res in ["res64", "res128", "res256"]:
+            for dset in datasets:
+                old_dir = os.path.join(root, res, dset)
+                new_dir_root = os.path.join(root, "processed_raw", res)
+                if not os.path.exists(new_dir_root):
+                    os.makedirs(new_dir_root)
+                new_dir = os.path.join(new_dir_root, dset)
+                shutil.move(old_dir, new_dir)
+    
+    dataset_objects = [utils.build_dataset(ds) for ds in datasets]
+    
+    for do in dataset_objects:
+        subdset_names = list(do.dset_info.keys())
+        for subdset in subdset_names:    
+            make_splits(do,
+                        subdset,
+                        resolutions=[64, 128, 256],
+                        version="4.0",
+                        amount_training=0.7,
+                        save=True)
         
     thunder.reprocess_hierarchy(force,
                                 max_workers,
                                 suppress_exceptions,
                                 dry_run,
-                                
                                 version)
     
     source_dir = "/home/vib9/src/MegaMedical/processed/lmdb_processed/4.1"
