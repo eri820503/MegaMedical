@@ -1,9 +1,9 @@
 import os
 
 paths = {
-    "ROOT": "/home/vib9/src/MegaMedical",
-    "DATA": "/home/vib9/src/MegaMedical/megamedical/datasets",
-    "PROC": "/home/vib9/src/MegaMedical/processed"
+    "ROOT": "/data/ddmg/users/vbutoi/MegaMedical",
+    "DATA": "/storage/megamedical/v4-raw/raw_data",
+    "PROC": "/storage/megamedical/processed"
 }
 
 list_of_datasets = os.listdir(paths["DATA"])

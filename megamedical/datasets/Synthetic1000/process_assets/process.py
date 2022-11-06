@@ -9,21 +9,21 @@ from megamedical.src import preprocess_scripts as pps
 from megamedical.utils.registry import paths
 from megamedical.utils import proc_utils as put
 
-class Synthetic:
+class Synthetic1000:
 
     def __init__(self):
-        self.name = "Synthetic"
+        self.name = "Synthetic1000"
         self.dset_info = {
             task_name:{
-                "main":"Synthetic",
-                "image_root_dir": f"{paths['DATA']}/Synthetic/original_unzipped/{task_name}/imgs",
-                "label_root_dir": f"{paths['DATA']}/Synthetic/original_unzipped/{task_name}/segs",
+                "main":"Synthetic1000",
+                "image_root_dir": f"{paths['DATA']}/Synthetic1000/original_unzipped/{task_name}/imgs",
+                "label_root_dir": f"{paths['DATA']}/Synthetic1000/original_unzipped/{task_name}/segs",
                 "modality_names": ["Synthetic"],
                 "planes": [0],
                 "clip_args": None,
                 "norm_scheme": None
             }
-            for task_name in os.listdir(f"{paths['DATA']}/Synthetic/original_unzipped")
+            for task_name in os.listdir(f"{paths['DATA']}/Synthetic1000/original_unzipped")
         }
 
     def proc_func(self,
@@ -41,7 +41,7 @@ class Synthetic:
                   redo_processed=True):
         assert not(version is None and save), "Must specify version for saving."
         assert subdset in self.dset_info.keys(), "Sub-dataset must be in info dictionary."
-        proc_dir = os.path.join(paths['ROOT'], "processed")
+        proc_dir = paths['PROC']
         image_list = sorted(os.listdir(self.dset_info[subdset]["image_root_dir"]))
         subj_dict, res_dict = proc.process_image_list(process_Synthetic_image,
                                                       proc_dir,
@@ -88,7 +88,7 @@ def process_Synthetic_image(item):
             loaded_label = np.load(label_dir)
 
         # Set the name to be saved
-        subj_name = item['image'].split(".")[0]
+        subj_name = item['image']
         pps_function = item['pps_function']
         proc_return = pps_function(item['proc_dir'],
                                     item['version'],

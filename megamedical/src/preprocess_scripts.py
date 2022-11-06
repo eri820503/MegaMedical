@@ -8,7 +8,7 @@ from collections import Counter
 from megamedical.utils.registry import paths
 from megamedical.utils.proc_utils import *
 
-    
+
 def produce_slices(root_dir,
                    version,
                    subdset,
@@ -20,7 +20,7 @@ def produce_slices(root_dir,
                    save,
                    show_hists,
                    show_imgs):
-    
+
     for idx, mode in enumerate(dset_info["modality_names"]):
         #Extract the modality if it exists (mostly used for MSD)
         if len(dset_info["modality_names"]) != 1:
@@ -32,8 +32,8 @@ def produce_slices(root_dir,
             display_histogram(modality_loaded_image.flatten())
 
         #clip volume between prespecified values
-        modality_loaded_image = clip_volume(modality_loaded_image, 
-                                            dset_info["norm_scheme"], 
+        modality_loaded_image = clip_volume(modality_loaded_image,
+                                            dset_info["norm_scheme"],
                                             dset_info["clip_args"])
 
         if show_hists:
@@ -54,7 +54,7 @@ def produce_slices(root_dir,
         if show_imgs:
             for plane in dset_info["planes"]:
                 display_processing_slices(square_image, square_label, plane)
-        
+
         for res in resolutions:
             # Get all of the labels in the volume population, note that the first index tracks the number
             # of subjects.
@@ -66,7 +66,7 @@ def produce_slices(root_dir,
             #final segmentations are with labels in the last dimension
             if len(square_image.shape) == 2:
                 seg_res = np.zeros((res, res, len(unique_labels)))
-            else:     
+            else:
                 seg_res = np.zeros((res, res, res, len(unique_labels)))
 
             #go through unique labels and add to slices
@@ -98,8 +98,8 @@ def produce_slices(root_dir,
                 #Save each type of file
                 save_maxslice(max_save_dir, image_res, seg_res, subdset, mode, save_name, dset_info["planes"], max_slices)
                 save_midslice(mid_save_dir, image_res, seg_res, subdset, mode, save_name, dset_info["planes"])
-                
-                
+
+
 # Produce the "all label" matrices for each resolution
 # and per label statistics for an entire dataset.
 def gather_population_statistics(data_obj,
@@ -109,7 +109,7 @@ def gather_population_statistics(data_obj,
                                  parallelize,
                                  redo_processed,
                                  save):
-      
+
     # total_label_info is a dictionary that is structed like the following
     # total_label_info
     # - resolution (64, 128, 256, etc.)
@@ -129,18 +129,18 @@ def gather_population_statistics(data_obj,
                        show_hists=False,
                        resolutions=resolutions,
                        redo_processed=redo_processed)
-    
-    
+
+
     for res in resolutions:
         subdset_res_root = os.path.join(paths["PROC"], f"res{res}", data_obj.name, "label_info", subdset)
-        
+
         subj_label_file_dir = os.path.join(subdset_res_root, "pop_info_files")
         res_processed_subjs = [subj_name.replace('.pickle', '') for subj_name in os.listdir(subj_label_file_dir)]
         res_label_info = [load_obj(os.path.join(subj_label_file_dir, subj_name)) for subj_name in os.listdir(subj_label_file_dir)]
         num_subjects = len(res_label_info)
         midslice_label_info = [li["midslice"] for li in res_label_info]
         maxslice_label_info = [li["maxslice"] for li in res_label_info]
-        
+
         # get all possible labels
         unique_labels = np.load(os.path.join(subdset_res_root, "all_labels.npy")).tolist()
 
@@ -148,23 +148,23 @@ def gather_population_statistics(data_obj,
         label_map = {lab: unique_labels.index(lab) for lab in unique_labels}
 
         slice_info_set = {
-            "midslice": midslice_label_info, 
+            "midslice": midslice_label_info,
             "maxslice": maxslice_label_info
         }
-        
+
         num_unique_labels = len(unique_labels)
         for slice_type in slice_info_set.keys():
-            
+
             for plane in data_obj.dset_info[subdset]["planes"]:
-                
+
                 label_info_array = np.zeros((num_subjects, num_unique_labels))
-                
+
                 for subj_idx, slice_info in enumerate(slice_info_set[slice_type]):
-                    
+
                     for l_idx in range(num_unique_labels):
-                                           
+
                         label_info_array[subj_idx, l_idx] = slice_info[plane][l_idx]
-                                           
+
                 if save:
                     dict_dir = os.path.join(subdset_res_root, f"{slice_type}_pop_lab_amount_{plane}")
                     dict_pair = {
@@ -183,10 +183,10 @@ def gather_unique_labels(data_obj,
                          parallelize,
                          redo_processed,
                          save):
-    save_dirs = [os.path.join(os.path.join(paths['ROOT'], "processed"), f"res{res}", data_obj.name, "label_info", subdset, "all_labels.npy") for res in resolutions]
+    save_dirs = [os.path.join(paths['PROC'], f"res{res}", data_obj.name, "label_info", subdset, "all_labels.npy") for res in resolutions]
     if (not redo_processed) and np.all([os.path.exists(save_dir) for save_dir in save_dirs]):
         return
-        
+
     proc_dir, processed_subjects, resolution_label_dict = data_obj.proc_func(subdset=subdset,
                                                                              task="labels",
                                                                              pps_function=get_all_unique_labels,
@@ -199,13 +199,13 @@ def gather_unique_labels(data_obj,
                                                                              show_hists=False,
                                                                              resolutions=resolutions,
                                                                              redo_processed=True
-                                                                             )                 
+                                                                             )
     for res in resolutions:
         total_label_info = resolution_label_dict[res]
         num_subjects = len(total_label_info)
         unique_labels = sorted(list(set([label for subj in total_label_info for label in subj])))
         if save and len(unique_labels) > 0:
-            save_dir = os.path.join(os.path.join(paths['ROOT'], "processed"), f"res{res}", data_obj.name, "label_info", subdset)
+            save_dir = os.path.join(paths['PROC'], f"res{res}", data_obj.name, "label_info", subdset)
             if not os.path.exists(save_dir):
                 os.makedirs(save_dir)
             all_label_dir = os.path.join(save_dir, "all_labels.npy")

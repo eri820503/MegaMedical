@@ -1,7 +1,6 @@
 import seaborn as sns
 import os
 from tqdm.notebook import tqdm_notebook
-import universandbox as usd
 import numpy as np
 
 from megamedical.utils.registry import paths
@@ -55,6 +54,8 @@ def vis_dataset(datasets,
                 size=3,
                 minimum_label=0,
                 version="4.0"):
+    import universandbox as usd
+    
     if datasets == "all":
         datasets = os.listdir(paths["DATA"])
         
