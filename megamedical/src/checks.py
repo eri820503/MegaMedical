@@ -20,9 +20,8 @@ def verify_dataset(data_object,
                         if len(missing) > 0:
                             print(proc_dir)
 
-                    
 def get_splits(root, dataset, group):
     return {
         split: autoload(os.path.join(root, f"{dataset}__{group}__{split}.txt"))
         for split in ("train", "val", "test")
-    }                   
+    }
