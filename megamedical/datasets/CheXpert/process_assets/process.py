@@ -11,10 +11,10 @@ from megamedical.utils.registry import paths
 from megamedical.utils import proc_utils as put
 
 
-class WBC:
+class CheXpert:
 
     def __init__(self):
-        self.name = "WBC"
+        self.name = "ChexPert"
         self.dset_info = {
             "CV":{
                 "main": "WBC",
@@ -72,8 +72,8 @@ class WBC:
                                                       save)
         if accumulate:
             return proc_dir, subj_dict, res_dict
-        
-        
+
+
 global process_WBC_image
 def process_WBC_image(item):
     dset_info = item['dset_info']
@@ -82,7 +82,7 @@ def process_WBC_image(item):
     item['image'] = file_name.split(".")[0]
     rtp = item["resolutions"] if item['redo_processed'] else put.check_proc_res(item)
     if len(rtp) > 0:
-        im_dir = os.path.join(dset_info[item['subdset']]["image_root_dir"], file_name) 
+        im_dir = os.path.join(dset_info[item['subdset']]["image_root_dir"], file_name)
         label_dir = os.path.join(dset_info[item['subdset']]["label_root_dir"], file_name.replace("bmp", "png"))
 
         if item['load_images']:
@@ -100,7 +100,7 @@ def process_WBC_image(item):
         proc_return = pps_function(item['proc_dir'],
                                     item['version'],
                                     item['subdset'],
-                                    subj_name, 
+                                    subj_name,
                                     loaded_image,
                                     loaded_label,
                                     dset_info[item['subdset']],
