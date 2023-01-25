@@ -1,8 +1,7 @@
 #Concurrency
 from concurrent.futures import ProcessPoolExecutor
 #Progress vis
-from tqdm.notebook import tqdm_notebook
-
+from tqdm import tqdm_notebook
 
 def process_image_list(process_DATASET_image,
                        proc_dir,
@@ -22,11 +21,11 @@ def process_image_list(process_DATASET_image,
                        accumulate,
                        save,
                        preloaded_images=None,
-                       preloaded_labels=None): 
-    
+                       preloaded_labels=None):
+
     item_list = [{
                   "image": image,
-                  "task": task, 
+                  "task": task,
                   "pps_function": pps_function,
                   "resolutions": resolutions,
                   "proc_dir": proc_dir,
@@ -42,13 +41,13 @@ def process_image_list(process_DATASET_image,
                   "image_array": preloaded_images,
                   "label_array": preloaded_labels
                   } for image in image_list]
-    
+
     res_dict = {res:[] for res in resolutions}
     subj_dict = {res:[] for res in resolutions}
-    
+
     if parallelize:
         with ProcessPoolExecutor(max_workers=16) as executor:
-            for (proc_return, subj_name) in tqdm_notebook(executor.map(process_DATASET_image, item_list), 
+            for (proc_return, subj_name) in tqdm_notebook(executor.map(process_DATASET_image, item_list),
                                                           total=len(item_list),
                                                           desc=f'Processing: {subdset}'):
                 if accumulate and subj_name is not None:
@@ -61,6 +60,6 @@ def process_image_list(process_DATASET_image,
             if accumulate and subj_name is not None:
                 for res in resolutions:
                     res_dict[res].append(proc_return[res])
-                    subj_dict[res].append(subj_name)  
-    
+                    subj_dict[res].append(subj_name)
+
     return subj_dict, res_dict

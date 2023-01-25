@@ -1,1 +1,1 @@
-from .process import WBC
+from .process import ISIC

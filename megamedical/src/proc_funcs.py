@@ -1,7 +1,7 @@
-import numpy as np 
-import submitit 
-import math 
-import matplotlib.pyplot as plt 
+import numpy as np
+import submitit
+import math
+import matplotlib.pyplot as plt
 import shutil
 import os
 import pandas as pd
@@ -18,7 +18,7 @@ import megamedical.utils as utils
 
 
 # Combined function of processing ["labels","stats","images","splits"]
-def combined_pipeline_process(steps, 
+def combined_pipeline_process(steps,
                               do,
                               subdset,
                               version,
@@ -37,7 +37,7 @@ def combined_pipeline_process(steps,
                                  parallelize=parallelize,
                                  redo_processed=redo_processed,
                                  save=save)
-        
+
     if "stats" in steps:
         print(f"Generating Pop Stats for Dataset: {do.name}, Subdset: {subdset}")
         # Get population label matrices, subj list
@@ -48,7 +48,7 @@ def combined_pipeline_process(steps,
                                          parallelize=parallelize,
                                          redo_processed=redo_processed,
                                          save=save)
-    
+
     if "images" in steps:
         print(f"Processing Images for Dataset: {do.name}, Subdset: {subdset}")
         # Process Images
@@ -63,7 +63,7 @@ def combined_pipeline_process(steps,
                      show_hists=False,
                      resolutions=resolutions,
                      redo_processed=redo_processed)
-    
+
     if "splits" in steps:
         print(f"Making Training Splits for Dataset: {do.name}, Subdset: {subdset}")
         # Make training splits
@@ -75,8 +75,8 @@ def combined_pipeline_process(steps,
                     save=save)
     # Finished
     print(f"Done with Dataset: {do.name}, Subdset: {subdset}!")
-        
-        
+
+
 # High level function, can do process all at once.
 def process_pipeline(steps,
                      datasets,
@@ -92,10 +92,10 @@ def process_pipeline(steps,
                      timeout=540,
                      mem_gb=32,
                      parallelize=False):
-    
+
     if datasets == "all":
         datasets = os.listdir(paths["DATA"])
-    
+
     # Avoid double processing
     if ignore_datasets:
         for dset in ignore_datasets:
@@ -130,17 +130,17 @@ def process_pipeline(steps,
                                               subdset,
                                               version,
                                               resolutions,
-                                              parallelize, 
+                                              parallelize,
                                               redo_processed,
                                               train_split,
                                               save)
-        
-        
-# Middle step of processing, actually process the images:       
+
+
+# Middle step of processing, actually process the images:
 def process_dataset(datasets,
                     subdsets=None,
                     save=False,
-                    slurm=False, 
+                    slurm=False,
                     show_imgs=False,
                     redo_processed=True,
                     resolutions=[64, 128, 256],
@@ -151,15 +151,15 @@ def process_dataset(datasets,
                     parallelize=False):
     assert not (parallelize and show_imgs) or (parallelize and show_hists), "Parallelization disabled for showing graphics."
     assert not (slurm and show_imgs), "If you are submitting slurm no vis."
-    
+
     load_images = True
     accumulate = False
-    
+
     if datasets == "all":
         datasets = os.listdir(paths["DATA"])
-    
+
     dataset_objects = [utils.build_dataset(ds) for ds in datasets]
-    
+
     for do in dataset_objects:
         subdset_names = list(do.dset_info.keys()) if subdsets is None else subdsets
         for subdset in subdset_names:
@@ -173,7 +173,7 @@ def process_dataset(datasets,
                 task = "images"
                 job = executor.submit(do.proc_func,
                                       subdset,
-                                      task, 
+                                      task,
                                       pps.produce_slices,
                                       parallelize,
                                       load_images,
@@ -187,7 +187,7 @@ def process_dataset(datasets,
             else:
                 task = "images"
                 do.proc_func(subdset,
-                             task, 
+                             task,
                              pps.produce_slices,
                              parallelize,
                              load_images,
@@ -198,8 +198,8 @@ def process_dataset(datasets,
                              show_hists,
                              resolutions,
                              redo_processed)
-                
-                
+
+
 # Middle step of processing, determine the label statistics of a dataset.
 def generate_population_statistics(datasets,
                                   subdsets=None,
@@ -211,7 +211,7 @@ def generate_population_statistics(datasets,
                                   mem_gb=16,
                                   redo_processed=True,
                                   parallelize=False):
-    
+
     if datasets == "all":
         datasets = os.listdir(paths["DATA"])
 
@@ -244,7 +244,7 @@ def generate_population_statistics(datasets,
                                                  redo_processed,
                                                  save)
 
-                
+
 # First step of processing, determine the unique labels of a dataset.
 def generate_unique_label_files(datasets,
                               subdsets=None,
@@ -256,12 +256,12 @@ def generate_unique_label_files(datasets,
                               timeout=180,
                               mem_gb=16,
                               parallelize=False):
-    
+
     if datasets == "all":
         datasets = os.listdir(paths["DATA"])
 
     dataset_objects = [utils.build_dataset(ds) for ds in datasets]
-                                             
+
     for do in dataset_objects:
         subdset_names = list(do.dset_info.keys()) if subdsets is None else subdsets
         for subdset in subdset_names:
@@ -288,17 +288,17 @@ def generate_unique_label_files(datasets,
                                          parallelize,
                                          redo_processed,
                                          save)
-                    
+
 # Table for getting current status of processing
 def get_processing_status(datasets,
                           hide_disfunctional=True,
                           version="4.0"):
-    
+
     if datasets == "all":
         datasets = os.listdir(paths["DATA"])
-    
+
     dataset_objects = [utils.build_dataset(ds) for ds in datasets]
-    
+
     dp_objects = []
     for do in dataset_objects:
         for subset in do.dset_info.keys():
@@ -359,12 +359,12 @@ def make_splits(data_obj,
                 version="4.0",
                 amount_training=0.7,
                 save=False):
-    
+
     proc_raw_root = os.path.join(paths["PROC"], "processed_raw")
     split_files_dir = os.path.join(proc_raw_root, "split_files")
     if not os.path.exists(split_files_dir):
         os.makedirs(split_files_dir)
-    
+
     res_proc_subjs = []
     for res in resolutions:
         for dset_type in ["midslice_v4.0", "maxslice_v4.0"]:
@@ -372,7 +372,7 @@ def make_splits(data_obj,
 
     res_num_subjs = (np.array(res_proc_subjs) == res_proc_subjs[0])
     assert np.all(res_num_subjs), "Make sure all things are equivalently processed."
-    
+
     # Default to res64 and dset type midslice_v4.0
     subjects = np.array(utils.proc_utils.get_list_of_subjects(proc_raw_root, 64, "midslice_v4.0", data_obj.name, subdset))
 
@@ -391,10 +391,10 @@ def make_splits(data_obj,
 
     names_dict = {
         "train": subjects[train_indices],
-        "val": subjects[val_indices], 
+        "val": subjects[val_indices],
         "test": subjects[test_indices]
     }
-    
+
     if save:
         for split in ["train", "val", "test"]:
             split_file = open(os.path.join(split_files_dir, f"{data_obj.name}__{subdset}__{split}.txt"), "w")
@@ -402,30 +402,30 @@ def make_splits(data_obj,
                 split_file.write(file_name + "\n")
             split_file.close()
 
-                
+
 # get rid of processed datasets
 def flush_processed_datasets(datasets):
-    
+
     if datasets == "all":
         confirmation = input("Are you SURE. Y/y:")
-        if confirmation in ["y", "Y"]:   
+        if confirmation in ["y", "Y"]:
             datasets = os.listdir(paths["DATA"])
         else:
-            return 0 
-    
+            return 0
+
     dataset_objects = [utils.build_dataset(ds) for ds in datasets]
-    
+
     for do in dataset_objects:
         for res in ["res64", "res128", "res256"]:
             res_dir = os.path.join(paths["PROC"], res, do.name)
             if os.path.exists(res_dir):
                 shutil.rmtree(res_dir)
-    
+
             split_files = glob.glob(os.path.join(paths["PROC"], "split_files", f"{res}__{do.name}*"))
             for sf in split_files:
                 os.remove(sf)
-    
-    
+
+
 # get rid of processed datasets
 def replace_label_file(dataset,
                        subset,
@@ -438,18 +438,18 @@ def replace_label_file(dataset,
 # get rid of processed datasets
 def check_datasets(datasets,
                    subdsets=None):
-    
+
     if datasets == "all":
         datasets = os.listdir(paths["DATA"])
 
     dataset_objects = [utils.build_dataset(ds) for ds in datasets]
-    
+
     for do in dataset_objects:
         subdset_names = list(do.dset_info.keys()) if subdsets is None else subdsets
         for subdset in subdset_names:
             check.verify_dataset(do, subdset)
-            
-            
+
+
 # get rid of processed datasets
 def thunderify_datasets(datasets,
                         move_datasets,
@@ -461,7 +461,7 @@ def thunderify_datasets(datasets,
                         version=4.1,
                         clean_dirs=True):
     assert export_name != "", "Must have non-empty export name."
-    
+
     if move_datasets:
         root = "/home/vib9/src/MegaMedical/processed"
         for res in ["res64", "res128", "res256"]:
@@ -472,25 +472,25 @@ def thunderify_datasets(datasets,
                     os.makedirs(new_dir_root)
                 new_dir = os.path.join(new_dir_root, dset)
                 shutil.move(old_dir, new_dir)
-    
+
     dataset_objects = [utils.build_dataset(ds) for ds in datasets]
-    
+
     for do in dataset_objects:
         subdset_names = list(do.dset_info.keys())
-        for subdset in subdset_names:    
+        for subdset in subdset_names:
             make_splits(do,
                         subdset,
                         resolutions=[64, 128, 256],
                         version="4.0",
                         amount_training=0.7,
                         save=True)
-        
+
     thunder.reprocess_hierarchy(force,
                                 max_workers,
                                 suppress_exceptions,
                                 dry_run,
                                 version)
-    
+
     source_dir = "/home/vib9/src/MegaMedical/processed/lmdb_processed/4.1"
     output_filename = f"/home/vib9/src/MegaMedical/processed/lmdb_processed/{export_name}"
     with tarfile.open(output_filename, "w:gz") as tar:
